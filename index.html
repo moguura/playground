@@ -11,18 +11,29 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* コンテナ：中央配置 */
-    .container {
-      position: relative;
-      width: 90%;
-      max-width: 800px;
-      background-color: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      margin: 0 auto; /* 中央寄せ */
-    }
+    html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* コンテナ：画面中央配置 */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直方向の中央寄せ */
+  align-items: center;     /* 水平方向の中央寄せ */
+  min-height: 100vh;
+  width: 90%;
+  max-width: 800px;
+  background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* text-align: center;  ← こちらはお好みで残してもOKです */
+  margin: 0 auto; /* これがあってもなくても、上記のFlex指定なら中央寄せされます */
+}
+
     /* ヘッダー（タイトル） */
     .header {
       font-size: 2em;
