@@ -53,16 +53,17 @@
       background-color: #007BFF;
       color: #fff;
     }
-   .explanation-box {
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  background-color: #fafafa;
-  margin-bottom: 20px;
-  font-size: 1.5em;
-  text-align: left;
-  white-space: normal; /* pre-wrap から normal に変更 */
-}
+    /* 説明Box */
+    .explanation-box {
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: #fafafa;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      text-align: left;
+      white-space: normal;
+    }
     /* 問題用コンテナ */
     .question-container {
       margin-bottom: 30px;
@@ -128,12 +129,6 @@
     .submit-btn:hover {
       background-color: #0056b3;
     }
-    /* Submitボタン右下固定 */
-    .fixed {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-    }
     /* フェードアウト */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
@@ -165,7 +160,7 @@
       <div class="progress-step">13</div>
       <div class="progress-step">14</div>
     </div>
-    <!-- 初期表示：進捗バー不要の場合は「Test 2」と「Go to Next」ボタンのみ -->
+    <!-- 初期表示 -->
     <div id="content">
       <button id="goToNextBtn" class="submit-btn">Go to Next</button>
     </div>
@@ -217,8 +212,7 @@
       When you are ready, please press the <strong>"Go to Test"</strong> button.`
     };
     const explanationBox5 = {
-      text: `This is the end of Test 2.
-Please click the X at the top to close this tab.`,
+      text: `This is the end of Test 2. Please click the X at the top to close this tab.`,
       gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
@@ -260,7 +254,6 @@ Please click the X at the top to close this tab.`,
     }
 
     /* ========== ユーティリティ関数 ========= */
-    // シャッフル
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -268,7 +261,6 @@ Please click the X at the top to close this tab.`,
       }
       return array;
     }
-    // 音声シーケンス再生（1秒遅延してビープ音）
     function playSequence(audios, order, onComplete) {
       setTimeout(() => {
         const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
@@ -301,7 +293,6 @@ Please click the X at the top to close this tab.`,
         });
       }, 1000);
     }
-    // 進捗バー更新
     function updateProgress(stepNumber) {
       const steps = document.querySelectorAll('.progress-step');
       steps.forEach((step, idx) => {
@@ -314,30 +305,30 @@ Please click the X at the top to close this tab.`,
     }
 
     /* ========== UI表示用関数 ========= */
-    // 説明Box表示（説明ページ：ヘッダーは表示）
+    const content = document.getElementById("content"); // 使い回し
+
+    // 説明ページを表示（ヘッダーを表示）
     function showExplanation(text, buttonText, callback) {
-      // 説明ページではヘッダーを表示
       document.querySelector(".header").style.display = "block";
       document.getElementById("progressBar").style.display = "none";
       content.innerHTML = `
-    <div class="explanation-box">
-      ${text.trim().replace(/\n/g, "<br>")}
-    <div style="text-align: center; margin-top: 20px;">
-      <button id="nextButton" class="submit-btn">${buttonText}</button>
-    </div>
-  </div>
-`;
-
+        <div class="explanation-box">
+          ${text.trim().replace(/\n/g, "<br>")}
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="nextButton" class="submit-btn">${buttonText}</button>
+          </div>
+        </div>
+      `;
       document.getElementById("nextButton").addEventListener("click", () => {
         playClickSound();
         callback();
       });
     }
-    // 例題表示（問題形式：ヘッダー非表示）
+
+    // 例題を表示（問題形式：ヘッダー非表示）
     function showExample(exampleData, callbackAfterSubmit) {
-      document.querySelector(".header").style.display = "none"; // ヘッダー非表示
+      document.querySelector(".header").style.display = "none";
       document.getElementById("progressBar").style.display = "none";
-      const content = document.getElementById("content");
       content.innerHTML = `
         <div class="question-container">
           <div class="image-container">
@@ -358,6 +349,7 @@ Please click the X at the top to close this tab.`,
               <span>3rd</span>
             </label>
           </div>
+          <!-- 右寄せでボタンを配置 -->
           <div style="text-align: right; margin-top: 20px;">
             <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
@@ -377,12 +369,13 @@ Please click the X at the top to close this tab.`,
         callbackAfterSubmit();
       });
     }
-    // テスト問題表示（問題形式：ヘッダー非表示）
+
+    // テスト問題を表示（問題形式：ヘッダー非表示）
     let testResults = [];
     function showTestQuestion(questionData, callbackAfterSubmit) {
-      document.querySelector(".header").style.display = "none"; // ヘッダー非表示
+      document.querySelector(".header").style.display = "none";
       document.getElementById("progressBar").style.display = "flex";
-      const content = document.getElementById("content");
+
       const options = shuffle(["a", "b", "c"]);
       content.innerHTML = `
         <div class="question-container">
@@ -404,7 +397,10 @@ Please click the X at the top to close this tab.`,
               <span>3rd</span>
             </label>
           </div>
-          <button id="submitButton" class="submit-btn fixed" style="display:none;">Submit</button>
+          <!-- 例題と同じく、右寄せで配置 -->
+          <div style="text-align: right; margin-top: 20px;">
+            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
+          </div>
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
@@ -428,11 +424,9 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    /* ========== テスト終了時 ========== */
+    // テスト終了時
     function finishTest() {
-      // 進捗バー非表示
       document.getElementById("progressBar").style.display = "none";
-      const content = document.getElementById("content");
       content.innerHTML = `
         <div class="explanation-box" style="text-align:center;">
           <p style="margin-bottom: 20px; font-size: 1.4em;">
@@ -445,10 +439,9 @@ Please click the X at the top to close this tab.`,
       sendResultsToGoogleAppsScript(testResults);
     }
 
-    /* ========== テスト進行管理 ========== */
+    // テスト進行管理
     let currentTestIndex = 0;
     function startTestQuestions() {
-      // テスト問題開始時にヘッダーを非表示にする
       document.querySelector(".header").style.display = "none";
       currentTestIndex = 0;
       function nextQuestion() {
@@ -465,7 +458,7 @@ Please click the X at the top to close this tab.`,
       nextQuestion();
     }
 
-    /* ========== 全体フロー開始 ========== */
+    // 全体フロー開始
     function startFlow() {
       showExplanation(explanations.box1, "Go to Next", function() {
         showExplanation(explanations.box2, "Go to Example 1", function() {
@@ -482,9 +475,7 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    /* ========== Google Apps Script への送信関数 ==========
-       ※ 以下の URL は、あなたの Google Apps Script の Web アプリの URL に置き換えてください
-    */
+    // Google Apps Script への送信関数
     function sendResultsToGoogleAppsScript(data) {
       fetch("https://script.google.com/macros/s/AKfycbxPzw8izAuvqzzT6Co8lRwVtdDMgQ_spoFAqXUwU1cuciUiAjgFfMPzkKF9szAJgpSDFQ/exec", {
         method: "POST",
@@ -498,12 +489,11 @@ Please click the X at the top to close this tab.`,
       .catch(err => console.error("送信エラー:", err));
     }
 
-    /* ========== ページ読み込み時 ========== */
+    // ページ読み込み時
     document.addEventListener("DOMContentLoaded", () => {
       const goToNextBtn = document.getElementById("goToNextBtn");
       goToNextBtn.addEventListener("click", () => {
         playClickSound();
-        // 進捗バー初期化
         updateProgress(0);
         startFlow();
       });
