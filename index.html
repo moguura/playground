@@ -478,24 +478,25 @@
       sendResultsToGoogleAppsScript(testResults);
     }
 
-    // テスト進行管理
-    let currentTestIndex = 0;
-    function startTestQuestions() {
-      document.querySelector(".header").style.display = "none";
-      currentTestIndex = 0;
-      function nextQuestion() {
-        if (currentTestIndex >= testQuestions.length) {
-          finishTest();
-          return;
-        }
-        updateProgress(currentTestIndex + 1);
-        showTestQuestion(testQuestions[currentTestIndex], () => {
-          currentTestIndex++;
-          nextQuestion();
-        });
-      }
-      nextQuestion();
+   // テスト進行管理
+let currentTestIndex = 0;
+function startTestQuestions() {
+  testQuestions = shuffle(testQuestions); // ← この行を追加
+  document.querySelector(".header").style.display = "none";
+  currentTestIndex = 0;
+  function nextQuestion() {
+    if (currentTestIndex >= testQuestions.length) {
+      finishTest();
+      return;
     }
+    updateProgress(currentTestIndex + 1);
+    showTestQuestion(testQuestions[currentTestIndex], () => {
+      currentTestIndex++;
+      nextQuestion();
+    });
+  }
+  nextQuestion();
+}
 
     // 全体フロー開始
     function startFlow() {
