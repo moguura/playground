@@ -11,33 +11,28 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* ボディ全体の設定 */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    /* テスト全体のコンテナ */
+    /* コンテナ：中央配置 */
     .container {
+      position: relative;
       width: 90%;
       max-width: 800px;
       background-color: #fff;
       padding: 20px 30px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
-
-    /* 進捗バー */
+    /* ヘッダー（タイトル） */
+    .header {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    /* 進捗バー（テスト中のみ表示） */
     .progress-bar {
-      display: flex;
+      display: none; /* 初期は非表示 */
       justify-content: center;
       margin-bottom: 20px;
-      flex-wrap: wrap; /* 画面が狭い場合折り返し */
+      flex-wrap: wrap;
     }
     .progress-step {
       width: 30px;
@@ -57,8 +52,7 @@
       background-color: #007BFF;
       color: #fff;
     }
-
-    /* 説明Box（文字サイズ拡大） */
+    /* 説明Box：中央寄せ */
     .explanation-box {
       padding: 20px;
       border: 2px solid #ddd;
@@ -67,15 +61,15 @@
       margin-bottom: 20px;
       font-size: 1.5em;
       text-align: left;
-      white-space: pre-wrap; /* 改行をそのまま反映 */
+      white-space: pre-wrap;
     }
-
-    /* 各問題用のコンテナ */
+    /* 問題用コンテナ */
     .question-container {
       margin-bottom: 30px;
+      position: relative;
+      min-height: 300px;
     }
-
-    /* 画像表示用のコンテナ */
+    /* 画像表示 */
     .image-container {
       text-align: center;
       margin-bottom: 20px;
@@ -86,8 +80,7 @@
       object-fit: contain;
       border-radius: 4px;
     }
-
-    /* カスタムラジオボタン（ボタン風に） */
+    /* カスタムラジオボタン（ボタン風） */
     .radio-group {
       display: flex;
       justify-content: center;
@@ -95,7 +88,6 @@
       margin: 20px 0;
     }
     .radio-label {
-      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -110,7 +102,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .radio-label:hover {
-      background-color: #e0ebff; /* ホバー時に少し薄い青 */
+      background-color: #e0ebff;
     }
     .radio-label input {
       display: none;
@@ -121,8 +113,7 @@
       border-radius: 8px;
       padding: 5px 10px;
     }
-
-    /* ボタン（Go to, Submit）のサイズ・フォント拡大 */
+    /* ボタン（Go to, Submit） */
     .submit-btn {
       display: inline-block;
       background-color: #007BFF;
@@ -137,8 +128,13 @@
     .submit-btn:hover {
       background-color: #0056b3;
     }
-
-    /* フェードアウト用のアニメーション（任意） */
+    /* Submitボタン右下固定 */
+    .fixed {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+    }
+    /* フェードアウト */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
     }
@@ -150,7 +146,9 @@
 </head>
 <body>
   <div class="container">
-    <!-- 進捗バー（最初に14ステップ分を用意） -->
+    <!-- ヘッダー：Test 2 -->
+    <header class="header">Test 2</header>
+    <!-- 進捗バー（初期状態非表示） -->
     <div class="progress-bar" id="progressBar">
       <div class="progress-step">1</div>
       <div class="progress-step">2</div>
@@ -167,16 +165,14 @@
       <div class="progress-step">13</div>
       <div class="progress-step">14</div>
     </div>
-    <!-- 初期表示: 「Go to Next」ボタンのみ -->
-    <div id="content" style="text-align:center;">
+    <!-- 初期表示：進捗バー不要の場合は「Test 2」と「Go to Next」ボタンのみ -->
+    <div id="content">
       <button id="goToNextBtn" class="submit-btn">Go to Next</button>
     </div>
   </div>
 
   <script>
-    /* ==============================
-       1) サウンド再生用関数
-       ============================== */
+    /* ========== サウンド再生用 ========= */
     function playClickSound() {
       new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3").play();
     }
@@ -184,9 +180,7 @@
       new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3").play();
     }
 
-    /* ==============================
-       2) 説明文データ
-       ============================== */
+    /* ========== 説明文データ ========= */
     const explanations = {
       box1: `In this test, first look at the image.
 Then, listen to the three Japanese audio clips.
@@ -194,14 +188,14 @@ After listening, choose the audio clip that matches the image best.
 You can listen to each audio clip only once.
 
 Now, let's do an example together.
-Please press the \"Go to Next\" button.`,
+Please press the "Go to Next" button.`,
       
       box2: `Let's do Example 1.
 
 Example 1:
 Which audio clip correctly matches the image?
 First, look at the image.
-Make sure the image says \"Present\".
+Make sure the image says "Present".
 
 Next, listen to the audio clips.
 After the beep sound, you will hear three audio clips.
@@ -209,7 +203,7 @@ Choose the correct answer from these three audio clips.
 
 The correct answer for Example 1 is the first one.
 
-When you are ready, please press the \"Go to Example 1\" button.`,
+When you are ready, please press the "Go to Example 1" button.`,
       
       box3: `The correct answer for Example 1 is the first one.
 Even if you know the answer early, you cannot submit it until you finish listening to all three audio clips.
@@ -220,7 +214,7 @@ Example 2:
 Which audio clip correctly matches the image?
 
 First, look at the image.
-Make sure the image says \"Past\".
+Make sure the image says "Past".
 
 Next, listen to the audio clips.
 After the beep sound, you will hear three audio clips.
@@ -228,30 +222,26 @@ Choose the correct answer from these three audio clips.
 
 The correct answer for Example 2 is the third one.
 
-When you are ready, please press the \"Go to Example 2\" button.`,
+When you are ready, please press the "Go to Example 2" button.`,
       
       box4: `The correct answer for Example 2 is the third one.
 Even if you know the answer early, you cannot submit it until you finish listening to all three audio clips.
 
-Just like in Example 1 and Example 2, every image will have either \"Present\" or \"Yesterday\" written on it, so listen carefully.
+Just like in Example 1 and Example 2, every image will have either "Present" or "Yesterday" written on it, so listen carefully.
 
 There are a total of 14 questions in this test.
 You can only listen to each audio clip once.
 
 Now, let's begin the test.
-When you are ready, please press the \"Go to Test\" button.`
+When you are ready, please press the "Go to Test" button.`
     };
-
-    // テスト終了後に表示するBox5
     const explanationBox5 = {
       text: `This is the end of Test 2.
 Please click the X at the top to close this tab.`,
       gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
-    /* ==============================
-       3) 例題データ
-       ============================== */
+    /* ========== 例題データ ========= */
     const example1 = {
       image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG",
       audios: {
@@ -273,9 +263,7 @@ Please click the X at the top to close this tab.`,
       order: ["a", "b", "c"]
     };
 
-    /* ==============================
-       4) テスト問題データ（14問）
-       ============================== */
+    /* ========== テスト問題データ（14問） ========= */
     let testQuestions = [];
     for (let i = 1; i <= 14; i++) {
       testQuestions.push({
@@ -290,9 +278,7 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    /* ==============================
-       5) ユーティリティ関数
-       ============================== */
+    /* ========== ユーティリティ関数 ========= */
     // シャッフル
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -301,16 +287,9 @@ Please click the X at the top to close this tab.`,
       }
       return array;
     }
-
-    /**
-     * 音声シーケンス再生
-     *   - 1秒遅らせてビープ音を再生（前の問題のSubmit音と重ならないように）
-     *   - ビープ音終了後、順次音声を再生
-     */
+    // 音声シーケンス再生（1秒遅延してビープ音）
     function playSequence(audios, order, onComplete) {
-      // まず1秒待つ
       setTimeout(() => {
-        // ビープ音
         const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
         beep.play().then(() => {
           beep.onended = () => {
@@ -339,15 +318,12 @@ Please click the X at the top to close this tab.`,
           console.error("Beep playback error:", err);
           onComplete();
         });
-      }, 1000); // 1秒遅延
+      }, 1000);
     }
-
     // 進捗バー更新
     function updateProgress(stepNumber) {
-      // stepNumber は 1～14
       const steps = document.querySelectorAll('.progress-step');
       steps.forEach((step, idx) => {
-        // idx は 0～13
         if (idx < stepNumber) {
           step.classList.add('completed');
         } else {
@@ -356,11 +332,10 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    /* ==============================
-       6) UI表示用の関数
-       ============================== */
-    // 説明Box表示
+    /* ========== UI表示用関数 ========= */
+    // 説明Box表示（進捗バー非表示、中央寄せ）
     function showExplanation(text, buttonText, callback) {
+      document.getElementById("progressBar").style.display = "none";
       const content = document.getElementById("content");
       content.innerHTML = `
         <div class="explanation-box">
@@ -370,15 +345,14 @@ Please click the X at the top to close this tab.`,
           </div>
         </div>
       `;
-      const nextBtn = document.getElementById("nextButton");
-      nextBtn.addEventListener("click", () => {
+      document.getElementById("nextButton").addEventListener("click", () => {
         playClickSound();
         callback();
       });
     }
-
-    // 例題表示
+    // 例題表示（進捗バー非表示、Submit ボタンは右下固定）
     function showExample(exampleData, callbackAfterSubmit) {
+      document.getElementById("progressBar").style.display = "none";
       const content = document.getElementById("content");
       content.innerHTML = `
         <div class="question-container">
@@ -386,7 +360,7 @@ Please click the X at the top to close this tab.`,
             <img src="${exampleData.image}" alt="Example Image">
           </div>
           <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group" id="radioGroup">
+          <div class="radio-group">
             <label class="radio-label">
               <input type="radio" name="answer" value="${exampleData.correct === 'a' ? 'correct' : 'incorrect'}">
               <span>1st</span>
@@ -400,20 +374,15 @@ Please click the X at the top to close this tab.`,
               <span>3rd</span>
             </label>
           </div>
-          <div style="text-align: center; margin-top: 20px;">
-            <!-- 初期は表示しない -->
+          <div style="text-align: right; margin-top: 20px;">
             <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
-
-      // 固定順序で再生（1秒後ビープ音）
       playSequence(exampleData.audios, exampleData.order, () => {
-        // 音声再生完了後にボタンを表示
         submitButton.style.display = "inline-block";
       });
-
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
         if (!selected) {
@@ -424,12 +393,11 @@ Please click the X at the top to close this tab.`,
         callbackAfterSubmit();
       });
     }
-
-    // テスト問題表示
+    // テスト問題表示（進捗バー表示、Submit ボタン右下固定）
     let testResults = [];
     function showTestQuestion(questionData, callbackAfterSubmit) {
+      document.getElementById("progressBar").style.display = "flex";
       const content = document.getElementById("content");
-      // ランダム順序
       const options = shuffle(["a", "b", "c"]);
       content.innerHTML = `
         <div class="question-container">
@@ -437,7 +405,7 @@ Please click the X at the top to close this tab.`,
             <img src="${questionData.image}" alt="Test Question ${questionData.id}">
           </div>
           <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group" id="radioGroup">
+          <div class="radio-group">
             <label class="radio-label">
               <input type="radio" name="answer" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
               <span>1st</span>
@@ -451,20 +419,13 @@ Please click the X at the top to close this tab.`,
               <span>3rd</span>
             </label>
           </div>
-          <div style="text-align: center; margin-top: 20px;">
-            <!-- 初期は非表示 -->
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
+          <button id="submitButton" class="submit-btn fixed" style="display:none;">Submit</button>
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
-
-      // 1秒後ビープ音→順次再生
       playSequence(questionData.audios, options, () => {
-        // 3つの音声再生完了後にSubmitボタンを表示
         submitButton.style.display = "inline-block";
       });
-
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
         if (!selected) {
@@ -482,11 +443,10 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    /* ==============================
-       7) テスト終了時の処理
-       ============================== */
+    /* ========== テスト終了時 ========== */
     function finishTest() {
-      // ここでBox5を表示する
+      // 進捗バー非表示
+      document.getElementById("progressBar").style.display = "none";
       const content = document.getElementById("content");
       content.innerHTML = `
         <div class="explanation-box" style="text-align:center;">
@@ -496,24 +456,20 @@ Please click the X at the top to close this tab.`,
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
         </div>
       `;
+      // Google Apps Script へデータ送信
+      sendResultsToGoogleAppsScript(testResults);
     }
 
-    /* ==============================
-       8) テスト進行管理
-       ============================== */
+    /* ========== テスト進行管理 ========== */
     let currentTestIndex = 0;
     function startTestQuestions() {
       currentTestIndex = 0;
-      // 必要ならここで testQuestions = shuffle(testQuestions);
-
       function nextQuestion() {
         if (currentTestIndex >= testQuestions.length) {
           finishTest();
           return;
         }
-        // 進捗バー更新 (1-based で表示)
         updateProgress(currentTestIndex + 1);
-
         showTestQuestion(testQuestions[currentTestIndex], () => {
           currentTestIndex++;
           nextQuestion();
@@ -522,23 +478,14 @@ Please click the X at the top to close this tab.`,
       nextQuestion();
     }
 
-    /* ==============================
-       9) 全体のフロー開始
-       ============================== */
+    /* ========== 全体フロー開始 ========== */
     function startFlow() {
-      // Box1
       showExplanation(explanations.box1, "Go to Next", function() {
-        // Box2
         showExplanation(explanations.box2, "Go to Example 1", function() {
-          // Example1
           showExample(example1, function() {
-            // Box3
             showExplanation(explanations.box3, "Go to Example 2", function() {
-              // Example2
               showExample(example2, function() {
-                // Box4
                 showExplanation(explanations.box4, "Go to Test", function() {
-                  // テスト開始
                   startTestQuestions();
                 });
               });
@@ -548,12 +495,28 @@ Please click the X at the top to close this tab.`,
       });
     }
 
-    // ページ読み込み時
+    /* ========== Google Apps Script への送信関数 ==========
+       ※ 以下の URL は、あなたの Google Apps Script の Web アプリの URL に置き換えてください
+    */
+    function sendResultsToGoogleAppsScript(data) {
+      fetch("https://script.google.com/macros/s/AKfycbxPzw8izAuvqzzT6Co8lRwVtdDMgQ_spoFAqXUwU1cuciUiAjgFfMPzkKF9szAJgpSDFQ/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(json => console.log("送信結果:", json))
+      .catch(err => console.error("送信エラー:", err));
+    }
+
+    /* ========== ページ読み込み時 ========== */
     document.addEventListener("DOMContentLoaded", () => {
       const goToNextBtn = document.getElementById("goToNextBtn");
       goToNextBtn.addEventListener("click", () => {
         playClickSound();
-        // 進捗バーをリセット（全て未完了）
+        // 進捗バー初期化
         updateProgress(0);
         startFlow();
       });
