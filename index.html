@@ -62,7 +62,7 @@
       object-fit: contain;
       border-radius: 4px;
     }
-    /* カスタムラジオボタン（同じ幅・中央寄せ・丸み・選択時色変化） */
+    /* カスタムラジオボタン（ボタン風に） */
     .radio-group {
       display: flex;
       justify-content: center;
@@ -70,16 +70,22 @@
       margin: 20px 0;
     }
     .radio-label {
-      display: flex;
+      position: relative;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 120px;
-      padding: 10px;
+      padding: 10px 15px;
       font-size: 1.3em;
       border: 2px solid #007BFF;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+      background-color: #f0f0f0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .radio-label:hover {
+      background-color: #e0ebff; /* ホバー時に少し薄い青 */
     }
     .radio-label input {
       display: none;
@@ -256,37 +262,44 @@ Please click the X at the top to close this tab.`,
       return array;
     }
 
-    // 音声シーケンス再生
-    function playSequence(audios, order, onComplete, isTestPhase) {
-      // ビープ音
-      const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
-      beep.play().then(() => {
-        beep.onended = () => {
-          let index = 0;
-          function playNext() {
-            if (index < order.length) {
-              const key = order[index];
-              const audio = new Audio(audios[key]);
-              audio.play().then(() => {
-                audio.onended = () => {
+    /**
+     * 音声シーケンス再生
+     *   - 1秒遅らせてビープ音を再生（前の問題のSubmit音と重ならないように）
+     *   - ビープ音終了後、順次音声を再生
+     */
+    function playSequence(audios, order, onComplete) {
+      // まず1秒待つ
+      setTimeout(() => {
+        // ビープ音
+        const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
+        beep.play().then(() => {
+          beep.onended = () => {
+            let index = 0;
+            function playNext() {
+              if (index < order.length) {
+                const key = order[index];
+                const audio = new Audio(audios[key]);
+                audio.play().then(() => {
+                  audio.onended = () => {
+                    index++;
+                    setTimeout(playNext, 2000);
+                  };
+                }).catch(err => {
+                  console.error("Audio playback error:", err);
                   index++;
                   setTimeout(playNext, 2000);
-                };
-              }).catch(err => {
-                console.error("Audio playback error:", err);
-                index++;
-                setTimeout(playNext, 2000);
-              });
-            } else {
-              onComplete();
+                });
+              } else {
+                onComplete();
+              }
             }
-          }
-          playNext();
-        };
-      }).catch(err => {
-        console.error("Beep playback error:", err);
-        onComplete();
-      });
+            playNext();
+          };
+        }).catch(err => {
+          console.error("Beep playback error:", err);
+          onComplete();
+        });
+      }, 1000); // 1秒遅延
     }
 
     /* ==============================
@@ -339,10 +352,11 @@ Please click the X at the top to close this tab.`,
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
-      // 固定順序で再生
+
+      // 固定順序で再生（1秒後ビープ音）
       playSequence(exampleData.audios, exampleData.order, () => {
         submitButton.disabled = false;
-      }, false);
+      });
 
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
@@ -387,10 +401,10 @@ Please click the X at the top to close this tab.`,
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
-      // ランダム順序で再生
+      // 1秒後ビープ音→順次再生
       playSequence(questionData.audios, options, () => {
         submitButton.disabled = false;
-      }, true);
+      });
 
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
@@ -431,10 +445,8 @@ Please click the X at the top to close this tab.`,
        ============================== */
     let currentTestIndex = 0;
     function startTestQuestions() {
-      currentTestIndex = 0; // 念のため初期化
-      // テスト問題をランダム化する場合はここで
-      // testQuestions = shuffle(testQuestions);
-
+      currentTestIndex = 0;
+      // 必要ならここで testQuestions = shuffle(testQuestions);
       function nextQuestion() {
         if (currentTestIndex >= testQuestions.length) {
           finishTest();
