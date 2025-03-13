@@ -517,7 +517,8 @@ function startTestQuestions() {
 
     // Google Apps Script への送信関数
     function sendResultsToGoogleAppsScript(data) {
-      fetch("https://script.google.com/macros/s/AKfycbyd6NdEpNPBKAsUT8m3uHlmu6V5axzb4rhEfvJgXAn0kqtqgGQ1agFmpmmsJiFjNAWs_Q/exec", {
+       fetch("https://script.google.com/macros/s/AKfycbwBqUuXu3MkqArmM8sSn0Dl5xn_YWxwEd5xpLua0IPoLHtNejrhmaKGfmckvKLSY-lw/exec", {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json"
