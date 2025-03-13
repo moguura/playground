@@ -11,34 +11,36 @@
       padding: 0;
       box-sizing: border-box;
     }
+    /* ページ全体の設定 */
     html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
 
-/* コンテナ：画面中央配置 */
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* 垂直方向の中央寄せ */
-  align-items: center;     /* 水平方向の中央寄せ */
-  min-height: 100vh;
-  width: 90%;
-  max-width: 800px;
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  /* text-align: center;  ← こちらはお好みで残してもOKです */
-  margin: 0 auto; /* これがあってもなくても、上記のFlex指定なら中央寄せされます */
-}
+    /* コンテナ：画面中央配置 */
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* 垂直方向の中央寄せ */
+      align-items: center;     /* 水平方向の中央寄せ */
+      min-height: 100vh;
+      width: 90%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: 0 auto; /* 横方向の中央寄せ */
+    }
 
     /* ヘッダー（タイトル） */
     .header {
       font-size: 2em;
       margin-bottom: 20px;
+      text-align: center; /* 「Test 2」を中央寄せ */
     }
+
     /* 進捗バー（テスト中のみ表示） */
     .progress-bar {
       display: none; /* 初期は非表示 */
@@ -64,6 +66,7 @@
       background-color: #007BFF;
       color: #fff;
     }
+
     /* 説明Box */
     .explanation-box {
       padding: 20px;
@@ -71,16 +74,19 @@
       border-radius: 8px;
       background-color: #fafafa;
       margin-bottom: 20px;
-      font-size: 1.5em;
+      font-size: 1.3em;    /* 少し文字サイズを小さめに */
+      line-height: 1.4;    /* 行間を詰める */
       text-align: left;
       white-space: normal;
     }
+
     /* 問題用コンテナ */
     .question-container {
       margin-bottom: 30px;
       position: relative;
       min-height: 300px;
     }
+
     /* 画像表示 */
     .image-container {
       text-align: center;
@@ -92,6 +98,7 @@
       object-fit: contain;
       border-radius: 4px;
     }
+
     /* カスタムラジオボタン（ボタン風） */
     .radio-group {
       display: flex;
@@ -125,6 +132,7 @@
       border-radius: 8px;
       padding: 5px 10px;
     }
+
     /* ボタン（Go to, Submit） */
     .submit-btn {
       display: inline-block;
@@ -136,11 +144,13 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s;
+      opacity: 1; /* フェードイン前は非表示にする場合は別途対応 */
     }
     .submit-btn:hover {
       background-color: #0056b3;
     }
-    /* フェードアウト */
+
+    /* フェードアウト（既存） */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
     }
@@ -148,12 +158,22 @@
       from { opacity: 1; }
       to { opacity: 0; }
     }
+
+    /* フェードイン（新規追加） */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- ヘッダー：説明ページのみ表示。問題形式のページでは非表示にします -->
     <header class="header">Test 2</header>
+
     <!-- 進捗バー（初期状態非表示） -->
     <div class="progress-bar" id="progressBar">
       <div class="progress-step">1</div>
@@ -171,6 +191,7 @@
       <div class="progress-step">13</div>
       <div class="progress-step">14</div>
     </div>
+
     <!-- 初期表示 -->
     <div id="content">
       <button id="goToNextBtn" class="submit-btn">Go to Next</button>
@@ -272,6 +293,8 @@
       }
       return array;
     }
+
+    // 音声を順番に再生
     function playSequence(audios, order, onComplete) {
       setTimeout(() => {
         const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
@@ -304,6 +327,8 @@
         });
       }, 1000);
     }
+
+    // 進捗バー更新
     function updateProgress(stepNumber) {
       const steps = document.querySelectorAll('.progress-step');
       steps.forEach((step, idx) => {
@@ -316,28 +341,26 @@
     }
 
     /* ========== UI表示用関数 ========= */
-    const content = document.getElementById("content"); // 使い回し
+    const content = document.getElementById("content");
 
+    // 説明ページを表示（ヘッダーを表示）
     function showExplanation(text, buttonText, callback) {
-  // ヘッダーは表示
-  document.querySelector(".header").style.display = "block";
-  document.getElementById("progressBar").style.display = "none";
+      document.querySelector(".header").style.display = "block";
+      document.getElementById("progressBar").style.display = "none";
 
-  const content = document.getElementById("content");
-  // ↓ ここで replace(/\n/g, "<br>") を使わず、手動の <br> のみを反映
-  content.innerHTML = `
-    <div class="explanation-box">
-      ${text.trim()}
-      <div style="text-align: center; margin-top: 20px;">
-        <button id="nextButton" class="submit-btn">${buttonText}</button>
-      </div>
-    </div>
-  `;
-  document.getElementById("nextButton").addEventListener("click", () => {
-    playClickSound();
-    callback();
-  });
-}
+      content.innerHTML = `
+        <div class="explanation-box">
+          ${text.trim()}
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="nextButton" class="submit-btn">${buttonText}</button>
+          </div>
+        </div>
+      `;
+      document.getElementById("nextButton").addEventListener("click", () => {
+        playClickSound();
+        callback();
+      });
+    }
 
     // 例題を表示（問題形式：ヘッダー非表示）
     function showExample(exampleData, callbackAfterSubmit) {
@@ -363,7 +386,6 @@
               <span>3rd</span>
             </label>
           </div>
-          <!-- 右寄せでボタンを配置 -->
           <div style="text-align: right; margin-top: 20px;">
             <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
@@ -371,7 +393,9 @@
       `;
       const submitButton = document.getElementById("submitButton");
       playSequence(exampleData.audios, exampleData.order, () => {
+        // ボタンを表示 + フェードイン
         submitButton.style.display = "inline-block";
+        submitButton.classList.add("fade-in");
       });
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
@@ -411,7 +435,6 @@
               <span>3rd</span>
             </label>
           </div>
-          <!-- 例題と同じく、右寄せで配置 -->
           <div style="text-align: right; margin-top: 20px;">
             <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
@@ -419,7 +442,9 @@
       `;
       const submitButton = document.getElementById("submitButton");
       playSequence(questionData.audios, options, () => {
+        // ボタンを表示 + フェードイン
         submitButton.style.display = "inline-block";
+        submitButton.classList.add("fade-in");
       });
       submitButton.addEventListener("click", () => {
         const selected = document.querySelector('input[name="answer"]:checked');
@@ -444,7 +469,7 @@
       content.innerHTML = `
         <div class="explanation-box" style="text-align:center;">
           <p style="margin-bottom: 20px; font-size: 1.4em;">
-            ${explanationBox5.text.replace(/\n/g, "<br>")}
+            ${explanationBox5.text}
           </p>
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
         </div>
