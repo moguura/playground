@@ -53,17 +53,16 @@
       background-color: #007BFF;
       color: #fff;
     }
-    /* 説明Box：中央寄せ */
-    .explanation-box {
-      padding: 20px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      background-color: #fafafa;
-      margin-bottom: 20px;
-      font-size: 1.5em;
-      text-align: left;
-      white-space: pre-wrap;
-    }
+   .explanation-box {
+  padding: 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  text-align: left;
+  white-space: normal; /* pre-wrap から normal に変更 */
+}
     /* 問題用コンテナ */
     .question-container {
       margin-bottom: 30px;
@@ -320,15 +319,15 @@ Please click the X at the top to close this tab.`,
       // 説明ページではヘッダーを表示
       document.querySelector(".header").style.display = "block";
       document.getElementById("progressBar").style.display = "none";
-      const content = document.getElementById("content");
       content.innerHTML = `
-        <div class="explanation-box">
-          ${text.replace(/\n/g, "<br>")}
-          <div style="text-align: center; margin-top: 20px;">
-            <button id="nextButton" class="submit-btn">${buttonText}</button>
-          </div>
-        </div>
-      `;
+    <div class="explanation-box">
+      ${text.trim().replace(/\n/g, "<br>")}
+    <div style="text-align: center; margin-top: 20px;">
+      <button id="nextButton" class="submit-btn">${buttonText}</button>
+    </div>
+  </div>
+`;
+
       document.getElementById("nextButton").addEventListener("click", () => {
         playClickSound();
         callback();
