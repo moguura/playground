@@ -31,11 +31,33 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    /* ヘッダー（タイトルなど） */
-    .header {
-      text-align: center;
+
+    /* 進捗バー */
+    .progress-bar {
+      display: flex;
+      justify-content: center;
       margin-bottom: 20px;
+      flex-wrap: wrap; /* 画面が狭い場合折り返し */
     }
+    .progress-step {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #007BFF;
+      border-radius: 50%;
+      margin: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      background-color: #f0f0f0;
+      color: #333;
+      user-select: none;
+    }
+    .progress-step.completed {
+      background-color: #007BFF;
+      color: #fff;
+    }
+
     /* 説明Box（文字サイズ拡大） */
     .explanation-box {
       padding: 20px;
@@ -47,10 +69,12 @@
       text-align: left;
       white-space: pre-wrap; /* 改行をそのまま反映 */
     }
+
     /* 各問題用のコンテナ */
     .question-container {
       margin-bottom: 30px;
     }
+
     /* 画像表示用のコンテナ */
     .image-container {
       text-align: center;
@@ -62,6 +86,7 @@
       object-fit: contain;
       border-radius: 4px;
     }
+
     /* カスタムラジオボタン（ボタン風に） */
     .radio-group {
       display: flex;
@@ -96,6 +121,7 @@
       border-radius: 8px;
       padding: 5px 10px;
     }
+
     /* ボタン（Go to, Submit）のサイズ・フォント拡大 */
     .submit-btn {
       display: inline-block;
@@ -111,6 +137,7 @@
     .submit-btn:hover {
       background-color: #0056b3;
     }
+
     /* フェードアウト用のアニメーション（任意） */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
@@ -123,10 +150,23 @@
 </head>
 <body>
   <div class="container">
-    <!-- ヘッダーを「Test 2」に -->
-    <header class="header">
-      <h1>Test 2</h1>
-    </header>
+    <!-- 進捗バー（最初に14ステップ分を用意） -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-step">1</div>
+      <div class="progress-step">2</div>
+      <div class="progress-step">3</div>
+      <div class="progress-step">4</div>
+      <div class="progress-step">5</div>
+      <div class="progress-step">6</div>
+      <div class="progress-step">7</div>
+      <div class="progress-step">8</div>
+      <div class="progress-step">9</div>
+      <div class="progress-step">10</div>
+      <div class="progress-step">11</div>
+      <div class="progress-step">12</div>
+      <div class="progress-step">13</div>
+      <div class="progress-step">14</div>
+    </div>
     <!-- 初期表示: 「Go to Next」ボタンのみ -->
     <div id="content" style="text-align:center;">
       <button id="goToNextBtn" class="submit-btn">Go to Next</button>
@@ -302,6 +342,20 @@ Please click the X at the top to close this tab.`,
       }, 1000); // 1秒遅延
     }
 
+    // 進捗バー更新
+    function updateProgress(stepNumber) {
+      // stepNumber は 1～14
+      const steps = document.querySelectorAll('.progress-step');
+      steps.forEach((step, idx) => {
+        // idx は 0～13
+        if (idx < stepNumber) {
+          step.classList.add('completed');
+        } else {
+          step.classList.remove('completed');
+        }
+      });
+    }
+
     /* ==============================
        6) UI表示用の関数
        ============================== */
@@ -347,7 +401,8 @@ Please click the X at the top to close this tab.`,
             </label>
           </div>
           <div style="text-align: center; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" disabled>Submit</button>
+            <!-- 初期は表示しない -->
+            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
         </div>
       `;
@@ -355,7 +410,8 @@ Please click the X at the top to close this tab.`,
 
       // 固定順序で再生（1秒後ビープ音）
       playSequence(exampleData.audios, exampleData.order, () => {
-        submitButton.disabled = false;
+        // 音声再生完了後にボタンを表示
+        submitButton.style.display = "inline-block";
       });
 
       submitButton.addEventListener("click", () => {
@@ -396,14 +452,17 @@ Please click the X at the top to close this tab.`,
             </label>
           </div>
           <div style="text-align: center; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" disabled>Submit</button>
+            <!-- 初期は非表示 -->
+            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
           </div>
         </div>
       `;
       const submitButton = document.getElementById("submitButton");
+
       // 1秒後ビープ音→順次再生
       playSequence(questionData.audios, options, () => {
-        submitButton.disabled = false;
+        // 3つの音声再生完了後にSubmitボタンを表示
+        submitButton.style.display = "inline-block";
       });
 
       submitButton.addEventListener("click", () => {
@@ -437,7 +496,6 @@ Please click the X at the top to close this tab.`,
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
         </div>
       `;
-      // 必要なら testResults をサーバに送る処理などをここで追加
     }
 
     /* ==============================
@@ -447,11 +505,15 @@ Please click the X at the top to close this tab.`,
     function startTestQuestions() {
       currentTestIndex = 0;
       // 必要ならここで testQuestions = shuffle(testQuestions);
+
       function nextQuestion() {
         if (currentTestIndex >= testQuestions.length) {
           finishTest();
           return;
         }
+        // 進捗バー更新 (1-based で表示)
+        updateProgress(currentTestIndex + 1);
+
         showTestQuestion(testQuestions[currentTestIndex], () => {
           currentTestIndex++;
           nextQuestion();
@@ -491,6 +553,8 @@ Please click the X at the top to close this tab.`,
       const goToNextBtn = document.getElementById("goToNextBtn");
       goToNextBtn.addEventListener("click", () => {
         playClickSound();
+        // 進捗バーをリセット（全て未完了）
+        updateProgress(0);
         startFlow();
       });
     });
