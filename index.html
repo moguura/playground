@@ -11,18 +11,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
-     /* ボディ全体の設定 */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
     /* コンテナ：中央配置 */
     .container {
       position: relative;
@@ -33,7 +21,7 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       text-align: center;
-      margin: 0 auto; /* これを追加 */
+      margin: 0 auto; /* 中央寄せ */
     }
     /* ヘッダー（タイトル） */
     .header {
@@ -159,7 +147,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- ヘッダー：Test 2 -->
+    <!-- ヘッダー：説明ページのみ表示。問題形式のページでは非表示にします -->
     <header class="header">Test 2</header>
     <!-- 進捗バー（初期状態非表示） -->
     <div class="progress-bar" id="progressBar">
@@ -346,8 +334,10 @@ Please click the X at the top to close this tab.`,
     }
 
     /* ========== UI表示用関数 ========= */
-    // 説明Box表示（進捗バー非表示、中央寄せ）
+    // 説明Box表示（説明ページ：ヘッダーは表示）
     function showExplanation(text, buttonText, callback) {
+      // 説明ページではヘッダーを表示
+      document.querySelector(".header").style.display = "block";
       document.getElementById("progressBar").style.display = "none";
       const content = document.getElementById("content");
       content.innerHTML = `
@@ -363,8 +353,9 @@ Please click the X at the top to close this tab.`,
         callback();
       });
     }
-    // 例題表示（進捗バー非表示、Submit ボタンは右下固定）
+    // 例題表示（問題形式：ヘッダー非表示）
     function showExample(exampleData, callbackAfterSubmit) {
+      document.querySelector(".header").style.display = "none"; // ヘッダー非表示
       document.getElementById("progressBar").style.display = "none";
       const content = document.getElementById("content");
       content.innerHTML = `
@@ -406,9 +397,10 @@ Please click the X at the top to close this tab.`,
         callbackAfterSubmit();
       });
     }
-    // テスト問題表示（進捗バー表示、Submit ボタン右下固定）
+    // テスト問題表示（問題形式：ヘッダー非表示）
     let testResults = [];
     function showTestQuestion(questionData, callbackAfterSubmit) {
+      document.querySelector(".header").style.display = "none"; // ヘッダー非表示
       document.getElementById("progressBar").style.display = "flex";
       const content = document.getElementById("content");
       const options = shuffle(["a", "b", "c"]);
@@ -476,6 +468,8 @@ Please click the X at the top to close this tab.`,
     /* ========== テスト進行管理 ========== */
     let currentTestIndex = 0;
     function startTestQuestions() {
+      // テスト問題開始時にヘッダーを非表示にする
+      document.querySelector(".header").style.display = "none";
       currentTestIndex = 0;
       function nextQuestion() {
         if (currentTestIndex >= testQuestions.length) {
