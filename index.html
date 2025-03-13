@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日本語教育テスト</title>
+  <style>
+    /* リセット */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ボディ全体の設定 */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* テスト全体のコンテナ */
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ヘッダー（タイトルなど） */
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* 各問題用のコンテナ */
+    .question-container {
+      margin-bottom: 30px;
+    }
+
+    /* 画像表示用のコンテナ */
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .image-container img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    /* 音声再生用のオプション群 */
+    .audio-options {
+      margin-bottom: 20px;
+    }
+
+    .audio-options audio {
+      display: block;
+      margin: 10px auto;
+    }
+
+    /* ラジオボタン選択部分 */
+    .radio-group {
+      margin: 20px 0;
+    }
+
+    .radio-group label {
+      display: block;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .radio-group input[type="radio"] {
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .radio-group label:hover {
+      background-color: #f0f0f0;
+      border-color: #aaa;
+    }
+
+    /* Submitボタン */
+    .submit-btn {
+      display: inline-block;
+      background-color: #007BFF;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* フェードアウト用のアニメーション（問題移行時に使用） */
+    .fade-out {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>日本語教育テスト</h1>
+    </header>
+    
+    <!-- 例題セクション -->
+    <section id="examples">
+      <h2>例題</h2>
+      
+      <!-- 例 1 -->
+      <div class="example">
+        <h3>例 1</h3>
+        <div class="image-container">
+          <img src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-1.JPG" alt="例1の画像">
+        </div>
+        <div class="audio-options">
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-a.wav"></audio>
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-b.wav"></audio>
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-c.wav"></audio>
+        </div>
+      </div>
+      
+      <!-- 例 2 -->
+      <div class="example">
+        <h3>例 2</h3>
+        <div class="image-container">
+          <img src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-2.JPG" alt="例2の画像">
+        </div>
+        <div class="audio-options">
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-a.wav"></audio>
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-b.wav"></audio>
+          <audio controls src="https://raw.githubusercontent.com/moguura/my-images/main/rikai-rei-c.wav"></audio>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 20px;">
+        <button id="startTest" class="submit-btn">テスト開始</button>
+      </div>
+    </section>
+    
+    <!-- テスト問題セクション（開始時は非表示） -->
+    <section id="test" style="display: none;">
+      <div id="questionContent">
+        <!-- JavaScriptで1問ずつ動的に表示 -->
+      </div>
+    </section>
+    
+    <!-- 結果記録用の隠しフォーム -->
+    <form id="resultForm" style="display: none;">
+      <input type="hidden" name="startTime" id="startTime">
+      <input type="hidden" name="endTime" id="endTime">
+      <input type="hidden" name="answers" id="answers">
+      <input type="hidden" name="score" id="score">
+    </form>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let currentQuestionIndex = 0;
+      let results = [];
+      let questions = [];
+      let startTime, endTime;
+
+      // 16問の問題データを生成（各問題の正解は常に-a.wav）
+      for (let i = 1; i <= 16; i++) {
+        questions.push({
+          id: i,
+          image: `https://raw.githubusercontent.com/moguura/my-images/main/rikai-${i}.JPG`,
+          audios: {
+            a: `https://raw.githubusercontent.com/moguura/my-images/main/rikai-${i}-a.wav`,
+            b: `https://raw.githubusercontent.com/moguura/my-images/main/rikai-${i}-b.wav`,
+            c: `https://raw.githubusercontent.com/moguura/my-images/main/rikai-${i}-c.wav`
+          }
+        });
+      }
+
+      // Fisher–Yatesのシャッフル関数
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          let j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      // 問題全体をランダム化
+      questions = shuffle(questions);
+
+      const startTestButton = document.getElementById("startTest");
+      startTestButton.addEventListener("click", function() {
+        // テスト開始時刻を記録
+        startTime = new Date();
+        document.getElementById("startTime").value = startTime.toISOString();
+
+        // 例題セクションを非表示、テストセクションを表示
+        document.getElementById("examples").style.display = "none";
+        document.getElementById("test").style.display = "block";
+
+        // 最初の問題を表示
+        loadQuestion();
+      });
+
+      // 各問題を表示する関数
+      function loadQuestion() {
+        const questionContent = document.getElementById("questionContent");
+        // 前の問題をクリア
+        questionContent.innerHTML = "";
+
+        if (currentQuestionIndex >= questions.length) {
+          finishTest();
+          return;
+        }
+
+        const currentQuestion = questions[currentQuestionIndex];
+
+        // 問題全体のコンテナ
+        const questionDiv = document.createElement("div");
+        questionDiv.classList.add("question-container");
+
+        // 画像表示部分
+        const imgDiv = document.createElement("div");
+        imgDiv.classList.add("image-container");
+        const img = document.createElement("img");
+        img.src = currentQuestion.image;
+        img.alt = `問題${currentQuestion.id}の画像`;
+        imgDiv.appendChild(img);
+        questionDiv.appendChild(imgDiv);
+
+        // 音声選択肢のコンテナ
+        const audioContainer = document.createElement("div");
+        audioContainer.classList.add("audio-options");
+
+        // 音声選択肢の配列を用意（正解は-a.wav）
+        const audioOptions = [
+          { label: "A", url: currentQuestion.audios.a, isCorrect: true },
+          { label: "B", url: currentQuestion.audios.b, isCorrect: false },
+          { label: "C", url: currentQuestion.audios.c, isCorrect: false }
+        ];
+        // 各問題内でもランダムな順番にする
+        shuffle(audioOptions);
+
+        // ラジオボタン用のコンテナ
+        const radioGroupDiv = document.createElement("div");
+        radioGroupDiv.classList.add("radio-group");
+
+        // 各選択肢について、音声再生用要素とラジオボタンを生成
+        audioOptions.forEach((option, index) => {
+          // 音声要素の作成
+          const audioEl = document.createElement("audio");
+          audioEl.controls = true;
+          audioEl.src = option.url;
+          // 正解情報をdata属性に保持
+          audioEl.dataset.isCorrect = option.isCorrect;
+          audioContainer.appendChild(audioEl);
+
+          // ラジオボタンの作成
+          const label = document.createElement("label");
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = "answer";
+          // 正解の場合は"value"に"correct"、それ以外は"incorrect"を設定
+          radio.value = option.isCorrect ? "correct" : "incorrect";
+          label.appendChild(radio);
+          label.appendChild(document.createTextNode(` 選択肢 ${index + 1}`));
+          radioGroupDiv.appendChild(label);
+        });
+
+        questionDiv.appendChild(audioContainer);
+        questionDiv.appendChild(radioGroupDiv);
+
+        // Submitボタンの生成（初期状態は無効）
+        const submitBtn = document.createElement("button");
+        submitBtn.classList.add("submit-btn");
+        submitBtn.textContent = "Submit";
+        submitBtn.disabled = true;
+        questionDiv.appendChild(submitBtn);
+
+        questionContent.appendChild(questionDiv);
+
+        // 音声要素を配列にして、順次自動再生（各再生終了後に指定の間隔をあける）
+        const audioElements = audioContainer.querySelectorAll("audio");
+        playAudiosSequentially(Array.from(audioElements), submitBtn, 2000);
+
+        // Submitボタン押下時の処理
+        submitBtn.addEventListener("click", function() {
+          if (submitBtn.disabled) return;
+
+          // 選択されたラジオボタンを取得
+          const selected = document.querySelector('input[name="answer"]:checked');
+          if (!selected) {
+            alert("選択肢を選んでください。");
+            return;
+          }
+
+          // 選択肢の値が"correct"なら正解と判断
+          const isCorrect = selected.value === "correct";
+          results.push({
+            questionId: currentQuestion.id,
+            answer: selected.value,
+            correct: isCorrect
+          });
+
+          // 現在の問題をフェードアウトし、次の問題へ
+          questionDiv.classList.add("fade-out");
+          setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+          }, 500); // CSSのfadeOutアニメーションの時間に合わせる
+        });
+      }
+
+      // 音声を順次自動再生する関数
+      function playAudiosSequentially(audios, submitBtn, delayBetween = 2000) {
+        let currentAudioIndex = 0;
+        function playNext() {
+          if (currentAudioIndex < audios.length) {
+            let audio = audios[currentAudioIndex];
+            audio.play().then(() => {
+              audio.onended = function() {
+                currentAudioIndex++;
+                setTimeout(playNext, delayBetween);
+              };
+            }).catch(err => {
+              console.error("Audio playback error:", err);
+              currentAudioIndex++;
+              setTimeout(playNext, delayBetween);
+            });
+          } else {
+            // すべての音声再生が終了したらSubmitボタンを有効化
+            submitBtn.disabled = false;
+          }
+        }
+        playNext();
+      }
+
+      // テスト終了時の処理
+      function finishTest() {
+        endTime = new Date();
+        document.getElementById("endTime").value = endTime.toISOString();
+
+        // 合計得点を計算
+        let totalScore = results.filter(r => r.correct).length;
+        document.getElementById("score").value = totalScore;
+        document.getElementById("answers").value = JSON.stringify(results);
+
+        // 結果をCSV形式にして自動ダウンロード（例：Google Sheets等へ取り込む際に利用可能）
+        const csvContent = generateCSV(results, startTime, endTime, totalScore);
+        downloadCSV(csvContent, "test_results.csv");
+
+        // テスト終了後、結果は参加者に表示せず、感謝のメッセージのみを表示
+        document.getElementById("test").innerHTML = "<h2>テスト終了。ご協力ありがとうございました。</h2>";
+      }
+
+      // 結果データからCSVを生成する関数
+      function generateCSV(results, startTime, endTime, totalScore) {
+        let csv = "QuestionID,Answer,Correct\n";
+        results.forEach(r => {
+          csv += `${r.questionId},${r.answer},${r.correct}\n`;
+        });
+        csv += `\n開始時刻,終了時刻,合計得点\n`;
+        csv += `${startTime.toISOString()},${endTime.toISOString()},${totalScore}\n`;
+        return csv;
+      }
+
+      // CSVファイルのダウンロードを実行する関数
+      function downloadCSV(content, filename) {
+        const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
+  </script>
+</body>
+</html>
