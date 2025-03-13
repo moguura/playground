@@ -11,6 +11,7 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     /* ボディ全体の設定 */
     body {
       font-family: 'Arial', sans-serif;
@@ -22,6 +23,7 @@
       align-items: center;
       min-height: 100vh;
     }
+
     /* テスト全体のコンテナ */
     .container {
       width: 90%;
@@ -31,11 +33,13 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
     /* ヘッダー（タイトルなど） */
     .header {
       text-align: center;
       margin-bottom: 20px;
     }
+
     /* 説明Box（文字サイズ拡大） */
     .explanation-box {
       padding: 20px;
@@ -47,21 +51,25 @@
       text-align: left;
       white-space: pre-wrap;
     }
+
     /* 各問題用のコンテナ */
     .question-container {
       margin-bottom: 30px;
     }
+
     /* 画像表示用のコンテナ */
     .image-container {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .image-container img {
       width: 100%;
       max-height: 400px;
       object-fit: contain;
       border-radius: 4px;
     }
+
     /* カスタムラジオボタン（同じ幅・中央寄せ・丸み・選択時色変化） */
     .radio-group {
       display: flex;
@@ -90,7 +98,8 @@
       border-radius: 8px;
       padding: 5px 10px;
     }
-    /* ボタン（Go to, Submit）サイズ・フォント拡大 */
+
+    /* ボタン（Go to, Submit）のサイズ・フォント拡大 */
     .submit-btn {
       display: inline-block;
       background-color: #007BFF;
@@ -105,6 +114,7 @@
     .submit-btn:hover {
       background-color: #0056b3;
     }
+
     /* フェードアウト用のアニメーション（任意） */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
@@ -219,7 +229,7 @@ When you are ready, please press the "Go to Test" button.`
     for (let i = 1; i <= 14; i++) {
       testQuestions.push({
         id: i,
-        image: `https://raw.githubusercontent.com/moguura/my-images/main/rikai-${i}.JPG`,
+        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
         audios: {
           a: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,
           b: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,
@@ -384,7 +394,7 @@ When you are ready, please press the "Go to Test" button.`
     function finishTest() {
       const content = document.getElementById("content");
       content.innerHTML = "<h2>Test complete. Thank you for your cooperation.</h2>";
-      // ここで結果の記録処理等を追加可能
+      // 結果の記録処理等を追加可能
     }
 
     /* ----- フロー開始 ----- */
@@ -412,13 +422,14 @@ When you are ready, please press the "Go to Test" button.`
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      if (!document.getElementById("content")) {
-        const container = document.querySelector(".container");
-        const div = document.createElement("div");
-        div.id = "content";
-        container.appendChild(div);
-      }
-      startFlow();
+      // もしcontent要素がなければ作成（通常はHTML内に既に存在）\n
+      if (!document.getElementById("content")) {\n
+        const container = document.querySelector(".container");\n
+        const div = document.createElement("div");\n
+        div.id = "content";\n
+        container.appendChild(div);\n
+      }\n
+      startFlow();\n
     });
   </script>
 </body>
