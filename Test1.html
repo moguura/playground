@@ -159,9 +159,10 @@
     let lastSpokeTime = null;
     let recordingStartTime = null;
 
+    // --- ここを変更して、話し始めから4秒は無音でもチェックマークを出さないようにする ---
     const SILENCE_THRESHOLD = 0.02;      // 音声ありと判定するしきい値
     const SILENCE_DURATION = 2000;       // 2秒無音でチェックアイコン表示
-    const MIN_RECORDING_TIME = 2000;     // 録音開始後、最低2秒は待つ
+    const MIN_RECORDING_TIME = 4000;     // 録音開始後、最低4秒は待つ（「です」まで話せるように）
 
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
@@ -272,7 +273,8 @@
         lastSpokeTime = performance.now();
       }
 
-      // 最低録音時間を超え、かつ無音状態が2秒続いたらチェックアイコン表示
+      // (1) 録音開始から MIN_RECORDING_TIME (4秒) は無音を無視
+      // (2) 4秒経過後に、2秒以上無音状態が続いたらチェックアイコン表示
       if (
         recordingStartTime &&
         performance.now() - recordingStartTime >= MIN_RECORDING_TIME &&
