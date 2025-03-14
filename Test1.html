@@ -147,7 +147,7 @@
     <!-- コンテンツはJavaScriptで動的に生成されます -->
   </div>
   <script>
-    // ========== 事前準備 ==========
+    // ===== 事前準備 =====
     const app = document.getElementById("app");
 
     // クリック音
@@ -160,10 +160,10 @@
     let saidDesu = false;           // 「です」を言ったかどうか
     let isRecording = false;        // 録音中フラグ（マイクアニメーション用）
 
-    // 無音を3秒検知したら録音終了
-    const SILENCE_WAIT = 3000; // 3秒
+    // 無音待機時間を 4000ms に変更（ユーザーの発話ペースに合わせる）
+    const SILENCE_WAIT = 4000;
 
-    // ========== 画面に表示するテキスト ==========
+    // ===== 画面に表示するテキスト =====
     const explanation1 = `
       <h2 class="header">Test 1</h2>
       <div class="explanation-box">
@@ -216,11 +216,10 @@
       { english: "The hot spring was not cold.", japaneseCue: "つめたい → おんせんは（　　　）" }
     ];
 
-    // ========== ユーティリティ関数 ==========
+    // ===== ユーティリティ関数 =====
     function showScreen(htmlString) {
       app.innerHTML = htmlString;
     }
-
     function shuffle(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -230,7 +229,7 @@
       return arr;
     }
 
-    // ========== 音声認識の初期化とハンドリング ==========
+    // ===== SpeechRecognition の初期化 =====
     function initSpeechRecognition() {
       if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
         console.warn("このブラウザはSpeechRecognition APIをサポートしていません。");
@@ -239,22 +238,19 @@
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recog = new SpeechRecognition();
       recog.lang = "ja-JP";
-      recog.interimResults = false;    // 中間結果はいらない
-      recog.continuous = true;        // 継続して認識（無音まで）
-
+      recog.interimResults = true; // 中間結果も取得
+      recog.continuous = true;
       return recog;
     }
 
-    // 無音タイマーを開始
+    // ===== 無音タイマー管理 =====
     function startSilenceTimer() {
       clearSilenceTimer();
       silenceTimer = setTimeout(() => {
-        // 3秒間無音が続いたら録音を止める
+        // 3秒以上無音なら停止（「です」が検出されなかった場合）
         stopRecognition(false);
       }, SILENCE_WAIT);
     }
-
-    // 無音タイマーをクリア
     function clearSilenceTimer() {
       if (silenceTimer) {
         clearTimeout(silenceTimer);
@@ -262,11 +258,11 @@
       }
     }
 
-    // 音声認識開始
+    // ===== 音声認識開始 =====
     function startRecognition() {
-      clickSound.play();  // ボタン押下時のクリック音
+      clickSound.play();  // クリック音再生
 
-      // ボタンを1回しか押せないように
+      // マイクボタンは1回のみ有効にする
       const micBtn = document.getElementById("micBtn");
       micBtn.disabled = true;
       micBtn.classList.add("mic-active");
@@ -281,44 +277,31 @@
         }
       }
 
-      // イベント設定
       recognition.onstart = () => {
         console.log("Recognition started");
         startSilenceTimer();
       };
 
       recognition.onresult = (event) => {
-        // 取得した結果を確認
+        // 中間結果も含め、結果をチェック
         const results = event.results;
         for (let i = event.resultIndex; i < results.length; i++) {
-          if (results[i].isFinal) {
-            const transcript = results[i][0].transcript.trim();
-            console.log("認識結果:", transcript);
-
-            // 「です」が含まれているかチェック（単語境界を厳密にするなら工夫が必要）
-            if (transcript.includes("です")) {
-              saidDesu = true;
-              stopRecognition(true);
-              break;
-            }
+          const transcript = results[i][0].transcript.trim();
+          console.log("認識結果:", transcript);
+          if (results[i].isFinal && transcript.endsWith("です")) {
+            saidDesu = true;
+            stopRecognition(true);
+            break;
           }
         }
       };
 
       recognition.onspeechstart = () => {
-        // ユーザーが再び話し始めたら無音タイマーをリセット
         clearSilenceTimer();
       };
 
       recognition.onspeechend = () => {
-        // 話し終わったので無音タイマー開始
         startSilenceTimer();
-      };
-
-      recognition.onend = () => {
-        console.log("Recognition ended");
-        // onendが呼ばれても、すでにstopRecognition()を呼んでいれば何もしない
-        // ここで「です」が未検出の場合はstopRecognition(false)が呼ばれた可能性あり
       };
 
       recognition.onerror = (e) => {
@@ -326,54 +309,51 @@
         stopRecognition(false);
       };
 
+      recognition.onend = () => {
+        console.log("Recognition ended");
+      };
+
       recognition.start();
     }
 
-    // 音声認識を停止
-    //  - withDesu: 「です」を認識して停止した場合はtrue、それ以外はfalse
+    // ===== 音声認識停止 =====
+    // withDesu: 「です」を認識して停止した場合は true、それ以外は false
     function stopRecognition(withDesu) {
       if (!recognition || !isRecording) return;
-
-      recognition.stop(); // 音声認識を止める
+      recognition.stop();
       clearSilenceTimer();
-
-      // マイクボタンをオフに
       const micBtn = document.getElementById("micBtn");
-      if (micBtn) {
-        micBtn.classList.remove("mic-active");
-      }
+      micBtn.classList.remove("mic-active");
       isRecording = false;
-
-      // 「です」を認識した場合のみチェックアイコンを表示
       if (withDesu) {
         showCheckIcon();
       } else {
-        // 「です」なしで停止した場合はマイクボタンのみ灰色にして終了
-        micBtn.disabled = true;
+        // 無音で停止した場合も、2秒後に次の問題へ進む
+        setTimeout(() => {
+          goToNextQuestion();
+        }, 2000);
       }
     }
 
-    // チェックアイコン表示
+    // ===== チェックアイコン表示 =====
     function showCheckIcon() {
       const checkIcon = document.getElementById("checkIcon");
       if (checkIcon) {
         checkIcon.classList.add("show");
       }
       checkSound.play();
-
       setTimeout(() => {
         goToNextQuestion();
       }, 2000);
     }
 
-    // ========== 画面描画関連 ==========
-
+    // ===== 画面描画関連 =====
     function renderExplanation1() {
       showScreen(explanation1);
       const btn = document.getElementById("goExampleBtn");
       if (btn) {
         btn.addEventListener("click", () => {
-          clickSound.play(); // クリック音
+          clickSound.play();
           renderExample();
         });
       }
@@ -400,7 +380,7 @@
       const goTestButton = document.getElementById("goTestBtn");
       if (goTestButton) {
         goTestButton.addEventListener("click", () => {
-          clickSound.play(); // クリック音
+          clickSound.play();
           startTest();
         });
       }
@@ -425,17 +405,14 @@
       showScreen(explanation3);
     }
 
-    // ========== テスト進行関連 ==========
-
+    // ===== テスト進行関連 =====
     let shuffledQuestions = [];
     let currentQuestionIndex = 0;
-
     function startTest() {
       shuffledQuestions = shuffle(questions);
       currentQuestionIndex = 0;
       renderQuestion(shuffledQuestions[currentQuestionIndex]);
     }
-
     function goToNextQuestion() {
       currentQuestionIndex++;
       if (currentQuestionIndex < shuffledQuestions.length) {
@@ -445,16 +422,11 @@
       }
     }
 
-    // ========== 初期起動処理 ==========
-
+    // ===== 初期起動処理 =====
     window.addEventListener("DOMContentLoaded", () => {
-      // 最初の画面を表示
       renderExplanation1();
-
-      // 最初の "Next" ボタン後の処理フック
       const originalGoNext = goToNextQuestion;
       goToNextQuestion = () => {
-        // Example画面(= index 0の前)からTest開始画面(=explanation2)に行くときだけ特別処理
         if (currentQuestionIndex === 0 && shuffledQuestions.length === 0) {
           renderExplanation2();
         } else {
