@@ -515,30 +515,98 @@ function startTestQuestions() {
       });
     }
 
-    // Google Apps Script への送信関数
-    function sendResultsToGoogleAppsScript(data) {
-       fetch("https://script.google.com/macros/s/AKfycbzsReFXyRYS25uqNAtueIcZETCJ1JvM4St370w8ilm9gvGBj3srfZjX0KaV30cVcTRx/exec", {
+    <script>
+    /* ========== 省略（UI処理・テスト進行部分） ========== */
 
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(json => console.log("送信結果:", json))
-      .catch(err => console.error("送信エラー:", err));
+    // **Google Apps Script への送信処理を削除**
+    // function sendResultsToGoogleAppsScript(data) {
+    //    fetch("https://script.google.com/macros/s/AKfycbzsReFXyRYS25uqNAtueIcZETCJ1JvM4St370w8ilm9gvGBj3srfZjX0KaV30cVcTRx/exec", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify(data)
+    //   })
+    //   .then(response => response.json())
+    //   .then(json => console.log("送信結果:", json))
+    //   .catch(err => console.error("送信エラー:", err));
+    // }
+
+    // **GitHubの新しいブランチにテスト結果をプッシュする処理**
+    async function pushResultsToGitHub(data) {
+      const repo = "あなたのリポジトリ名";  // 例: "yourusername/yourrepo"
+      const branch = "test-results"; // テスト結果を保存する新しいブランチ
+      const filePath = "test_results.json"; // 結果を保存するファイル
+      const token = "your_github_personal_access_token"; // GitHubのアクセストークン（セキュリティに注意）
+
+      try {
+        // GitHub API: ブランチのSHAを取得
+        const branchResponse = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json"
+          }
+        });
+        const branchData = await branchResponse.json();
+        const mainSha = branchData.object.sha;
+
+        // 新しいブランチを作成
+        await fetch(`https://api.github.com/repos/${repo}/git/refs`, {
+          method: "POST",
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            ref: `refs/heads/${branch}`,
+            sha: mainSha
+          })
+        });
+
+        // JSONデータをBase64に変換
+        const content = btoa(JSON.stringify(data, null, 2));
+
+        // GitHub API: 新しいブランチにファイルを作成
+        const createFileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Test results updated",
+            content: content,
+            branch: branch
+          })
+        });
+
+        if (createFileResponse.ok) {
+          console.log("テスト結果がGitHubに保存されました");
+        } else {
+          console.error("GitHubへの保存エラー", await createFileResponse.json());
+        }
+      } catch (error) {
+        console.error("GitHubへの接続エラー", error);
+      }
     }
 
-    // ページ読み込み時
-    document.addEventListener("DOMContentLoaded", () => {
-      const goToNextBtn = document.getElementById("goToNextBtn");
-      goToNextBtn.addEventListener("click", () => {
-        playClickSound();
-        updateProgress(0);
-        startFlow();
-      });
-    });
+    // **finishTest()関数内の処理を修正**
+    function finishTest() {
+      document.getElementById("progressBar").style.display = "none";
+      content.innerHTML = `
+        <div class="explanation-box" style="text-align:center;">
+          <p style="margin-bottom: 20px; font-size: 1.4em;">
+            ${explanationBox5.text}
+          </p>
+          <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
+        </div>
+      `;
+
+      // **テスト結果をGitHubへプッシュ**
+      pushResultsToGitHub(testResults);
+    }
   </script>
 </body>
 </html>
