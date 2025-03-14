@@ -13,7 +13,6 @@
       background-color: #fff;
       color: #333;
     }
-
     /* 中央寄せコンテナ */
     .container, #app {
       max-width: 800px;
@@ -21,14 +20,12 @@
       text-align: center;
       padding: 20px;
     }
-
-    /* 見出し（例：Test 1 など） */
+    /* 見出し */
     .header {
       font-size: 2.5em;
       margin-bottom: 30px;
     }
-
-    /* 説明文を囲むボックス */
+    /* 説明文ボックス */
     .explanation-box {
       background-color: #f9f9f9;
       border: 2px solid #ddd;
@@ -39,8 +36,7 @@
       line-height: 1.6;
       font-size: 1.1em;
     }
-
-    /* ボタン共通スタイル */
+    /* ボタンスタイル */
     .button,
     .go-to-test-button {
       display: inline-block;
@@ -54,13 +50,11 @@
       text-decoration: none;
       transition: background-color 0.3s, transform 0.2s;
     }
-
     .button:hover,
     .go-to-test-button:hover {
       background-color: #0056b3;
       transform: scale(1.05);
     }
-
     /* 問題文全体のコンテナ */
     .question-container {
       margin-bottom: 50px;
@@ -70,7 +64,6 @@
       align-items: center;
       min-height: 60vh;
     }
-
     /* メイン文章 */
     .test-sentence {
       font-size: 1.8em;
@@ -78,15 +71,13 @@
       text-align: center;
       white-space: pre-wrap;
     }
-
-    /* 日本語キュー部分 */
+    /* 日本語キュー */
     .japanese-cue {
       font-size: 1.8em;
       color: #006400;
       margin-bottom: 30px;
       text-align: center;
     }
-
     /* マイクボタン */
     .mic-button {
       width: 80px;
@@ -99,19 +90,15 @@
       transition: transform 0.2s;
       display: inline-block;
     }
-
     .mic-button:hover {
       transform: scale(1.1);
     }
-
     .mic-button:active {
       transform: scale(0.95);
     }
-
     .mic-button.mic-active {
       animation: micGlow 1s infinite alternate;
     }
-
     @keyframes micGlow {
       0% {
         filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
@@ -120,25 +107,6 @@
         filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
       }
     }
-
-    /* 音量レベルメーター */
-    .voice-level-meter {
-      width: 250px;
-      height: 15px;
-      background-color: #ddd;
-      border-radius: 8px;
-      margin: 20px auto;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .voice-level-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #4caf50;
-      transition: width 0.1s;
-    }
-
     /* チェックアイコン */
     .check-icon {
       width: 70px;
@@ -147,12 +115,10 @@
       display: none;
       margin: 30px auto;
     }
-
     .check-icon.show {
       display: block;
       animation: pop 0.3s forwards;
     }
-
     @keyframes pop {
       0% {
         transform: scale(0.5);
@@ -163,14 +129,12 @@
         opacity: 1;
       }
     }
-
     /* テスト終了画面 */
     .final-message {
       text-align: center;
       font-size: 1.4em;
       margin-top: 50px;
     }
-
     .final-illustration {
       max-width: 350px;
       display: block;
@@ -186,8 +150,10 @@
     // JavaScriptコード
     const app = document.getElementById("app");
     let audioContext = null, analyser = null, microphoneStream = null, animationId = null;
-    let isRecording = false, lastSpokeTime = null;
-    const SILENCE_THRESHOLD = 0.02, SILENCE_DURATION = 2000;
+    let isRecording = false, lastSpokeTime = null, recordingStartTime = null;
+    const SILENCE_THRESHOLD = 0.02;
+    const SILENCE_DURATION = 2000; // 2秒
+    const MIN_RECORDING_TIME = 2000; // 録音開始後、最低2秒は待つ
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
     const explanation1 = `
@@ -263,14 +229,14 @@
         analyser.fftSize = 512;
         source.connect(analyser);
       } catch (err) {
-        console.warn("マイクが許可されなかったため、ランダム音量でメーターを動かします。", err);
+        console.warn("マイクが許可されなかったため、シミュレーションします。", err);
         analyser = null;
       }
     }
 
+    // updateVolumeMeterでは画面上の音量表示は行わず、音量を使って発話の有無を判定するのみ
     function updateVolumeMeter() {
       if (!isRecording) {
-        setVoiceLevelBar(0);
         animationId = requestAnimationFrame(updateVolumeMeter);
         return;
       }
@@ -286,32 +252,30 @@
       } else {
         volume = Math.random() * 0.7 + 0.3;
       }
-      setVoiceLevelBar(volume);
+      // 発話があれば lastSpokeTime を更新
       if (volume > SILENCE_THRESHOLD) {
         lastSpokeTime = performance.now();
       }
-      if (lastSpokeTime !== null && performance.now() - lastSpokeTime > SILENCE_DURATION) {
+      // 最低録音時間経過後、かつ直近の発話から2秒以上音がない場合のみチェックアイコンを表示
+      if (recordingStartTime && performance.now() - recordingStartTime >= MIN_RECORDING_TIME &&
+          lastSpokeTime && performance.now() - lastSpokeTime > SILENCE_DURATION) {
         showCheckIconAndNext();
+        return; // チェックアイコン表示後はループを抜ける
       }
       animationId = requestAnimationFrame(updateVolumeMeter);
     }
 
-    function setVoiceLevelBar(volume) {
-      const levelBar = document.getElementById("levelBar");
-      if (levelBar) {
-        const percentage = Math.min(volume * 100, 100);
-        levelBar.style.width = percentage + "%";
-      }
-    }
-
     function startRecording() {
       isRecording = true;
+      recordingStartTime = performance.now();
       lastSpokeTime = performance.now();
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.classList.add("mic-active");
-        micBtn.disabled = false; // ボタンを有効にしておく
+        micBtn.disabled = false;
       }
+      // 録音開始と同時にupdateVolumeMeterを開始
+      animationId = requestAnimationFrame(updateVolumeMeter);
     }
 
     function stopRecording() {
@@ -322,7 +286,6 @@
       }
     }
 
-    // 発話が停止して2秒以上経過した場合、チェックアイコンを表示し、2秒待って次の問題へ
     function showCheckIconAndNext() {
       stopRecording();
       const micBtn = document.getElementById("micBtn");
@@ -360,9 +323,6 @@
           <p class="test-sentence">${exampleQuestion.english}</p>
           <p class="japanese-cue">${exampleQuestion.japaneseCue}</p>
           <button class="mic-button" id="micBtn"></button>
-          <div class="voice-level-meter" id="meter">
-            <div class="voice-level-bar" id="levelBar"></div>
-          </div>
           <div class="check-icon" id="checkIcon"></div>
         </div>
       `);
@@ -390,9 +350,6 @@
           <p class="test-sentence">${q.english}</p>
           <p class="japanese-cue">${q.japaneseCue}</p>
           <button class="mic-button" id="micBtn"></button>
-          <div class="voice-level-meter" id="meter">
-            <div class="voice-level-bar" id="levelBar"></div>
-          </div>
           <div class="check-icon" id="checkIcon"></div>
         </div>
       `);
@@ -428,10 +385,6 @@
 
     window.addEventListener("DOMContentLoaded", async () => {
       await initAudio();
-      function meterLoop() {
-        animationId = requestAnimationFrame(updateVolumeMeter);
-      }
-      meterLoop();
       renderExplanation1();
       const originalGoNext = goToNextQuestion;
       goToNextQuestion = () => {
