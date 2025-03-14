@@ -289,8 +289,7 @@
     }
 
     // ===== 無音タイマー管理 =====
-    let silenceTimer = null;
-    function startSilenceTimer() {
+     function startSilenceTimer() {
       clearSilenceTimer();
       const elapsed = performance.now() - recordingStartTime;
       if (elapsed < MIN_RECORDING_TIME) {
