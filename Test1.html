@@ -155,15 +155,17 @@
     // チェック音
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    let recognition = null;         // SpeechRecognitionオブジェクト
-    let silenceTimer = null;        // 無音タイマー
-    let saidDesu = false;           // 「です」を言ったかどうか
-    let isRecording = false;        // 録音中フラグ（マイクアニメーション用）
+    let recognition = null; // SpeechRecognition オブジェクト
+    let silenceTimer = null; // 無音タイマー
+    let isRecording = false; // 録音中フラグ（マイクアニメーション用）
+    let recordingStartTime = 0; // 録音開始時刻
 
-    // 無音待機時間を 4000ms に変更（ユーザーの発話ペースに合わせる）
-    const SILENCE_WAIT = 4000;
+    // 無音待機時間（ユーザーが止めたとみなす時間）
+    const SILENCE_WAIT = 4000; // 4秒
+    // 最低録音時間（認識停止前に最低これだけ待つ）
+    const MIN_RECORDING_TIME = 5000; // 5秒
 
-    // ===== 画面に表示するテキスト =====
+    // ===== 画面テキスト =====
     const explanation1 = `
       <h2 class="header">Test 1</h2>
       <div class="explanation-box">
@@ -246,10 +248,17 @@
     // ===== 無音タイマー管理 =====
     function startSilenceTimer() {
       clearSilenceTimer();
-      silenceTimer = setTimeout(() => {
-        // 3秒以上無音なら停止（「です」が検出されなかった場合）
-        stopRecognition(false);
-      }, SILENCE_WAIT);
+      const elapsed = performance.now() - recordingStartTime;
+      if (elapsed < MIN_RECORDING_TIME) {
+        // 最低録音時間に達していなければ、残り時間待ってから停止
+        silenceTimer = setTimeout(() => {
+          stopRecognition();
+        }, MIN_RECORDING_TIME - elapsed);
+      } else {
+        silenceTimer = setTimeout(() => {
+          stopRecognition();
+        }, SILENCE_WAIT);
+      }
     }
     function clearSilenceTimer() {
       if (silenceTimer) {
@@ -267,7 +276,7 @@
       micBtn.disabled = true;
       micBtn.classList.add("mic-active");
       isRecording = true;
-      saidDesu = false;
+      recordingStartTime = performance.now();
 
       if (!recognition) {
         recognition = initSpeechRecognition();
@@ -283,16 +292,11 @@
       };
 
       recognition.onresult = (event) => {
-        // 中間結果も含め、結果をチェック
+        // 認識結果はログ出力するだけ（内容にかかわらずチェックマーク表示は無音タイマーで制御）
         const results = event.results;
         for (let i = event.resultIndex; i < results.length; i++) {
           const transcript = results[i][0].transcript.trim();
           console.log("認識結果:", transcript);
-          if (results[i].isFinal && transcript.endsWith("です")) {
-            saidDesu = true;
-            stopRecognition(true);
-            break;
-          }
         }
       };
 
@@ -306,7 +310,7 @@
 
       recognition.onerror = (e) => {
         console.warn("Recognition error:", e);
-        stopRecognition(false);
+        stopRecognition();
       };
 
       recognition.onend = () => {
@@ -316,23 +320,18 @@
       recognition.start();
     }
 
-    // ===== 音声認識停止 =====
-    // withDesu: 「です」を認識して停止した場合は true、それ以外は false
-    function stopRecognition(withDesu) {
+    // ===== 音声認識停止（常にチェックマーク表示） =====
+    function stopRecognition() {
       if (!recognition || !isRecording) return;
       recognition.stop();
       clearSilenceTimer();
       const micBtn = document.getElementById("micBtn");
-      micBtn.classList.remove("mic-active");
-      isRecording = false;
-      if (withDesu) {
-        showCheckIcon();
-      } else {
-        // 無音で停止した場合も、2秒後に次の問題へ進む
-        setTimeout(() => {
-          goToNextQuestion();
-        }, 2000);
+      if (micBtn) {
+        micBtn.classList.remove("mic-active");
       }
+      isRecording = false;
+      // 常にチェックマークを表示して、次の問題へ進む
+      showCheckIcon();
     }
 
     // ===== チェックアイコン表示 =====
@@ -358,7 +357,6 @@
         });
       }
     }
-
     function renderExample() {
       showScreen(`
         <h2 class="header">Example</h2>
@@ -374,7 +372,6 @@
         micBtn.addEventListener("click", startRecognition);
       }
     }
-
     function renderExplanation2() {
       showScreen(explanation2);
       const goTestButton = document.getElementById("goTestBtn");
@@ -385,7 +382,6 @@
         });
       }
     }
-
     function renderQuestion(q) {
       showScreen(`
         <div class="question-container">
@@ -400,7 +396,6 @@
         micBtn.addEventListener("click", startRecognition);
       }
     }
-
     function renderFinal() {
       showScreen(explanation3);
     }
