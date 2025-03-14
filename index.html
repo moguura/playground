@@ -356,19 +356,10 @@
       });
     }
 
-// 例題を表示（ラジオボタンとSubmitボタンあり）
 function showExample(exampleData, callbackAfterSubmit) {
-  // header が存在するかチェック
-  const headerElement = document.querySelector(".header");
-  if (headerElement) {
-    headerElement.style.display = "none";
-  }
-
-  // progressBar が存在するかチェック
-  const progressBarElement = document.getElementById("progressBar");
-  if (progressBarElement) {
-    progressBarElement.style.display = "none";
-  }
+  // .header と progressBar の存在を確認してから操作
+  document.querySelector(".header")?.style.display = "none";
+  document.getElementById("progressBar")?.style.display = "none";
 
   content.innerHTML = `
     <div class="question-container">
@@ -396,7 +387,6 @@ function showExample(exampleData, callbackAfterSubmit) {
     </div>
   `;
 
-  // ラジオボタンがクリックされたらコンソールに出力
   document.querySelectorAll('input[name="answer"]').forEach(input => {
     input.addEventListener("click", function(e) {
       console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
@@ -404,8 +394,6 @@ function showExample(exampleData, callbackAfterSubmit) {
   });
 
   const submitButton = document.getElementById("submitButton");
-
-  // 音声を順番に再生
   playSequence(exampleData.audios, exampleData.order, () => {
     submitButton.style.display = "inline-block";
     submitButton.classList.add("fade-in");
@@ -427,19 +415,10 @@ function showExample(exampleData, callbackAfterSubmit) {
 }
 
 
-// テスト問題を表示（ラジオボタンとSubmitボタンあり）
 function showTestQuestion(questionData, callbackAfterSubmit) {
-  // header が存在するかチェック
-  const headerElement = document.querySelector(".header");
-  if (headerElement) {
-    headerElement.style.display = "none";
-  }
-
-  // progressBar が存在するかチェック
-  const progressBarElement = document.getElementById("progressBar");
-  if (progressBarElement) {
-    progressBarElement.style.display = "flex";
-  }
+  // .header と progressBar の存在を確認してから操作
+  document.querySelector(".header")?.style.display = "none";
+  document.getElementById("progressBar")?.style.display = "flex";
 
   const options = shuffle(["a", "b", "c"]);
   content.innerHTML = `
@@ -468,7 +447,6 @@ function showTestQuestion(questionData, callbackAfterSubmit) {
     </div>
   `;
 
-  // ラジオボタンがクリックされたらコンソールに出力
   document.querySelectorAll('input[name="answer"]').forEach(input => {
     input.addEventListener("click", function(e) {
       console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
@@ -476,8 +454,6 @@ function showTestQuestion(questionData, callbackAfterSubmit) {
   });
 
   const submitButton = document.getElementById("submitButton");
-
-  // 音声を順番に再生
   playSequence(questionData.audios, options, () => {
     submitButton.style.display = "inline-block";
     submitButton.classList.add("fade-in");
@@ -497,62 +473,6 @@ function showTestQuestion(questionData, callbackAfterSubmit) {
     callbackAfterSubmit();
   });
 }
-
-    // テスト問題を表示（ラジオボタンとSubmitボタンあり）
-    function showTestQuestion(questionData, callbackAfterSubmit) {
-      document.querySelector(".header").style.display = "none";
-      document.getElementById("progressBar").style.display = "flex";
-      const options = shuffle(["a", "b", "c"]);
-      content.innerHTML = `
-        <div class="question-container">
-          <div class="image-container">
-            <img src="${questionData.image}" alt="Test Question ${questionData.id}">
-          </div>
-          <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${options[1] === 'a' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
-        </div>
-      `;
-      // ラジオボタンがクリックされたらコンソールに出力
-      document.querySelectorAll('input[name="answer"]').forEach(input => {
-        input.addEventListener("click", function(e) {
-          console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
-        });
-      });
-      const submitButton = document.getElementById("submitButton");
-      playSequence(questionData.audios, options, () => {
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
-      });
-      submitButton.addEventListener("click", () => {
-        if(submitButton.disabled) return;
-        submitButton.disabled = true;
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          submitButton.disabled = false;
-          return;
-        }
-        playSubmitSound();
-        console.log("Submit clicked. 選択されたラジオボタンのID:", selected.id, "値:", selected.value, "クリック時刻:", new Date().toLocaleString());
-        callbackAfterSubmit();
-      });
-    }
 
     // テスト終了時
     function finishTest() {
