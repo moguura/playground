@@ -5,180 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Test 1</title>
   <style>
-    /* 全体のレイアウト */
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-color: #fff;
-      color: #333;
-    }
-    /* 中央寄せコンテナ */
-    .container, #app {
-      max-width: 700px;
-      margin: 0 auto;
-      text-align: center;
-      padding: 20px;
-    }
-    /* 見出し（例：Test 1 など） */
-    .header {
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-    /* 説明文を囲むボックス */
-    .explanation-box {
-      background-color: #f9f9f9;
-      border: 2px solid #ddd;
-      padding: 20px;
-      margin-bottom: 30px;
-      border-radius: 8px;
-      text-align: left;
-      line-height: 1.5;
-    }
-    /* ボタン共通スタイル */
-    .button,
-    .go-to-test-button {
-      display: inline-block;
-      background-color: #007BFF;
-      color: #fff;
-      padding: 14px 28px;
-      font-size: 1em;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.3s;
-    }
-    .button:hover,
-    .go-to-test-button:hover {
-      background-color: #0056b3;
-    }
-    /* 問題文全体のコンテナ */
-    .question-container {
-      margin-bottom: 40px;
-    }
-    /* メイン文章 */
-    .test-sentence {
-      font-size: 1.3em;
-      margin: 20px 0 10px;
-      text-align: center;
-      white-space: pre-wrap;
-    }
-    /* 日本語キュー部分 */
-    .japanese-cue {
-      font-size: 1.3em;
-      color: #006400;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    /* マイクボタン */
-    .mic-button {
-      width: 70px;
-      height: 70px;
-      background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/mic.png") no-repeat center center / contain;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      margin: 20px auto;
-      transition: transform 0.2s;
-      display: inline-block;
-    }
-    .mic-button:hover {
-      transform: scale(1.1);
-    }
-    .mic-button:active {
-      transform: scale(0.95);
-    }
-    .mic-button.mic-active {
-      animation: micGlow 1s infinite alternate;
-    }
-    @keyframes micGlow {
-      0% {
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-      }
-      100% {
-        box-shadow: 0 0 20px rgba(255, 0, 0, 1);
-      }
-    }
-    /* 音量レベルメーター */
-    .voice-level-meter {
-      width: 200px;
-      height: 10px;
-      background-color: #ddd;
-      border-radius: 5px;
-      margin: 10px auto;
-      overflow: hidden;
-      position: relative;
-    }
-    .voice-level-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #4caf50;
-      transition: width 0.1s;
-    }
-    /* チェックアイコン */
-    .check-icon {
-      width: 60px;
-      height: 60px;
-      background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
-      display: none;
-      margin: 20px auto;
-    }
-    .check-icon.show {
-      display: block;
-      animation: pop 0.3s forwards;
-    }
-    @keyframes pop {
-      0% {
-        transform: scale(0.5);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-    /* テスト終了画面 */
-    .final-message {
-      text-align: center;
-      font-size: 1.2em;
-      margin-top: 40px;
-    }
-    .final-illustration {
-      max-width: 300px;
-      display: block;
-      margin: 20px auto;
-    }
+ /* 全体のレイアウト */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+/* 中央寄せコンテナ */
+.container, #app {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+}
+
+/* 見出し（例：Test 1 など） */
+.header {
+  font-size: 2.5em;
+  margin-bottom: 30px;
+}
+
+/* 説明文を囲むボックス */
+.explanation-box {
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  padding: 25px;
+  margin-bottom: 40px;
+  border-radius: 10px;
+  text-align: left;
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+/* ボタン共通スタイル */
+.button,
+.go-to-test-button {
+  display: inline-block;
+  background-color: #007BFF;
+  color: #fff;
+  padding: 16px 32px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.button:hover,
+.go-to-test-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* 問題文全体のコンテナ */
+.question-container {
+  margin-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+/* メイン文章 */
+.test-sentence {
+  font-size: 1.8em;
+  margin: 30px 0 20px;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+/* 日本語キュー部分 */
+.japanese-cue {
+  font-size: 1.8em;
+  color: #006400;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* マイクボタン */
+.mic-button {
+  width: 80px;
+  height: 80px;
+  background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/mic.png") no-repeat center center / contain;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin: 30px auto;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.mic-button:hover {
+  transform: scale(1.1);
+}
+
+.mic-button:active {
+  transform: scale(0.95);
+}
+
+.mic-button.mic-active {
+  animation: micGlow 1s infinite alternate;
+}
+
+@keyframes micGlow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
+  }
+}
+
+/* 音量レベルメーター */
+.voice-level-meter {
+  width: 250px;
+  height: 15px;
+  background-color: #ddd;
+  border-radius: 8px;
+  margin: 20px auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.voice-level-bar {
+  height: 100%;
+  width: 0%;
+  background-color: #4caf50;
+  transition: width 0.1s;
+}
+
+/* チェックアイコン */
+.check-icon {
+  width: 70px;
+  height: 70px;
+  background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
+  display: none;
+  margin: 30px auto;
+}
+
+.check-icon.show {
+  display: block;
+  animation: pop 0.3s forwards;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* テスト終了画面 */
+.final-message {
+  text-align: center;
+  font-size: 1.4em;
+  margin-top: 50px;
+}
+
+.final-illustration {
+  max-width: 350px;
+  display: block;
+  margin: 30px auto;
+}
   </style>
 </head>
 <body>
   <div id="app" class="container">
-    <!-- 初期表示コンテンツ（ここは JavaScript で切り替えます） -->
-    <div class="explanation-box">
-      <p>説明文1・・・</p>
-    </div>
-    
-    <div class="question-container">
-      <p class="test-sentence">The weather is not good.</p>
-      <p class="japanese-cue">いい → てんきは（　　）</p>
-      <button class="mic-button" id="micBtn"></button>
-      <div class="voice-level-meter" id="meter">
-        <div class="voice-level-bar" id="levelBar"></div>
-      </div>
-      <div class="check-icon" id="checkIcon"></div>
-    </div>
-    
-    <button class="go-to-test-button" id="goToTestBtn">GO TO TEST</button>
-    
-    <div class="final-message">
-      <p>This is the end of Test 1. Please click the X at the top to close this tab.</p>
-      <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
-    </div>
+    <!-- コンテンツはJavaScriptで動的に生成されます -->
   </div>
   <script>
-    /***************************************
-     * 1. テスト用テキスト（説明文・問題文）
-     ***************************************/
+    // JavaScriptコード
+    const app = document.getElementById("app");
+    let audioContext = null, analyser = null, microphoneStream = null, animationId = null;
+    let isRecording = false, lastSpokeTime = null;
+    const SILENCE_THRESHOLD = 0.02, SILENCE_DURATION = 2000;
+    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
+
     const explanation1 = `
       <h2 class="header">Test 1</h2>
       <div class="explanation-box">
@@ -188,12 +199,12 @@
       </div>
       <button class="button" id="goExampleBtn">Next</button>
     `;
-    
+
     const exampleQuestion = {
       english: "The weather is not good.",
       japaneseCue: "いい → てんきは（　　　）"
     };
-    
+
     const explanation2 = `
       <div class="explanation-box">
         <p>The weather is not good. Therefore, "いい" becomes "よくないです."<br>
@@ -202,7 +213,7 @@
       </div>
       <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
     `;
-    
+
     const explanation3 = `
       <div class="explanation-box">
         <p>This is the end of Test 1. Please click the X at the top to close this tab.</p>
@@ -210,22 +221,26 @@
       <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif"
            alt="Cracker GIF" class="final-illustration">
     `;
-    
+
     const questions = [
       { english: "The class is interesting.", japaneseCue: "おもしろい → じゅぎょうは（　　　）" },
       { english: "This pasta is spicy.", japaneseCue: "からい → このパスタは（　　　）" },
-      // ...（他の問題も同様に追加）
+      { english: "That movie was boring.", japaneseCue: "つまらない → あの映画は（　　　）" },
+      { english: "This book is difficult.", japaneseCue: "むずかしい → この本は（　　　）" },
+      { english: "The test was easy.", japaneseCue: "かんたん → テストは（　　　）" },
+      { english: "The coffee is hot.", japaneseCue: "あつい → コーヒーは（　　　）" },
+      { english: "The water is cold.", japaneseCue: "つめたい → 水は（　　　）" },
+      { english: "This cake is sweet.", japaneseCue: "あまい → このケーキは（　　　）" },
+      { english: "The room is small.", japaneseCue: "ちいさい → 部屋は（　　　）" },
+      { english: "The mountain is high.", japaneseCue: "たかい → 山は（　　　）" },
+      { english: "The road is wide.", japaneseCue: "ひろい → 道は（　　　）" },
+      { english: "The bag is heavy.", japaneseCue: "おもい → かばんは（　　　）" },
+      { english: "The story is long.", japaneseCue: "ながい → 物語は（　　　）" },
+      { english: "The chair is new.", japaneseCue: "あたらしい → 椅子は（　　　）" },
+      { english: "The car is fast.", japaneseCue: "はやい → 車は（　　　）" },
+      { english: "The fruit is sour.", japaneseCue: "すっぱい → 果物は（　　　）" }
     ];
-    
-    /***************************************
-     * 2. グローバル変数・ユーティリティ
-     ***************************************/
-    const app = document.getElementById("app");
-    let audioContext = null, analyser = null, microphoneStream = null, animationId = null;
-    let isRecording = false, lastSpokeTime = null;
-    const SILENCE_THRESHOLD = 0.02, SILENCE_DURATION = 2000;
-    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
-    
+
     function shuffle(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -234,10 +249,7 @@
       }
       return arr;
     }
-    
-    /***************************************
-     * 3. 音声関連の初期化・音量メーター更新
-     ***************************************/
+
     async function initAudio() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -253,7 +265,7 @@
         analyser = null;
       }
     }
-    
+
     function updateVolumeMeter() {
       if (!isRecording) {
         setVoiceLevelBar(0);
@@ -268,9 +280,9 @@
         for (let i = 0; i < dataArray.length; i++) {
           sum += dataArray[i];
         }
-        volume = (sum / dataArray.length) / 128;
+        volume = sum / dataArray.length / 255;
       } else {
-        volume = Math.random() * 0.4;
+        volume = Math.random() * 0.7 + 0.3;
       }
       setVoiceLevelBar(volume);
       if (volume > SILENCE_THRESHOLD) {
@@ -281,7 +293,7 @@
       }
       animationId = requestAnimationFrame(updateVolumeMeter);
     }
-    
+
     function setVoiceLevelBar(volume) {
       const levelBar = document.getElementById("levelBar");
       if (levelBar) {
@@ -289,7 +301,7 @@
         levelBar.style.width = percentage + "%";
       }
     }
-    
+
     function startRecording() {
       isRecording = true;
       lastSpokeTime = performance.now();
@@ -298,7 +310,7 @@
         micBtn.classList.add("mic-active");
       }
     }
-    
+
     function stopRecording() {
       isRecording = false;
       const micBtn = document.getElementById("micBtn");
@@ -306,7 +318,7 @@
         micBtn.classList.remove("mic-active");
       }
     }
-    
+
     function showCheckIconAndNext() {
       stopRecording();
       const checkIcon = document.getElementById("checkIcon");
@@ -318,14 +330,11 @@
         goToNextQuestion();
       }, 1000);
     }
-    
-    /***************************************
-     * 4. 画面切り替え（HTML生成）用関数
-     ***************************************/
+
     function showScreen(htmlString) {
       app.innerHTML = htmlString;
     }
-    
+
     function renderExplanation1() {
       showScreen(explanation1);
       const btn = document.getElementById("goExampleBtn");
@@ -335,7 +344,7 @@
         });
       }
     }
-    
+
     function renderExample() {
       showScreen(`
         <h2 class="header">Example</h2>
@@ -356,7 +365,7 @@
         });
       }
     }
-    
+
     function renderExplanation2() {
       showScreen(explanation2);
       const goTestButton = document.getElementById("goTestBtn");
@@ -366,7 +375,7 @@
         });
       }
     }
-    
+
     function renderQuestion(q) {
       showScreen(`
         <div class="question-container">
@@ -386,23 +395,20 @@
         });
       }
     }
-    
+
     function renderFinal() {
       showScreen(explanation3);
     }
-    
-    /***************************************
-     * 5. テスト進行管理
-     ***************************************/
+
     let shuffledQuestions = [];
     let currentQuestionIndex = 0;
-    
+
     function startTest() {
       shuffledQuestions = shuffle(questions);
       currentQuestionIndex = 0;
       renderQuestion(shuffledQuestions[currentQuestionIndex]);
     }
-    
+
     function goToNextQuestion() {
       currentQuestionIndex++;
       if (currentQuestionIndex < shuffledQuestions.length) {
@@ -411,10 +417,7 @@
         renderFinal();
       }
     }
-    
-    /***************************************
-     * 6. ページ読み込み時の初期化
-     ***************************************/
+
     window.addEventListener("DOMContentLoaded", async () => {
       await initAudio();
       function meterLoop() {
