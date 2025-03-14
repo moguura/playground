@@ -161,8 +161,8 @@
 
     // --- ここを変更して、話し始めから4秒は無音でもチェックマークを出さないようにする ---
     const SILENCE_THRESHOLD = 0.02;      // 音声ありと判定するしきい値
-    const SILENCE_DURATION = 4000;       // 2秒無音でチェックアイコン表示
-    const MIN_RECORDING_TIME = 4000;     // 録音開始後、最低4秒は待つ（「です」まで話せるように）
+    const SILENCE_DURATION = 5000;       // 2秒無音でチェックアイコン表示
+    const MIN_RECORDING_TIME = 7000;     // 録音開始後、最低4秒は待つ（「です」まで話せるように）
 
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
