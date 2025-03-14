@@ -55,6 +55,31 @@
       background-color: #0056b3;
       transform: scale(1.05);
     }
+
+    /* 進捗バー */
+    .progress-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .progress-step {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #007BFF;
+      color: #007BFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 5px;
+      font-weight: bold;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .progress-step.active {
+      background-color: #007BFF;
+      color: #fff;
+    }
+
     /* 問題文全体のコンテナ */
     .question-container {
       margin-bottom: 50px;
@@ -160,9 +185,9 @@
     let isRecording = false; // 録音中フラグ（マイクアニメーション用）
     let recordingStartTime = 0; // 録音開始時刻
 
-    // 無音待機時間（ユーザーが止めたとみなす時間）
+    // 無音待機時間
     const SILENCE_WAIT = 4000; // 4秒
-    // 最低録音時間（認識停止前に最低これだけ待つ）
+    // 最低録音時間
     const MIN_RECORDING_TIME = 5000; // 5秒
 
     // ===== 画面テキスト =====
@@ -218,6 +243,24 @@
       { english: "The hot spring was not cold.", japaneseCue: "つめたい → おんせんは（　　　）" }
     ];
 
+    // ===== 進捗バーを描画する関数 =====
+    // currentIndex: 0 〜 (total-1)
+    // total: 問題数（今回は16）
+    function renderProgressBar(currentIndex, total) {
+      // progressBarは問題画面にだけ表示したいので、question-containerに挿入してみる
+      const progressBarHTML = `
+        <div class="progress-container" id="progressContainer">
+        ${
+          Array.from({ length: total }, (_, i) => {
+            const isActive = i === currentIndex;
+            return `<span class="progress-step ${isActive ? "active" : ""}">${i+1}</span>`;
+          }).join("")
+        }
+        </div>
+      `;
+      return progressBarHTML;
+    }
+
     // ===== ユーティリティ関数 =====
     function showScreen(htmlString) {
       app.innerHTML = htmlString;
@@ -246,11 +289,12 @@
     }
 
     // ===== 無音タイマー管理 =====
+    let silenceTimer = null;
     function startSilenceTimer() {
       clearSilenceTimer();
       const elapsed = performance.now() - recordingStartTime;
       if (elapsed < MIN_RECORDING_TIME) {
-        // 最低録音時間に達していなければ、残り時間待ってから停止
+        // 最低録音時間に達していなければ、残り時間だけ待ってから停止
         silenceTimer = setTimeout(() => {
           stopRecognition();
         }, MIN_RECORDING_TIME - elapsed);
@@ -292,7 +336,7 @@
       };
 
       recognition.onresult = (event) => {
-        // 認識結果はログ出力するだけ（内容にかかわらずチェックマーク表示は無音タイマーで制御）
+        // 認識結果はログ出力するのみ
         const results = event.results;
         for (let i = event.resultIndex; i < results.length; i++) {
           const transcript = results[i][0].transcript.trim();
@@ -357,7 +401,9 @@
         });
       }
     }
+
     function renderExample() {
+      // 例画面には進捗バーを表示しない
       showScreen(`
         <h2 class="header">Example</h2>
         <div class="question-container">
@@ -372,6 +418,7 @@
         micBtn.addEventListener("click", startRecognition);
       }
     }
+
     function renderExplanation2() {
       showScreen(explanation2);
       const goTestButton = document.getElementById("goTestBtn");
@@ -382,8 +429,14 @@
         });
       }
     }
+
     function renderQuestion(q) {
+      // 現在の問題番号を示す進捗バーHTMLを生成
+      const progressHTML = renderProgressBar(currentQuestionIndex, shuffledQuestions.length);
+
+      // question-container 内に進捗バーを挿入
       showScreen(`
+        ${progressHTML}
         <div class="question-container">
           <p class="test-sentence">${q.english}</p>
           <p class="japanese-cue">${q.japaneseCue}</p>
@@ -396,18 +449,22 @@
         micBtn.addEventListener("click", startRecognition);
       }
     }
+
     function renderFinal() {
+      // 最後は進捗バー不要
       showScreen(explanation3);
     }
 
     // ===== テスト進行関連 =====
     let shuffledQuestions = [];
     let currentQuestionIndex = 0;
+
     function startTest() {
       shuffledQuestions = shuffle(questions);
       currentQuestionIndex = 0;
       renderQuestion(shuffledQuestions[currentQuestionIndex]);
     }
+
     function goToNextQuestion() {
       currentQuestionIndex++;
       if (currentQuestionIndex < shuffledQuestions.length) {
