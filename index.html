@@ -38,7 +38,7 @@
     .header {
       font-size: 2em;
       margin-bottom: 20px;
-      text-align: center; /* 「Test 2」を中央寄せ */
+      text-align: center;
     }
 
     /* 進捗バー（テスト中のみ表示） */
@@ -74,8 +74,8 @@
       border-radius: 8px;
       background-color: #fafafa;
       margin-bottom: 20px;
-      font-size: 1.3em;    /* 少し文字サイズを小さめに */
-      line-height: 1.4;    /* 行間を詰める */
+      font-size: 1.3em;
+      line-height: 1.4;
       text-align: left;
       white-space: normal;
     }
@@ -97,43 +97,11 @@
       max-height: 400px;
       object-fit: contain;
       border-radius: 4px;
+      margin: 0 auto;
+      display: block;
     }
 
-    /* カスタムラジオボタン（ボタン風） */
-    .radio-group {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .radio-label {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 120px;
-      padding: 10px 15px;
-      font-size: 1.3em;
-      border: 2px solid #007BFF;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-      background-color: #f0f0f0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .radio-label:hover {
-      background-color: #e0ebff;
-    }
-    .radio-label input {
-      display: none;
-    }
-    .radio-label input:checked + span {
-      background-color: #007BFF;
-      color: white;
-      border-radius: 8px;
-      padding: 5px 10px;
-    }
-
-    /* ボタン（Go to, Submit） */
+    /* ボタン（Next, Submit） */
     .submit-btn {
       display: inline-block;
       background-color: #007BFF;
@@ -144,13 +112,13 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s;
-      opacity: 1; /* フェードイン前は非表示にする場合は別途対応 */
+      opacity: 1;
     }
     .submit-btn:hover {
       background-color: #0056b3;
     }
 
-    /* フェードアウト（既存） */
+    /* フェードアウト */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
     }
@@ -159,7 +127,7 @@
       to { opacity: 0; }
     }
 
-    /* フェードイン（新規追加） */
+    /* フェードイン */
     .fade-in {
       animation: fadeIn 0.5s ease-in forwards;
     }
@@ -171,10 +139,10 @@
 </head>
 <body>
   <div class="container">
-    <!-- ヘッダー：説明ページのみ表示。問題形式のページでは非表示にします -->
-    <header class="header">Test 2</header>
-
-    <!-- 進捗バー（初期状態非表示） -->
+    <!-- 初期表示（ヘッダーは動的に追加するため初めは不要） -->
+    <div id="content">
+      <button id="goToNextBtn" class="submit-btn">Go to Next</button>
+    </div>
     <div class="progress-bar" id="progressBar">
       <div class="progress-step">1</div>
       <div class="progress-step">2</div>
@@ -191,13 +159,7 @@
       <div class="progress-step">13</div>
       <div class="progress-step">14</div>
     </div>
-
-    <!-- 初期表示 -->
-    <div id="content">
-      <button id="goToNextBtn" class="submit-btn">Go to Next</button>
-    </div>
-  </div>
-
+  </div> 
   <script>
     /* ========== サウンド再生用 ========= */
     function playClickSound() {
@@ -211,342 +173,39 @@
     const explanations = {
       box1: `In this test, first look at the image.<br>
       Then, listen to the three Japanese audio clips.<br>
-      After listening, choose the audio clip that matches the image best.<br>
+      After listening, proceed to the next page by clicking the arrow button.<br>
       You can listen to each audio clip only once.<br><br>
       Now, let's do an example together.<br>
-      Please press the <strong>"Go to Next"</strong> button.`,
+      Please press the arrow button below.`,
       
       box2: `Let's do Example 1.<br><br>
       <strong>Example 1:</strong><br>
-      Which audio clip correctly matches the image?<br>First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
       Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-      Choose the correct answer from these three audio clips.<br>
+      Choose the correct answer by clicking the arrow button after listening.<br>
       The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
-      When you are ready, please press the <strong>"Go to Example 1"</strong> button.`,
+      When you are ready, please press the arrow button below.`,
       
       box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
-      Even if you know the answer early, you cannot submit it until you finish listening to all three audio clips.<br><br>
+      Even if you know the answer early, you cannot proceed until you finish listening to all three audio clips.<br><br>
       Now, let's do one more example.<br><br>
       <strong>Example 2:</strong><br>
-      Which audio clip correctly matches the image?<br>First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
       Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-      Choose the correct answer from these three audio clips.<br>
+      Choose the correct answer by clicking the arrow button after listening.<br>
       The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
-      When you are ready, please press the <strong>"Go to Example 2"</strong> button.`,
-    };
-
-    /* ========== テストの進行状況 ========= */
-    let currentStep = 1; // 現在のステップ
-    const testResults = [];
-
-    /* ========== 進捗の更新 ========= */
-    function updateProgressBar(step) {
-      const progressSteps = document.querySelectorAll('.progress-step');
-      progressSteps.forEach((stepElement, index) => {
-        if (index < step) {
-          stepElement.classList.add('completed');
-        } else {
-          stepElement.classList.remove('completed');
-        }
-      });
-    }
-
-    /* ========== 進行状況表示の更新と結果送信 ========= */
-    function finishTest() {
-      // 結果を表示・送信
-      playSubmitSound();
-      testResults.push({ step: currentStep, timestamp: new Date() });
-      sendResultsToGitHub(testResults);
-    }
-
-    /* ========== GitHub へ結果送信 ========= */
-    function sendResultsToGitHub(testResults) {
-      const token = 'YOUR_GITHUB_TOKEN'; // 必要なGitHubトークンをここに設定
-      const headers = {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json'
-      };
-
-      const results = {
-        testResults: testResults,
-        timestamp: new Date().toISOString()
-      };
-
-      fetch('https://api.github.com/repos/moguura/experiment-results/issues', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          title: 'Test Results',
-          body: JSON.stringify(results),
-          labels: ['test-results']
-        })
-      })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
-    }
-
-    /* ========== ページの進行状況に合わせてUI更新 ========= */
-    function goToNextStep() {
-      updateProgressBar(currentStep);
-      currentStep++;
-    }
-
-    /* ========== ボタン押下時の処理 ========= */
-    document.getElementById('goToNextBtn').addEventListener('click', function() {
-      playClickSound();
-      goToNextStep();
-      if (currentStep === 2) {
-        finishTest();
-      }
-    });
-  </script>
-</body>
-</html>
-
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Test 2</title>
-  <style>
-    /* リセット */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    /* ページ全体の設定 */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-
-    /* コンテナ：画面中央配置 */
-    .container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center; /* 垂直方向の中央寄せ */
-      align-items: center;     /* 水平方向の中央寄せ */
-      min-height: 100vh;
-      width: 90%;
-      max-width: 800px;
-      background-color: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      margin: 0 auto; /* 横方向の中央寄せ */
-    }
-
-    /* ヘッダー（タイトル） */
-    .header {
-      font-size: 2em;
-      margin-bottom: 20px;
-      text-align: center; /* 「Test 2」を中央寄せ */
-    }
-
-    /* 進捗バー（テスト中のみ表示） */
-    .progress-bar {
-      display: none; /* 初期は非表示 */
-      justify-content: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .progress-step {
-      width: 30px;
-      height: 30px;
-      border: 2px solid #007BFF;
-      border-radius: 50%;
-      margin: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9em;
-      background-color: #f0f0f0;
-      color: #333;
-      user-select: none;
-    }
-    .progress-step.completed {
-      background-color: #007BFF;
-      color: #fff;
-    }
-
-    /* 説明Box */
-    .explanation-box {
-      padding: 20px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      background-color: #fafafa;
-      margin-bottom: 20px;
-      font-size: 1.3em;    /* 少し文字サイズを小さめに */
-      line-height: 1.4;    /* 行間を詰める */
-      text-align: left;
-      white-space: normal;
-    }
-
-    /* 問題用コンテナ */
-    .question-container {
-      margin-bottom: 30px;
-      position: relative;
-      min-height: 300px;
-    }
-
-    /* 画像表示 */
-    .image-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .image-container img {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-
-    /* カスタムラジオボタン（ボタン風） */
-    .radio-group {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .radio-label {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 120px;
-      padding: 10px 15px;
-      font-size: 1.3em;
-      border: 2px solid #007BFF;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-      background-color: #f0f0f0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .radio-label:hover {
-      background-color: #e0ebff;
-    }
-    .radio-label input {
-      display: none;
-    }
-    .radio-label input:checked + span {
-      background-color: #007BFF;
-      color: white;
-      border-radius: 8px;
-      padding: 5px 10px;
-    }
-
-    /* ボタン（Go to, Submit） */
-    .submit-btn {
-      display: inline-block;
-      background-color: #007BFF;
-      color: #fff;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      opacity: 1; /* フェードイン前は非表示にする場合は別途対応 */
-    }
-    .submit-btn:hover {
-      background-color: #0056b3;
-    }
-
-    /* フェードアウト（既存） */
-    .fade-out {
-      animation: fadeOut 0.5s ease-out forwards;
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-
-    /* フェードイン（新規追加） */
-    .fade-in {
-      animation: fadeIn 0.5s ease-in forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <!-- ヘッダー：説明ページのみ表示。問題形式のページでは非表示にします -->
-    <header class="header">Test 2</header>
-
-    <!-- 進捗バー（初期状態非表示） -->
-    <div class="progress-bar" id="progressBar">
-      <div class="progress-step">1</div>
-      <div class="progress-step">2</div>
-      <div class="progress-step">3</div>
-      <div class="progress-step">4</div>
-      <div class="progress-step">5</div>
-      <div class="progress-step">6</div>
-      <div class="progress-step">7</div>
-      <div class="progress-step">8</div>
-      <div class="progress-step">9</div>
-      <div class="progress-step">10</div>
-      <div class="progress-step">11</div>
-      <div class="progress-step">12</div>
-      <div class="progress-step">13</div>
-      <div class="progress-step">14</div>
-    </div>
-
-    <!-- 初期表示 -->
-    <div id="content">
-      <button id="goToNextBtn" class="submit-btn">Go to Next</button>
-    </div>
-  </div>
-
-  <script>
-    /* ========== サウンド再生用 ========= */
-    function playClickSound() {
-      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3").play();
-    }
-    function playSubmitSound() {
-      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3").play();
-    }
-
-    /* ========== 説明文データ ========= */
-    const explanations = {
-      box1: `In this test, first look at the image.<br>
-      Then, listen to the three Japanese audio clips.<br>
-      After listening, choose the audio clip that matches the image best.<br>
-      You can listen to each audio clip only once.<br><br>
-      Now, let's do an example together.<br>
-      Please press the <strong>"Go to Next"</strong> button.`,
+      When you are ready, please press the arrow button below.`,
       
-      box2: `Let's do Example 1.<br><br>
-      <strong>Example 1:</strong><br>
-      Which audio clip correctly matches the image?<br>First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-      Choose the correct answer from these three audio clips.<br>
-      The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
-      When you are ready, please press the <strong>"Go to Example 1"</strong> button.`,
-      
-      box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
-      Even if you know the answer early, you cannot submit it until you finish listening to all three audio clips.<br><br>
-      Now, let's do one more example.<br><br>
-      <strong>Example 2:</strong><br>
-      Which audio clip correctly matches the image?<br>First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-      Choose the correct answer from these three audio clips.<br>
-      The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
-      When you are ready, please press the <strong>"Go to Example 2"</strong> button.`,
-      
-      box4: `The correct answer for Example 2 is <strong>the third one</strong>.
-      Even if you know the answer early, you cannot submit it until you finish listening to all three audio clips.<br><br>
+      box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
+      Even if you know the answer early, you cannot proceed until you finish listening to all three audio clips.<br><br>
       Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
       so listen carefully.<br><br>
       There are a total of 14 questions in this test.<br>
       You can only listen to each audio clip once.<br><br>
       Now, let's begin the test.<br>
-      When you are ready, please press the <strong>"Go to Test"</strong> button.`
+      When you are ready, please press the arrow button below.`
     };
     const explanationBox5 = {
       text: `This is the end of Test 2. Please click the X at the top to close this tab.`,
@@ -648,12 +307,10 @@
     /* ========== UI表示用関数 ========= */
     const content = document.getElementById("content");
 
-    // 説明ページを表示（ヘッダーを表示）
+    // 説明ページを表示（ヘッダー付き）
     function showExplanation(text, buttonText, callback) {
-      document.querySelector(".header").style.display = "block";
-      document.getElementById("progressBar").style.display = "none";
-
       content.innerHTML = `
+        <header class="header">Test 2</header>
         <div class="explanation-box">
           ${text.trim()}
           <div style="text-align: center; margin-top: 20px;">
@@ -667,104 +324,54 @@
       });
     }
 
-    // 例題を表示（問題形式：ヘッダー非表示）
-    function showExample(exampleData, callbackAfterSubmit) {
-      document.querySelector(".header").style.display = "none";
-      document.getElementById("progressBar").style.display = "none";
+    // 例題を表示（ヘッダー非表示）
+    function showExample(exampleData, callbackAfterNext) {
       content.innerHTML = `
         <div class="question-container">
           <div class="image-container">
             <img src="${exampleData.image}" alt="Example Image">
           </div>
           <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${exampleData.correct === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${exampleData.correct === 'b' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${exampleData.correct === 'c' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="nextButton" class="submit-btn" style="display:none;">&#8594;</button>
           </div>
         </div>
       `;
-      const submitButton = document.getElementById("submitButton");
+      const nextButton = document.getElementById("nextButton");
       playSequence(exampleData.audios, exampleData.order, () => {
-        // ボタンを表示 + フェードイン
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
+        nextButton.style.display = "inline-block";
+        nextButton.classList.add("fade-in");
       });
-      submitButton.addEventListener("click", () => {
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          return;
-        }
-        playSubmitSound();
-        callbackAfterSubmit();
+      nextButton.addEventListener("click", () => {
+        playClickSound();
+        callbackAfterNext();
       });
     }
 
-    // テスト問題を表示（問題形式：ヘッダー非表示）
-    let testResults = [];
-    function showTestQuestion(questionData, callbackAfterSubmit) {
-      document.querySelector(".header").style.display = "none";
+    // テスト問題を表示（ヘッダー非表示）
+    function showTestQuestion(questionData, callbackAfterNext) {
       document.getElementById("progressBar").style.display = "flex";
-
-      const options = shuffle(["a", "b", "c"]);
       content.innerHTML = `
         <div class="question-container">
           <div class="image-container">
             <img src="${questionData.image}" alt="Test Question ${questionData.id}">
           </div>
           <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${options[1] === 'a' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="nextButton" class="submit-btn" style="display:none;">&#8594;</button>
           </div>
         </div>
       `;
-      const submitButton = document.getElementById("submitButton");
+      const nextButton = document.getElementById("nextButton");
+      // ランダムな音声順序（shuffle済み）で再生
+      const options = shuffle(["a", "b", "c"]);
       playSequence(questionData.audios, options, () => {
-        // ボタンを表示 + フェードイン
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
+        nextButton.style.display = "inline-block";
+        nextButton.classList.add("fade-in");
       });
-      submitButton.addEventListener("click", () => {
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          return;
-        }
+      nextButton.addEventListener("click", () => {
         playSubmitSound();
-        const isCorrect = (selected.value === "correct");
-        testResults.push({
-          questionId: questionData.id,
-          answer: selected.value,
-          correct: isCorrect
-        });
-        callbackAfterSubmit();
+        callbackAfterNext();
       });
     }
 
@@ -779,38 +386,34 @@
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
         </div>
       `;
-      // Google Apps Script へデータ送信
-      sendResultsToGoogleAppsScript(testResults);
     }
 
-   // テスト進行管理
-let currentTestIndex = 0;
-function startTestQuestions() {
-  testQuestions = shuffle(testQuestions); // ← この行を追加
-  document.querySelector(".header").style.display = "none";
-  currentTestIndex = 0;
-  function nextQuestion() {
-    if (currentTestIndex >= testQuestions.length) {
-      finishTest();
-      return;
-    }
-    updateProgress(currentTestIndex + 1);
-    showTestQuestion(testQuestions[currentTestIndex], () => {
-      currentTestIndex++;
+    // テスト進行管理
+    function startTestQuestions() {
+      testQuestions = shuffle(testQuestions);
+      let currentTestIndex = 0;
+      function nextQuestion() {
+        if (currentTestIndex >= testQuestions.length) {
+          finishTest();
+          return;
+        }
+        updateProgress(currentTestIndex + 1);
+        showTestQuestion(testQuestions[currentTestIndex], () => {
+          currentTestIndex++;
+          nextQuestion();
+        });
+      }
       nextQuestion();
-    });
-  }
-  nextQuestion();
-}
+    }
 
     // 全体フロー開始
     function startFlow() {
-      showExplanation(explanations.box1, "Go to Next", function() {
-        showExplanation(explanations.box2, "Go to Example 1", function() {
+      showExplanation(explanations.box1, "Next", function() {
+        showExplanation(explanations.box2, "Next", function() {
           showExample(example1, function() {
-            showExplanation(explanations.box3, "Go to Example 2", function() {
+            showExplanation(explanations.box3, "Next", function() {
               showExample(example2, function() {
-                showExplanation(explanations.box4, "Go to Test", function() {
+                showExplanation(explanations.box4, "Next", function() {
                   startTestQuestions();
                 });
               });
@@ -820,98 +423,11 @@ function startTestQuestions() {
       });
     }
 
-    <script>
-    /* ========== 省略（UI処理・テスト進行部分） ========== */
-
-    // **Google Apps Script への送信処理を削除**
-    // function sendResultsToGoogleAppsScript(data) {
-    //    fetch("https://script.google.com/macros/s/AKfycbzsReFXyRYS25uqNAtueIcZETCJ1JvM4St370w8ilm9gvGBj3srfZjX0KaV30cVcTRx/exec", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(data)
-    //   })
-    //   .then(response => response.json())
-    //   .then(json => console.log("送信結果:", json))
-    //   .catch(err => console.error("送信エラー:", err));
-    // }
-
-    // **GitHubの新しいブランチにテスト結果をプッシュする処理**
-    async function pushResultsToGitHub(data) {
-      const repo = "あなたのリポジトリ名";  // 例: "yourusername/yourrepo"
-      const branch = "test-results"; // テスト結果を保存する新しいブランチ
-      const filePath = "test_results.json"; // 結果を保存するファイル
-      const token = "your_github_personal_access_token"; // GitHubのアクセストークン（セキュリティに注意）
-
-      try {
-        // GitHub API: ブランチのSHAを取得
-        const branchResponse = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, {
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json"
-          }
-        });
-        const branchData = await branchResponse.json();
-        const mainSha = branchData.object.sha;
-
-        // 新しいブランチを作成
-        await fetch(`https://api.github.com/repos/${repo}/git/refs`, {
-          method: "POST",
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            ref: `refs/heads/${branch}`,
-            sha: mainSha
-          })
-        });
-
-        // JSONデータをBase64に変換
-        const content = btoa(JSON.stringify(data, null, 2));
-
-        // GitHub API: 新しいブランチにファイルを作成
-        const createFileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: "Test results updated",
-            content: content,
-            branch: branch
-          })
-        });
-
-        if (createFileResponse.ok) {
-          console.log("テスト結果がGitHubに保存されました");
-        } else {
-          console.error("GitHubへの保存エラー", await createFileResponse.json());
-        }
-      } catch (error) {
-        console.error("GitHubへの接続エラー", error);
-      }
-    }
-
-    // **finishTest()関数内の処理を修正**
-    function finishTest() {
-      document.getElementById("progressBar").style.display = "none";
-      content.innerHTML = `
-        <div class="explanation-box" style="text-align:center;">
-          <p style="margin-bottom: 20px; font-size: 1.4em;">
-            ${explanationBox5.text}
-          </p>
-          <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
-        </div>
-      `;
-
-      // **テスト結果をGitHubへプッシュ**
-      pushResultsToGitHub(testResults);
-    }
+    // 初期画面の「Go to Next」ボタンイベント
+    document.getElementById("goToNextBtn").addEventListener("click", () => {
+      playClickSound();
+      startFlow();
+    });
   </script>
 </body>
 </html>
