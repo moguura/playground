@@ -34,16 +34,9 @@
       margin: 0 auto;
     }
 
-    /* ヘッダー（タイトル） */
-    .header {
-      font-size: 2em;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
     /* 進捗バー（テスト中のみ表示） */
     .progress-bar {
-      display: none;
+      display: none; /* 説明画面では非表示 */
       justify-content: center;
       margin-bottom: 20px;
       flex-wrap: wrap;
@@ -78,6 +71,13 @@
       line-height: 1.4;
       text-align: left;
       white-space: normal;
+    }
+
+    /* ヘッダー（タイトル） */
+    .header {
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     /* 問題用コンテナ */
@@ -172,10 +172,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- 初期表示（ヘッダーは動的に追加するので初めは不要） -->
-    <div id="content">
-      <button id="goToNextBtn" class="submit-btn">Go to Next</button>
-    </div>
+    <!-- 進捗バーを先頭に配置 -->
     <div class="progress-bar" id="progressBar">
       <div class="progress-step">1</div>
       <div class="progress-step">2</div>
@@ -192,6 +189,8 @@
       <div class="progress-step">13</div>
       <div class="progress-step">14</div>
     </div>
+    <!-- コンテンツエリア -->
+    <div id="content"></div>
   </div> 
   <script>
     /* ========== サウンド再生用 ========= */
@@ -398,9 +397,12 @@
         submitButton.classList.add("fade-in");
       });
       submitButton.addEventListener("click", () => {
+        if(submitButton.disabled) return;
+        submitButton.disabled = true;
         const selected = document.querySelector('input[name="answer"]:checked');
         if (!selected) {
           alert("Please select an option.");
+          submitButton.disabled = false;
           return;
         }
         playSubmitSound();
@@ -451,9 +453,12 @@
         submitButton.classList.add("fade-in");
       });
       submitButton.addEventListener("click", () => {
+        if(submitButton.disabled) return;
+        submitButton.disabled = true;
         const selected = document.querySelector('input[name="answer"]:checked');
         if (!selected) {
           alert("Please select an option.");
+          submitButton.disabled = false;
           return;
         }
         playSubmitSound();
@@ -510,9 +515,8 @@
       });
     }
 
-    // 初期画面の「Go to Next」ボタンイベント
-    document.getElementById("goToNextBtn").addEventListener("click", () => {
-      playClickSound();
+    // ページ読み込み時に最初の説明から開始
+    document.addEventListener("DOMContentLoaded", function() {
       startFlow();
     });
   </script>
