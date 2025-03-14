@@ -149,11 +149,20 @@
   <script>
     // JavaScriptコード
     const app = document.getElementById("app");
-    let audioContext = null, analyser = null, microphoneStream = null, animationId = null;
-    let isRecording = false, lastSpokeTime = null, recordingStartTime = null;
-    const SILENCE_THRESHOLD = 0.02;
-    const SILENCE_DURATION = 2000; // 2秒
-    const MIN_RECORDING_TIME = 2000; // 録音開始後、最低2秒は待つ
+
+    let audioContext = null;
+    let analyser = null;
+    let microphoneStream = null;
+    let animationId = null;
+
+    let isRecording = false;
+    let lastSpokeTime = null;
+    let recordingStartTime = null;
+
+    const SILENCE_THRESHOLD = 0.02;      // 音声ありと判定するしきい値
+    const SILENCE_DURATION = 2000;       // 2秒無音でチェックアイコン表示
+    const MIN_RECORDING_TIME = 2000;     // 録音開始後、最低2秒は待つ
+
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
     const explanation1 = `
@@ -218,28 +227,32 @@
       return arr;
     }
 
+    // マイクを初期化する関数（必要になったときだけ呼ぶ）
     async function initAudio() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      try {
-        microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const source = audioContext.createMediaStreamSource(microphoneStream);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 512;
-        source.connect(analyser);
-      } catch (err) {
-        console.warn("マイクが許可されなかったため、シミュレーションします。", err);
-        analyser = null;
+      if (!microphoneStream) {
+        try {
+          microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const source = audioContext.createMediaStreamSource(microphoneStream);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 512;
+          source.connect(analyser);
+        } catch (err) {
+          console.warn("マイクが許可されませんでした。シミュレーションします。", err);
+          analyser = null;
+        }
       }
     }
 
-    // updateVolumeMeterでは画面上の音量表示は行わず、音量を使って発話の有無を判定するのみ
+    // 発話を検知して無音になったらチェックアイコンを表示
     function updateVolumeMeter() {
       if (!isRecording) {
         animationId = requestAnimationFrame(updateVolumeMeter);
         return;
       }
+
       let volume = 0;
       if (analyser) {
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -250,31 +263,45 @@
         }
         volume = sum / dataArray.length / 255;
       } else {
+        // マイクが許可されなかった場合はランダムで発話をシミュレーション
         volume = Math.random() * 0.7 + 0.3;
       }
+
       // 発話があれば lastSpokeTime を更新
       if (volume > SILENCE_THRESHOLD) {
         lastSpokeTime = performance.now();
       }
-      // 最低録音時間経過後、かつ直近の発話から2秒以上音がない場合のみチェックアイコンを表示
-      if (recordingStartTime && performance.now() - recordingStartTime >= MIN_RECORDING_TIME &&
-          lastSpokeTime && performance.now() - lastSpokeTime > SILENCE_DURATION) {
+
+      // 最低録音時間を超え、かつ無音状態が2秒続いたらチェックアイコン表示
+      if (
+        recordingStartTime &&
+        performance.now() - recordingStartTime >= MIN_RECORDING_TIME &&
+        lastSpokeTime &&
+        performance.now() - lastSpokeTime > SILENCE_DURATION
+      ) {
         showCheckIconAndNext();
-        return; // チェックアイコン表示後はループを抜ける
+        return;
       }
+
       animationId = requestAnimationFrame(updateVolumeMeter);
     }
 
-    function startRecording() {
+    async function startRecording() {
+      // 初回ならここでマイクを初期化（許可をリクエスト）
+      if (!microphoneStream) {
+        await initAudio();
+      }
+
       isRecording = true;
       recordingStartTime = performance.now();
       lastSpokeTime = performance.now();
+
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.classList.add("mic-active");
         micBtn.disabled = false;
       }
-      // 録音開始と同時にupdateVolumeMeterを開始
+      // 録音開始と同時に監視ループをスタート
       animationId = requestAnimationFrame(updateVolumeMeter);
     }
 
@@ -283,6 +310,11 @@
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.classList.remove("mic-active");
+      }
+      // マイクを完全に切る
+      if (microphoneStream) {
+        microphoneStream.getTracks().forEach(track => track.stop());
+        microphoneStream = null;
       }
     }
 
@@ -383,9 +415,12 @@
       }
     }
 
-    window.addEventListener("DOMContentLoaded", async () => {
-      await initAudio();
+    // ページ読み込み時はマイクを初期化しない（ユーザーがボタンを押した時に初期化する）
+    window.addEventListener("DOMContentLoaded", () => {
       renderExplanation1();
+
+      // 最初の説明が終わり、「Next」ボタンを押してExampleに行ったあと、
+      // Example画面のマイクボタンを押すと初めてマイク取得を試みる。
       const originalGoNext = goToNextQuestion;
       goToNextQuestion = () => {
         if (currentQuestionIndex === 0 && shuffledQuestions.length === 0) {
