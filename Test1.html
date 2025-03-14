@@ -5,177 +5,177 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Test 1</title>
   <style>
- /* 全体のレイアウト */
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #fff;
-  color: #333;
-}
+    /* 全体のレイアウト */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #fff;
+      color: #333;
+    }
 
-/* 中央寄せコンテナ */
-.container, #app {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 20px;
-}
+    /* 中央寄せコンテナ */
+    .container, #app {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 20px;
+    }
 
-/* 見出し（例：Test 1 など） */
-.header {
-  font-size: 2.5em;
-  margin-bottom: 30px;
-}
+    /* 見出し（例：Test 1 など） */
+    .header {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
 
-/* 説明文を囲むボックス */
-.explanation-box {
-  background-color: #f9f9f9;
-  border: 2px solid #ddd;
-  padding: 25px;
-  margin-bottom: 40px;
-  border-radius: 10px;
-  text-align: left;
-  line-height: 1.6;
-  font-size: 1.1em;
-}
+    /* 説明文を囲むボックス */
+    .explanation-box {
+      background-color: #f9f9f9;
+      border: 2px solid #ddd;
+      padding: 25px;
+      margin-bottom: 40px;
+      border-radius: 10px;
+      text-align: left;
+      line-height: 1.6;
+      font-size: 1.1em;
+    }
 
-/* ボタン共通スタイル */
-.button,
-.go-to-test-button {
-  display: inline-block;
-  background-color: #007BFF;
-  color: #fff;
-  padding: 16px 32px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.3s, transform 0.2s;
-}
+    /* ボタン共通スタイル */
+    .button,
+    .go-to-test-button {
+      display: inline-block;
+      background-color: #007BFF;
+      color: #fff;
+      padding: 16px 32px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s, transform 0.2s;
+    }
 
-.button:hover,
-.go-to-test-button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
+    .button:hover,
+    .go-to-test-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
 
-/* 問題文全体のコンテナ */
-.question-container {
-  margin-bottom: 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-}
+    /* 問題文全体のコンテナ */
+    .question-container {
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+    }
 
-/* メイン文章 */
-.test-sentence {
-  font-size: 1.8em;
-  margin: 30px 0 20px;
-  text-align: center;
-  white-space: pre-wrap;
-}
+    /* メイン文章 */
+    .test-sentence {
+      font-size: 1.8em;
+      margin: 30px 0 20px;
+      text-align: center;
+      white-space: pre-wrap;
+    }
 
-/* 日本語キュー部分 */
-.japanese-cue {
-  font-size: 1.8em;
-  color: #006400;
-  margin-bottom: 30px;
-  text-align: center;
-}
+    /* 日本語キュー部分 */
+    .japanese-cue {
+      font-size: 1.8em;
+      color: #006400;
+      margin-bottom: 30px;
+      text-align: center;
+    }
 
-/* マイクボタン */
-.mic-button {
-  width: 80px;
-  height: 80px;
-  background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/mic.png") no-repeat center center / contain;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  margin: 30px auto;
-  transition: transform 0.2s;
-  display: inline-block;
-}
+    /* マイクボタン */
+    .mic-button {
+      width: 80px;
+      height: 80px;
+      background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/mic.png") no-repeat center center / contain;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      margin: 30px auto;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
 
-.mic-button:hover {
-  transform: scale(1.1);
-}
+    .mic-button:hover {
+      transform: scale(1.1);
+    }
 
-.mic-button:active {
-  transform: scale(0.95);
-}
+    .mic-button:active {
+      transform: scale(0.95);
+    }
 
-.mic-button.mic-active {
-  animation: micGlow 1s infinite alternate;
-}
+    .mic-button.mic-active {
+      animation: micGlow 1s infinite alternate;
+    }
 
-@keyframes micGlow {
-  0% {
-    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
-  }
-  100% {
-    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
-  }
-}
+    @keyframes micGlow {
+      0% {
+        filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
+      }
+      100% {
+        filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
+      }
+    }
 
-/* 音量レベルメーター */
-.voice-level-meter {
-  width: 250px;
-  height: 15px;
-  background-color: #ddd;
-  border-radius: 8px;
-  margin: 20px auto;
-  overflow: hidden;
-  position: relative;
-}
+    /* 音量レベルメーター */
+    .voice-level-meter {
+      width: 250px;
+      height: 15px;
+      background-color: #ddd;
+      border-radius: 8px;
+      margin: 20px auto;
+      overflow: hidden;
+      position: relative;
+    }
 
-.voice-level-bar {
-  height: 100%;
-  width: 0%;
-  background-color: #4caf50;
-  transition: width 0.1s;
-}
+    .voice-level-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      transition: width 0.1s;
+    }
 
-/* チェックアイコン */
-.check-icon {
-  width: 70px;
-  height: 70px;
-  background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
-  display: none;
-  margin: 30px auto;
-}
+    /* チェックアイコン */
+    .check-icon {
+      width: 70px;
+      height: 70px;
+      background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
+      display: none;
+      margin: 30px auto;
+    }
 
-.check-icon.show {
-  display: block;
-  animation: pop 0.3s forwards;
-}
+    .check-icon.show {
+      display: block;
+      animation: pop 0.3s forwards;
+    }
 
-@keyframes pop {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+    @keyframes pop {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
 
-/* テスト終了画面 */
-.final-message {
-  text-align: center;
-  font-size: 1.4em;
-  margin-top: 50px;
-}
+    /* テスト終了画面 */
+    .final-message {
+      text-align: center;
+      font-size: 1.4em;
+      margin-top: 50px;
+    }
 
-.final-illustration {
-  max-width: 350px;
-  display: block;
-  margin: 30px auto;
-}
+    .final-illustration {
+      max-width: 350px;
+      display: block;
+      margin: 30px auto;
+    }
   </style>
 </head>
 <body>
@@ -222,25 +222,27 @@ html, body {
            alt="Cracker GIF" class="final-illustration">
     `;
 
+    // 16問の問題リスト（ランダム表示）
     const questions = [
       { english: "The class is interesting.", japaneseCue: "おもしろい → じゅぎょうは（　　　）" },
       { english: "This pasta is spicy.", japaneseCue: "からい → このパスタは（　　　）" },
-      { english: "That movie was boring.", japaneseCue: "つまらない → あの映画は（　　　）" },
-      { english: "This book is difficult.", japaneseCue: "むずかしい → この本は（　　　）" },
-      { english: "The test was easy.", japaneseCue: "かんたん → テストは（　　　）" },
-      { english: "The coffee is hot.", japaneseCue: "あつい → コーヒーは（　　　）" },
-      { english: "The water is cold.", japaneseCue: "つめたい → 水は（　　　）" },
-      { english: "This cake is sweet.", japaneseCue: "あまい → このケーキは（　　　）" },
-      { english: "The room is small.", japaneseCue: "ちいさい → 部屋は（　　　）" },
-      { english: "The mountain is high.", japaneseCue: "たかい → 山は（　　　）" },
-      { english: "The road is wide.", japaneseCue: "ひろい → 道は（　　　）" },
-      { english: "The bag is heavy.", japaneseCue: "おもい → かばんは（　　　）" },
-      { english: "The story is long.", japaneseCue: "ながい → 物語は（　　　）" },
-      { english: "The chair is new.", japaneseCue: "あたらしい → 椅子は（　　　）" },
-      { english: "The car is fast.", japaneseCue: "はやい → 車は（　　　）" },
-      { english: "The fruit is sour.", japaneseCue: "すっぱい → 果物は（　　　）" }
+      { english: "The medicine is not tasty.", japaneseCue: "おいしい → くすりは（　　　）" },
+      { english: "Studying is not difficult.", japaneseCue: "むずかしい → べんきょうは（　　　）" },
+      { english: "The food was expensive.", japaneseCue: "たかい → りょうりは（　　　）" },
+      { english: "This T-shirt was cheap.", japaneseCue: "やすい → このTシャツは（　　　）" },
+      { english: "The cake was not big.", japaneseCue: "おおきい → ケーキは（　　　）" },
+      { english: "February was not cold.", japaneseCue: "さむい → 2がつは（　　　）" },
+      { english: "The house is not new.", japaneseCue: "あたらしい → いえは（　　　）" },
+      { english: "Last week was hot.", japaneseCue: "あつい → せんしゅうは（　　　）" },
+      { english: "The game is fun.", japaneseCue: "たのしい → ゲームは（　　　）" },
+      { english: "There was a lot of luggage.", japaneseCue: "おおい → にもつは（　　　）" },
+      { english: "This book is heavy.", japaneseCue: "おもい → このほんは（　　　）" },
+      { english: "The mountain was not cool.", japaneseCue: "すずしい → やまは（　　　）" },
+      { english: "The school is not close.", japaneseCue: "ちかい → がっこうは（　　　）" },
+      { english: "The hot spring was not cold.", japaneseCue: "つめたい → おんせんは（　　　）" }
     ];
 
+    // 配列をシャッフルする
     function shuffle(array) {
       const arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -308,6 +310,7 @@ html, body {
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.classList.add("mic-active");
+        micBtn.disabled = false; // ボタンを有効にしておく
       }
     }
 
@@ -319,8 +322,13 @@ html, body {
       }
     }
 
+    // 発話が停止して2秒以上経過した場合、チェックアイコンを表示し、2秒待って次の問題へ
     function showCheckIconAndNext() {
       stopRecording();
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) {
+        micBtn.disabled = true;
+      }
       const checkIcon = document.getElementById("checkIcon");
       if (checkIcon) {
         checkIcon.classList.add("show");
@@ -328,7 +336,7 @@ html, body {
       checkSound.play();
       setTimeout(() => {
         goToNextQuestion();
-      }, 1000);
+      }, 2000);
     }
 
     function showScreen(htmlString) {
