@@ -11,11 +11,13 @@
       font-family: sans-serif;
       background-color: #fff;
       color: #333;
+      font-size: 18px; /* 全体的に文字を大きく */
     }
     .container, #app {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
+      /* テキストは基本中央寄せ */
       text-align: center;
     }
     .header {
@@ -50,29 +52,38 @@
       background-color: #0056b3;
       transform: scale(1.05);
     }
-    /* ラジオボタン（〇、✖） */
+    /* 〇✖ボタン (ラジオ) */
     .choice-container {
       margin: 20px 0;
+    }
+    /* 角丸長方形のデザインにし、文字は白抜き */
+    .choice-button {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
       font-size: 1.2em;
-    }
-    .choice-container label {
-      margin: 0 15px;
+      color: #fff;
       cursor: pointer;
+      margin: 0 20px;
     }
-    .choice-maru {
-      color: red;
-      margin-right: 30px;
+    /* 〇は赤、✖は青 */
+    .choice-maru-btn {
+      background-color: red;
     }
-    .choice-batsu {
-      color: blue;
+    .choice-batsu-btn {
+      background-color: blue;
     }
-    /* Submitボタン */
+    /* ラジオボタン自体は非表示にして見た目をラベル化 */
+    .choice-button input[type="radio"] {
+      display: none;
+    }
+    /* Submitボタンを緑に */
     .submit-button {
       display: inline-block;
       background-color: #28a745;
       color: #fff;
       padding: 12px 24px;
-      font-size: 1em;
+      font-size: 1.1em;
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -82,12 +93,13 @@
       background-color: #218838;
       transform: scale(1.05);
     }
-    /* 進捗バー（問題のみ） */
+    /* 進捗バーを左寄せに */
     .progress-container {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start; /* 左寄せ */
       flex-wrap: wrap;
       margin-bottom: 20px;
+      margin-left: 40px; /* 適度にインデント */
     }
     .progress-step {
       width: 32px;
@@ -102,12 +114,11 @@
       font-weight: bold;
       transition: background-color 0.3s, color 0.3s;
     }
-    /* 回答済みは青塗り */
+    /* 回答済みは青塗り、現在の問題は白抜き青枠 */
     .progress-step.completed {
       background-color: #007BFF;
       color: #fff;
     }
-    /* 現在の問題は青枠白抜き */
     .progress-step.active {
       background-color: #fff;
       color: #007BFF;
@@ -125,20 +136,17 @@
   const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
   const submitSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-  // 例題の音声
-  const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav"; // 正解: maru(〇)
-  const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu(✖)
+  // 例題の音声 (例1=〇正解, 例2=✖正解)
+  const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav"; // 正解: maru
+  const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
 
-  // ================================
-  //  問題データ（1～40：ランダム表示）
-  //  ここでは例として一部のみ実際のURLを記載し、他は仮URLにしています。
-  //  実際には #5～#38 の部分を適宜置き換えてください。
-  // ================================
+  // 問題40問の音声URL（ランダム表示用）
+  // ※ここでは一部だけ実URLを記載し、他は仮URLです
   const questionAudioUrls = [
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1a.wav", // #1 => ends with 'a' => maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1b.wav", // #2 => ends with 'b' => batsu
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2a.wav", // #3 => ends with 'a' => maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2b.wav", // #4 => ends with 'b' => batsu
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1a.wav", // #1 => 'a' => maru
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1b.wav", // #2 => 'b' => batsu
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2a.wav", // #3 => 'a' => maru
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2b.wav", // #4 => 'b' => batsu
     "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3a.wav", // #5 => 'a'
     "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3b.wav", // #6 => 'b'
     "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4a.wav", // #7 => 'a'
@@ -177,14 +185,12 @@
     "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20b.wav"  // #40 => 'b'
   ];
 
-  // ================================
-  //  ユーティリティ
-  // ================================
-  // 正解判定（音声ファイル名に "a" があれば maru, "b" があれば batsu）
-  function getCorrectAnswerFromUrl(url) {
-    return url.includes("a.wav") ? "maru" : "batsu";
-  }
+  // 提示された音声を再生するための変数
+  let questionAudio = null;
 
+  // ================================
+  //  ユーティリティ関数
+  // ================================
   // 配列シャッフル
   function shuffle(array) {
     const arr = [...array];
@@ -195,7 +201,18 @@
     return arr;
   }
 
-  // 進捗バー（問題のみ表示）
+  // 音声URLから正解を判定 ('a' なら maru, 'b' なら batsu)
+  function getCorrectAnswerFromUrl(url) {
+    return url.includes("a.wav") ? "maru" : "batsu";
+  }
+
+  // 画面書き換え
+  const app = document.getElementById("app");
+  function showScreen(html) {
+    app.innerHTML = html;
+  }
+
+  // 進捗バーを左寄せで描画
   function renderProgressBar(currentIndex, total) {
     let steps = "";
     for (let i = 0; i < total; i++) {
@@ -211,31 +228,23 @@
     return `<div class="progress-container">${steps}</div>`;
   }
 
-  // 画面書き換え
-  const app = document.getElementById("app");
-  function showScreen(html) {
-    app.innerHTML = html;
-  }
-
-  // ビープ音→2秒待機→問題音声を再生
-  let questionAudio = null; // 再生中の問題音声を保持
-  function playQuestionAudio(audioUrl) {
-    // すでに前の音声がある場合は停止
+  // 新しい問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
+  function scheduleQuestionAudio(audioUrl) {
+    // 既存の音声があれば止める
     if (questionAudio) {
       questionAudio.pause();
       questionAudio.currentTime = 0;
     }
-    beepSound.pause();
-    beepSound.currentTime = 0;
-
-    // ビープ音を再生し、終了後2秒待ってから問題音声を再生
-    beepSound.play();
-    beepSound.onended = () => {
-      setTimeout(() => {
+    // 2秒後にビープ音を鳴らし、ビープ音終了後に問題音声
+    setTimeout(() => {
+      beepSound.pause();
+      beepSound.currentTime = 0;
+      beepSound.play();
+      beepSound.onended = () => {
         questionAudio = new Audio(audioUrl);
         questionAudio.play();
-      }, 2000);
-    };
+      };
+    }, 2000);
   }
 
   // ================================
@@ -286,16 +295,16 @@
   /*
     ステージ割り当て:
     0: 説明Box1
-    1: 例1 (音声: example1AudioUrl, 正解: maru)
+    1: 例1 (audioUrl=example1AudioUrl, correct=maru)
     2: 説明Box2
-    3: 例2 (音声: example2AudioUrl, 正解: batsu)
+    3: 例2 (audioUrl=example2AudioUrl, correct=batsu)
     4: 説明Box3 (GO TO TEST)
     5～(5+40-1)=44: 40問 (ランダム)
     45: 説明Box4 (終了)
   */
   let stageIndex = 0;
   let shuffledQuestions = [];
-  let currentQuestionIndex = 0; // 0～39 (shuffledQuestionsのインデックス)
+  let currentQuestionIndex = 0; // 0～39
 
   // 次のステージへ
   function goNextStage() {
@@ -311,7 +320,7 @@
     renderStage(stageIndex);
   }
 
-  // ステージ描画
+  // ステージを描画
   function renderStage(index) {
     switch (index) {
       case 0:
@@ -324,10 +333,10 @@
         break;
 
       case 1:
-        // 例1
+        // 例1 (正解=maru)
         renderExample({
           audioUrl: example1AudioUrl,
-          correct: "maru", // 例1は〇が正解
+          correct: "maru"
         });
         break;
 
@@ -341,10 +350,10 @@
         break;
 
       case 3:
-        // 例2
+        // 例2 (正解=batsu)
         renderExample({
           audioUrl: example2AudioUrl,
-          correct: "batsu", // 例2は✖が正解
+          correct: "batsu"
         });
         break;
 
@@ -370,26 +379,26 @@
     }
   }
 
-  // 例題の画面を表示（ビープ音→音声→〇✖選択→Submit）
+  // 例題画面を表示
   function renderExample(exampleObj) {
     const html = `
       <div class="explanation-box">
         <p>Example</p>
       </div>
       <div class="choice-container">
-        <label class="choice-maru">
-          <input type="radio" name="answer" value="maru"> 〇
+        <label class="choice-button choice-maru-btn">
+          <input type="radio" name="answer" value="maru">〇
         </label>
-        <label class="choice-batsu">
-          <input type="radio" name="answer" value="batsu"> ✖
+        <label class="choice-button choice-batsu-btn">
+          <input type="radio" name="answer" value="batsu">✖
         </label>
       </div>
       <button class="submit-button" id="submitExampleBtn">Submit</button>
     `;
     showScreen(html);
 
-    // 音声再生（ビープ→2秒→例題音声）
-    playQuestionAudio(exampleObj.audioUrl);
+    // 次の問題(例題)が表示されてから2秒後にビープ音→例題音声
+    scheduleQuestionAudio(exampleObj.audioUrl);
 
     document.getElementById("submitExampleBtn").onclick = () => {
       submitSound.play();
@@ -401,14 +410,14 @@
       const userAnswer = selected.value; // "maru" or "batsu"
       const isCorrect = (userAnswer === exampleObj.correct);
       console.log("Example: userAnswer =", userAnswer, "correct =", exampleObj.correct, "isCorrect =", isCorrect);
-      // 次のステージへ
+
+      // 次へ
       goNextStage();
     };
   }
 
-  // 問題の画面を表示（40問）
+  // 問題画面を表示 (40問)
   function renderQuestionPage(qIndex) {
-    // qIndex: 0～39
     const total = 40;
     const progressHTML = renderProgressBar(qIndex, total);
 
@@ -418,23 +427,23 @@
         <p>Question ${qIndex + 1} / ${total}</p>
       </div>
       <div class="choice-container">
-        <label class="choice-maru">
-          <input type="radio" name="answer" value="maru"> 〇
+        <label class="choice-button choice-maru-btn">
+          <input type="radio" name="answer" value="maru">〇
         </label>
-        <label class="choice-batsu">
-          <input type="radio" name="answer" value="batsu"> ✖
+        <label class="choice-button choice-batsu-btn">
+          <input type="radio" name="answer" value="batsu">✖
         </label>
       </div>
       <button class="submit-button" id="submitQBtn">Submit</button>
     `;
     showScreen(html);
 
-    // 音声URLから正解を判定
+    // 正解判定
     const audioUrl = shuffledQuestions[qIndex];
     const correct = getCorrectAnswerFromUrl(audioUrl);
 
-    // 音声再生（ビープ→2秒→問題音声）
-    playQuestionAudio(audioUrl);
+    // 2秒後にビープ音→問題音声
+    scheduleQuestionAudio(audioUrl);
 
     document.getElementById("submitQBtn").onclick = () => {
       submitSound.play();
@@ -454,7 +463,7 @@
   }
 
   // ================================
-  //  初期表示 (stageIndex=0)
+  //  初期表示
   // ================================
   window.addEventListener("DOMContentLoaded", () => {
     renderStage(stageIndex);
