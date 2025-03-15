@@ -22,8 +22,8 @@
     }
     /* 見出し */
     .header {
-      font-size: 2.5em;
-      margin-bottom: 30px;
+      font-size: 2.2em;
+      margin-bottom: 20px;
     }
     /* 説明文ボックス */
     .explanation-box {
@@ -42,13 +42,14 @@
       display: inline-block;
       background-color: #007BFF;
       color: #fff;
-      padding: 16px 32px;
-      font-size: 1.2em;
+      padding: 14px 28px;
+      font-size: 1.1em;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       text-decoration: none;
       transition: background-color 0.3s, transform 0.2s;
+      margin-top: 15px;
     }
     .button:hover,
     .go-to-test-button:hover {
@@ -61,6 +62,7 @@
       display: flex;
       justify-content: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     .progress-step {
       width: 32px;
@@ -71,37 +73,40 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 5px;
+      margin: 5px;
       font-weight: bold;
       transition: background-color 0.3s, color 0.3s;
     }
+    /* 完了・アクティブを青くする */
+    .progress-step.completed,
     .progress-step.active {
       background-color: #007BFF;
       color: #fff;
     }
 
-    /* 問題文全体のコンテナ */
+    /* 問題・例の画面コンテナ */
     .question-container {
-      margin-bottom: 50px;
+      margin-bottom: 40px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 60vh;
+      min-height: 50vh;
     }
-    /* メイン文章 */
-    .test-sentence {
-      font-size: 1.8em;
-      margin: 30px 0 20px;
-      text-align: center;
-      white-space: pre-wrap;
+    /* 中央の画像 */
+    .question-image {
+      max-width: 80%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
     /* 日本語キュー */
     .japanese-cue {
-      font-size: 1.8em;
+      font-size: 1.6em;
       color: #006400;
-      margin-bottom: 30px;
+      margin: 25px 0 30px;
       text-align: center;
+      white-space: pre-wrap;
     }
     /* マイクボタン */
     .mic-button {
@@ -111,7 +116,7 @@
       border: none;
       outline: none;
       cursor: pointer;
-      margin: 30px auto;
+      margin: 20px auto;
       transition: transform 0.2s;
       display: inline-block;
     }
@@ -138,7 +143,7 @@
       height: 70px;
       background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
       display: none;
-      margin: 30px auto;
+      margin: 20px auto;
     }
     .check-icon.show {
       display: block;
@@ -161,194 +166,75 @@
       margin-top: 50px;
     }
     .final-illustration {
-      max-width: 350px;
+      max-width: 300px;
       display: block;
       margin: 30px auto;
     }
   </style>
 </head>
 <body>
-  <div id="app" class="container">
-    <!-- コンテンツはJavaScriptで動的に生成されます -->
-  </div>
-  <script>
-    // ===== 事前準備 =====
-    const app = document.getElementById("app");
+  <div id="app" class="container"></div>
 
-    // クリック音
+  <script>
+    // ================================
+    //  クリック音・チェック音の準備
+    // ================================
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
-    // チェック音
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    let recognition = null; // SpeechRecognition オブジェクト
-    let silenceTimer = null; // 無音タイマー
-    let isRecording = false; // 録音中フラグ（マイクアニメーション用）
-    let recordingStartTime = 0; // 録音開始時刻
+    // ================================
+    //  音声認識の準備
+    // ================================
+    let recognition = null;
+    let recordTimeout = null;
+    let isRecording = false;
 
-    // 無音待機時間
-    const SILENCE_WAIT = 4000; // 4秒
-    // 最低録音時間
-    const MIN_RECORDING_TIME = 5000; // 5秒
-
-    // ===== 画面テキスト =====
-    const explanation1 = `
-      <h2 class="header">Test 1</h2>
-      <div class="explanation-box">
-        <p>This is a speaking test.<br>
-        Press the microphone button and speak.<br>
-        Now, let's try an example. Press the microphone button and say "よくないです".</p>
-      </div>
-      <button class="button" id="goExampleBtn">Next</button>
-    `;
-
-    const exampleQuestion = {
-      english: "The weather is not good.",
-      japaneseCue: "いい → てんきは（　　　）"
-    };
-
-    const explanation2 = `
-      <div class="explanation-box">
-        <p>The weather is not good. Therefore, "いい" becomes "よくないです."<br>
-        Similarly, change the form of い-adjectives and speak the word that fits in the (　　 ).<br><br>
-        When you're ready, press the GO TO TEST button to begin.</p>
-      </div>
-      <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
-    `;
-
-    const explanation3 = `
-      <div class="explanation-box">
-        <p>This is the end of Test 1. Please click the X at the top to close this tab.</p>
-      </div>
-      <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif"
-           alt="Cracker GIF" class="final-illustration">
-    `;
-
-    // 16問の問題リスト（ランダム表示）
-    const questions = [
-      { english: "The class is interesting.", japaneseCue: "おもしろい → じゅぎょうは（　　　）" },
-      { english: "This pasta is spicy.", japaneseCue: "からい → このパスタは（　　　）" },
-      { english: "The medicine is not tasty.", japaneseCue: "おいしい → くすりは（　　　）" },
-      { english: "Studying is not difficult.", japaneseCue: "むずかしい → べんきょうは（　　　）" },
-      { english: "The food was expensive.", japaneseCue: "たかい → りょうりは（　　　）" },
-      { english: "This T-shirt was cheap.", japaneseCue: "やすい → このTシャツは（　　　）" },
-      { english: "The cake was not big.", japaneseCue: "おおきい → ケーキは（　　　）" },
-      { english: "February was not cold.", japaneseCue: "さむい → 2がつは（　　　）" },
-      { english: "The house is not new.", japaneseCue: "あたらしい → いえは（　　　）" },
-      { english: "Last week was hot.", japaneseCue: "あつい → せんしゅうは（　　　）" },
-      { english: "The game is fun.", japaneseCue: "たのしい → ゲームは（　　　）" },
-      { english: "There was a lot of luggage.", japaneseCue: "おおい → にもつは（　　　）" },
-      { english: "This book is heavy.", japaneseCue: "おもい → このほんは（　　　）" },
-      { english: "The mountain was not cool.", japaneseCue: "すずしい → やまは（　　　）" },
-      { english: "The school is not close.", japaneseCue: "ちかい → がっこうは（　　　）" },
-      { english: "The hot spring was not cold.", japaneseCue: "つめたい → おんせんは（　　　）" }
-    ];
-
-    // ===== 進捗バーを描画する関数 =====
-    // currentIndex: 0 〜 (total-1)
-    // total: 問題数（今回は16）
-    function renderProgressBar(currentIndex, total) {
-      // progressBarは問題画面にだけ表示したいので、question-containerに挿入してみる
-      const progressBarHTML = `
-        <div class="progress-container" id="progressContainer">
-        ${
-          Array.from({ length: total }, (_, i) => {
-            const isActive = i === currentIndex;
-            return `<span class="progress-step ${isActive ? "active" : ""}">${i+1}</span>`;
-          }).join("")
-        }
-        </div>
-      `;
-      return progressBarHTML;
-    }
-
-    // ===== ユーティリティ関数 =====
-    function showScreen(htmlString) {
-      app.innerHTML = htmlString;
-    }
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // ===== SpeechRecognition の初期化 =====
+    // ブラウザ対応チェック＆インスタンス生成
     function initSpeechRecognition() {
-      if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-        console.warn("このブラウザはSpeechRecognition APIをサポートしていません。");
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("このブラウザはSpeechRecognition APIをサポートしていません。");
         return null;
       }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recog = new SpeechRecognition();
       recog.lang = "ja-JP";
-      recog.interimResults = true; // 中間結果も取得
+      // interimResultsをtrueにすると途中経過も拾える
+      recog.interimResults = true;
+      // continuousはtrueでもOKだが、10秒で切るのでどちらでも可
       recog.continuous = true;
       return recog;
     }
 
-    // ===== 無音タイマー管理 =====
-     function startSilenceTimer() {
-      clearSilenceTimer();
-      const elapsed = performance.now() - recordingStartTime;
-      if (elapsed < MIN_RECORDING_TIME) {
-        // 最低録音時間に達していなければ、残り時間だけ待ってから停止
-        silenceTimer = setTimeout(() => {
-          stopRecognition();
-        }, MIN_RECORDING_TIME - elapsed);
-      } else {
-        silenceTimer = setTimeout(() => {
-          stopRecognition();
-        }, SILENCE_WAIT);
-      }
-    }
-    function clearSilenceTimer() {
-      if (silenceTimer) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
-      }
-    }
-
-    // ===== 音声認識開始 =====
+    // 音声認識を開始
     function startRecognition() {
-      clickSound.play();  // クリック音再生
-
-      // マイクボタンは1回のみ有効にする
-      const micBtn = document.getElementById("micBtn");
-      micBtn.disabled = true;
-      micBtn.classList.add("mic-active");
-      isRecording = true;
-      recordingStartTime = performance.now();
-
+      clickSound.play(); // ボタン押下音
       if (!recognition) {
         recognition = initSpeechRecognition();
-        if (!recognition) {
-          console.warn("SpeechRecognitionが初期化できませんでした。");
-          return;
-        }
+        if (!recognition) return;
       }
 
-      recognition.onstart = () => {
-        console.log("Recognition started");
-        startSilenceTimer();
-      };
+      // マイクボタンの見た目制御
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) {
+        micBtn.disabled = true;
+        micBtn.classList.add("mic-active");
+      }
+      isRecording = true;
+
+      // 10秒後に強制終了
+      recordTimeout = setTimeout(() => {
+        stopRecognition();
+      }, 10000);
 
       recognition.onresult = (event) => {
-        // 認識結果はログ出力するのみ
-        const results = event.results;
-        for (let i = event.resultIndex; i < results.length; i++) {
-          const transcript = results[i][0].transcript.trim();
-          console.log("認識結果:", transcript);
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript.trim();
+          // 「です」が含まれたら即終了
+          if (transcript.includes("です")) {
+            stopRecognition();
+            break;
+          }
         }
-      };
-
-      recognition.onspeechstart = () => {
-        clearSilenceTimer();
-      };
-
-      recognition.onspeechend = () => {
-        startSilenceTimer();
       };
 
       recognition.onerror = (e) => {
@@ -363,21 +249,23 @@
       recognition.start();
     }
 
-    // ===== 音声認識停止（常にチェックマーク表示） =====
+    // 音声認識を停止
     function stopRecognition() {
       if (!recognition || !isRecording) return;
+      clearTimeout(recordTimeout);
       recognition.stop();
-      clearSilenceTimer();
+      isRecording = false;
+
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.classList.remove("mic-active");
       }
-      isRecording = false;
-      // 常にチェックマークを表示して、次の問題へ進む
+
+      // チェックマークを表示し、2秒後に次へ
       showCheckIcon();
     }
 
-    // ===== チェックアイコン表示 =====
+    // チェックマークを表示して次へ
     function showCheckIcon() {
       const checkIcon = document.getElementById("checkIcon");
       if (checkIcon) {
@@ -385,105 +273,290 @@
       }
       checkSound.play();
       setTimeout(() => {
-        goToNextQuestion();
+        goNext();
       }, 2000);
     }
 
-    // ===== 画面描画関連 =====
-    function renderExplanation1() {
-      showScreen(explanation1);
-      const btn = document.getElementById("goExampleBtn");
-      if (btn) {
-        btn.addEventListener("click", () => {
-          clickSound.play();
-          renderExample();
-        });
+    // ================================
+    //  画面表示用ユーティリティ
+    // ================================
+    const app = document.getElementById("app");
+
+    function showScreen(html) {
+      app.innerHTML = html;
+    }
+
+    // 進捗バーを描画（問題部分のみで使用）
+    function renderProgressBar(currentIndex, total) {
+      // currentIndex: 0 ～ total-1
+      // currentIndex より小さいものは completed, currentIndex は active
+      let steps = "";
+      for (let i = 0; i < total; i++) {
+        let className = "progress-step";
+        if (i < currentIndex) {
+          className += " completed";
+        } else if (i === currentIndex) {
+          className += " active";
+        }
+        steps += `<span class="${className}">${i+1}</span>`;
+      }
+      return `<div class="progress-container">${steps}</div>`;
+    }
+
+    // 配列をシャッフル
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ================================
+    //  各種テキスト・画像定義
+    // ================================
+
+    // 説明Box (固定テキスト)
+    const explanationBox1 = `
+      <h2 class="header">Test1</h2>
+      <div class="explanation-box">
+        <p>This is a speaking test.<br>
+        Look at the image and say a full sentence. Use the correct form of the given word.<br>
+        Now, let's try an example 1. Press the microphone button and say "いいです."</p>
+      </div>
+      <button class="button" id="nextBtn1">Next</button>
+    `;
+
+    const explanationBox2 = `
+      <div class="explanation-box">
+        <p>Since the image for Example 1 says "Present," the correct answer is "てんきは いいです."<br>
+        Next, let’s try Example 2. Press the microphone button and say, "てんきは よかったです."</p>
+      </div>
+      <button class="button" id="nextBtn2">Next</button>
+    `;
+
+    const explanationBox3 = `
+      <div class="explanation-box">
+        <p>Since the image for Example 2 says "Yesterday," the correct answer is "てんきは よかったです."<br><br>
+        Now, let's start the test. There are 16 questions. You can only speak once for each question, so be careful. Always say a full sentence.<br>
+        When you're ready, click "GO TO TEST."</p>
+      </div>
+      <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
+    `;
+
+    const explanationBox4 = `
+      <div class="explanation-box">
+        <p>This is the end of Test 1. Please inform Instructor Takei.</p>
+      </div>
+    `;
+
+    // 例題 (固定2つ)
+    const example1 = {
+      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.1.JPG",
+      japaneseCue: "いい → てんきは（　　　）"
+    };
+    const example2 = {
+      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG",
+      japaneseCue: "いい → てんきは（　　　）"
+    };
+
+    // 問題1～16（画像＋日本語キュー）: ランダム表示
+    const questionData = [
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG",
+        japaneseCue: "おおい → にもつは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG",
+        japaneseCue: "おもい → このほんは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG",
+        japaneseCue: "おもしろい → じゅぎょうは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG",
+        japaneseCue: "からい → このパスタは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG",
+        japaneseCue: "あたらしい → いえは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG",
+        japaneseCue: "おいしい → くすりは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG",
+        japaneseCue: "ちかい → がっこうは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG",
+        japaneseCue: "むずかしい → べんきょうは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG",
+        japaneseCue: "あつい → ８がつは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG",
+        japaneseCue: "たかい → りょうりは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG",
+        japaneseCue: "たのしい → ゲームは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG",
+        japaneseCue: "やすい → このTシャツは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG",
+        japaneseCue: "おおきい → ケーキは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG",
+        japaneseCue: "さむい → 2がつは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG",
+        japaneseCue: "すずしい → やまは（　　　）"
+      },
+      {
+        imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG",
+        japaneseCue: "つめたい → おんせんは（　　　）"
+      }
+    ];
+
+    // ================================
+    //  画面遷移の管理
+    // ================================
+    // ステージの概念
+    // 0: 説明Box1
+    // 1: 例1
+    // 2: 説明Box2
+    // 3: 例2
+    // 4: 説明Box3 (GO TO TESTボタン)
+    // 5～(5+16-1)=20: 問題(1～16)
+    // 21: 説明Box4 (終了)
+
+    let stageIndex = 0;
+    let shuffledQuestions = [];
+    let currentQuestionIndex = 0; // 0～15（シャッフル後）
+
+    // ステージを描画
+    function renderStage(index) {
+      // 説明Boxや例題などをステージごとに表示
+      switch (index) {
+        case 0:
+          // 説明Box1
+          showScreen(explanationBox1);
+          document.getElementById("nextBtn1").addEventListener("click", () => {
+            clickSound.play();
+            goNext();
+          });
+          break;
+
+        case 1:
+          // 例1
+          renderExample(example1);
+          break;
+
+        case 2:
+          // 説明Box2
+          showScreen(explanationBox2);
+          document.getElementById("nextBtn2").addEventListener("click", () => {
+            clickSound.play();
+            goNext();
+          });
+          break;
+
+        case 3:
+          // 例2
+          renderExample(example2);
+          break;
+
+        case 4:
+          // 説明Box3 (GO TO TESTボタン)
+          showScreen(explanationBox3);
+          document.getElementById("goTestBtn").addEventListener("click", () => {
+            clickSound.play();
+            // テスト開始
+            startTest();
+          });
+          break;
+
+        // 5～20: ランダムに並んだ16問を順に表示
+        default:
+          if (index >= 5 && index < 5 + 16) {
+            // 問題表示
+            currentQuestionIndex = index - 5; // 0～15
+            renderQuestion(shuffledQuestions[currentQuestionIndex], currentQuestionIndex, 16);
+          } else if (index === 5 + 16) {
+            // 最後の説明Box4
+            showScreen(explanationBox4);
+          }
+          break;
       }
     }
 
-    function renderExample() {
-      // 例画面には進捗バーを表示しない
-      showScreen(`
-        <h2 class="header">Example</h2>
+    // 例題画面を表示
+    function renderExample(exampleObj) {
+      const html = `
         <div class="question-container">
-          <p class="test-sentence">${exampleQuestion.english}</p>
-          <p class="japanese-cue">${exampleQuestion.japaneseCue}</p>
+          <img src="${exampleObj.imgUrl}" alt="example image" class="question-image" />
+          <p class="japanese-cue">${exampleObj.japaneseCue}</p>
           <button class="mic-button" id="micBtn"></button>
           <div class="check-icon" id="checkIcon"></div>
         </div>
-      `);
+      `;
+      showScreen(html);
+
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.addEventListener("click", startRecognition);
       }
     }
 
-    function renderExplanation2() {
-      showScreen(explanation2);
-      const goTestButton = document.getElementById("goTestBtn");
-      if (goTestButton) {
-        goTestButton.addEventListener("click", () => {
-          clickSound.play();
-          startTest();
-        });
-      }
-    }
-
-    function renderQuestion(q) {
-      // 現在の問題番号を示す進捗バーHTMLを生成
-      const progressHTML = renderProgressBar(currentQuestionIndex, shuffledQuestions.length);
-
-      // question-container 内に進捗バーを挿入
-      showScreen(`
+    // 問題画面を表示
+    function renderQuestion(qData, qIndex, total) {
+      const progressHTML = renderProgressBar(qIndex, total);
+      const html = `
         ${progressHTML}
         <div class="question-container">
-          <p class="test-sentence">${q.english}</p>
-          <p class="japanese-cue">${q.japaneseCue}</p>
+          <img src="${qData.imgUrl}" alt="question image" class="question-image" />
+          <p class="japanese-cue">${qData.japaneseCue}</p>
           <button class="mic-button" id="micBtn"></button>
           <div class="check-icon" id="checkIcon"></div>
         </div>
-      `);
+      `;
+      showScreen(html);
+
       const micBtn = document.getElementById("micBtn");
       if (micBtn) {
         micBtn.addEventListener("click", startRecognition);
       }
     }
 
-    function renderFinal() {
-      // 最後は進捗バー不要
-      showScreen(explanation3);
+    // 次のステージへ
+    function goNext() {
+      stageIndex++;
+      renderStage(stageIndex);
     }
 
-    // ===== テスト進行関連 =====
-    let shuffledQuestions = [];
-    let currentQuestionIndex = 0;
-
+    // テスト開始 (問題をシャッフルして最初の問題へ)
     function startTest() {
-      shuffledQuestions = shuffle(questions);
-      currentQuestionIndex = 0;
-      renderQuestion(shuffledQuestions[currentQuestionIndex]);
+      shuffledQuestions = shuffle(questionData);
+      stageIndex = 5; // 問題1のステージ
+      renderStage(stageIndex);
     }
 
-    function goToNextQuestion() {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < shuffledQuestions.length) {
-        renderQuestion(shuffledQuestions[currentQuestionIndex]);
-      } else {
-        renderFinal();
-      }
-    }
-
-    // ===== 初期起動処理 =====
+    // ================================
+    //  初期表示
+    // ================================
     window.addEventListener("DOMContentLoaded", () => {
-      renderExplanation1();
-      const originalGoNext = goToNextQuestion;
-      goToNextQuestion = () => {
-        if (currentQuestionIndex === 0 && shuffledQuestions.length === 0) {
-          renderExplanation2();
-        } else {
-          originalGoNext();
-        }
-      };
+      renderStage(stageIndex);
     });
   </script>
 </body>
