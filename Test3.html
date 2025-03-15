@@ -17,7 +17,6 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      /* テキストは基本中央寄せ */
       text-align: center;
     }
     .header {
@@ -34,7 +33,7 @@
       line-height: 1.6;
       font-size: 1.1em;
     }
-    /* ボタン */
+    /* ボタン（Next, GO TO TEST） */
     .button, .go-to-test-button {
       display: inline-block;
       background-color: #007BFF;
@@ -52,11 +51,10 @@
       background-color: #0056b3;
       transform: scale(1.05);
     }
-    /* 〇✖ボタン (ラジオ) */
+    /* 〇✖ボタン（ラジオボタンをラベルで代用） */
     .choice-container {
       margin: 20px 0;
     }
-    /* 角丸長方形のデザインにし、文字は白抜き */
     .choice-button {
       display: inline-block;
       padding: 10px 20px;
@@ -65,15 +63,23 @@
       color: #fff;
       cursor: pointer;
       margin: 0 20px;
+      transition: background-color 0.3s;
     }
-    /* 〇は赤、✖は青 */
+    /* 初期は薄い色 */
     .choice-maru-btn {
-      background-color: red;
+      background-color: #ffcccc; /* 薄い赤 */
     }
     .choice-batsu-btn {
+      background-color: #ccccff; /* 薄い青 */
+    }
+    /* 選択されたときは濃い色 */
+    .choice-maru-btn.selected {
+      background-color: red;
+    }
+    .choice-batsu-btn.selected {
       background-color: blue;
     }
-    /* ラジオボタン自体は非表示にして見た目をラベル化 */
+    /* ラジオボタンは非表示 */
     .choice-button input[type="radio"] {
       display: none;
     }
@@ -93,13 +99,13 @@
       background-color: #218838;
       transform: scale(1.05);
     }
-    /* 進捗バーを左寄せに */
+    /* 進捗バー：左寄せ＋インデント */
     .progress-container {
       display: flex;
-      justify-content: flex-start; /* 左寄せ */
+      justify-content: flex-start;
       flex-wrap: wrap;
       margin-bottom: 20px;
-      margin-left: 40px; /* 適度にインデント */
+      margin-left: 40px;
     }
     .progress-step {
       width: 32px;
@@ -114,7 +120,6 @@
       font-weight: bold;
       transition: background-color 0.3s, color 0.3s;
     }
-    /* 回答済みは青塗り、現在の問題は白抜き青枠 */
     .progress-step.completed {
       background-color: #007BFF;
       color: #fff;
@@ -141,52 +146,48 @@
   const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
 
   // 問題40問の音声URL（ランダム表示用）
-  // ※ここでは一部だけ実URLを記載し、他は仮URLです
   const questionAudioUrls = [
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1a.wav", // #1 => 'a' => maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1b.wav", // #2 => 'b' => batsu
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2a.wav", // #3 => 'a' => maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2b.wav", // #4 => 'b' => batsu
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3a.wav", // #5 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3b.wav", // #6 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4a.wav", // #7 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4b.wav", // #8 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5a.wav", // #9 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5b.wav", // #10 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6a.wav", // #11 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6b.wav", // #12 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7a.wav", // #13 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7b.wav", // #14 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8a.wav", // #15 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8b.wav", // #16 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9a.wav", // #17 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9b.wav", // #18 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10a.wav", // #19 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10b.wav", // #20 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11a.wav", // #21 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11b.wav", // #22 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12a.wav", // #23 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12b.wav", // #24 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13a.wav", // #25 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13b.wav", // #26 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14a.wav", // #27 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14b.wav", // #28 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15a.wav", // #29 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15b.wav", // #30 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16a.wav", // #31 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16b.wav", // #32 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17a.wav", // #33 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17b.wav", // #34 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18a.wav", // #35 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18b.wav", // #36 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19a.wav", // #37 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19b.wav", // #38 => 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20a.wav", // #39 => 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20b.wav"  // #40 => 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1a.wav", // #1 => 'a' → maru
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1b.wav", // #2 => 'b' → batsu
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2a.wav", // #3 => 'a' → maru
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2b.wav", // #4 => 'b' → batsu
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3a.wav", // #5 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3b.wav", // #6 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4a.wav", // #7 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4b.wav", // #8 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5a.wav", // #9 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5b.wav", // #10 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6a.wav", // #11 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6b.wav", // #12 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7a.wav", // #13 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7b.wav", // #14 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8a.wav", // #15 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8b.wav", // #16 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9a.wav", // #17 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9b.wav", // #18 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10a.wav", // #19 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10b.wav", // #20 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11a.wav", // #21 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11b.wav", // #22 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12a.wav", // #23 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12b.wav", // #24 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13a.wav", // #25 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13b.wav", // #26 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14a.wav", // #27 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14b.wav", // #28 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15a.wav", // #29 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15b.wav", // #30 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16a.wav", // #31 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16b.wav", // #32 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17a.wav", // #33 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17b.wav", // #34 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18a.wav", // #35 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18b.wav", // #36 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19a.wav", // #37 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19b.wav", // #38 → 'b'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20a.wav", // #39 → 'a'
+    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20b.wav"  // #40 → 'b'
   ];
-
-  // 提示された音声を再生するための変数
-  let questionAudio = null;
 
   // ================================
   //  ユーティリティ関数
@@ -200,24 +201,20 @@
     }
     return arr;
   }
-
-  // 音声URLから正解を判定 ('a' なら maru, 'b' なら batsu)
+  // 音声URLから正解を判定 ('a'ならmaru, 'b'ならbatsu)
   function getCorrectAnswerFromUrl(url) {
     return url.includes("a.wav") ? "maru" : "batsu";
   }
-
   // 画面書き換え
   const app = document.getElementById("app");
   function showScreen(html) {
     app.innerHTML = html;
   }
-
-  // 進捗バーを左寄せで描画
+  // 進捗バー（左寄せ、インデント付き）を描画
   function renderProgressBar(currentIndex, total) {
     let steps = "";
     for (let i = 0; i < total; i++) {
       let className = "progress-step";
-      // i < currentIndex → completed, i === currentIndex → active
       if (i < currentIndex) {
         className += " completed";
       } else if (i === currentIndex) {
@@ -227,15 +224,12 @@
     }
     return `<div class="progress-container">${steps}</div>`;
   }
-
-  // 新しい問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
+  // 次の問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
   function scheduleQuestionAudio(audioUrl) {
-    // 既存の音声があれば止める
     if (questionAudio) {
       questionAudio.pause();
       questionAudio.currentTime = 0;
     }
-    // 2秒後にビープ音を鳴らし、ビープ音終了後に問題音声
     setTimeout(() => {
       beepSound.pause();
       beepSound.currentTime = 0;
@@ -246,7 +240,26 @@
       };
     }, 2000);
   }
-
+  // ================================
+  //  選択肢ボタンのエフェクト＋クリック音
+  // ================================
+  function setupChoiceButtons() {
+    const radioButtons = document.querySelectorAll('input[name="answer"]');
+    radioButtons.forEach(radio => {
+      // クリック時にクリック音を再生し、ラベルに selected クラスを付与
+      radio.parentElement.addEventListener("click", function() {
+        clickSound.pause();
+        clickSound.currentTime = 0;
+        clickSound.play();
+        // すべてのchoice-buttonから selected クラスを削除
+        document.querySelectorAll("label.choice-button").forEach(label => {
+          label.classList.remove("selected");
+        });
+        // クリックされたラベルに selected クラスを付与
+        radio.parentElement.classList.add("selected");
+      });
+    });
+  }
   // ================================
   //  画面テキスト (説明Box)
   // ================================
@@ -262,7 +275,6 @@
     </div>
     <button class="button" id="exBox1NextBtn">Next</button>
   `;
-
   const explanationBox2 = `
     <div class="explanation-box">
       <p>The audio said "きのう、てんきは よかったです。"<br>
@@ -272,7 +284,6 @@
     </div>
     <button class="button" id="exBox2NextBtn">Next</button>
   `;
-
   const explanationBox3 = `
     <div class="explanation-box">
       <p>The audio said "きのう、てんきは いいです。"<br>
@@ -282,13 +293,11 @@
     </div>
     <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
   `;
-
   const explanationBox4 = `
     <div class="explanation-box">
       <p>This is the end of Test 3. Please inform Instructor Takei.</p>
     </div>
   `;
-
   // ================================
   //  ステージ管理
   // ================================
@@ -299,87 +308,62 @@
     2: 説明Box2
     3: 例2 (audioUrl=example2AudioUrl, correct=batsu)
     4: 説明Box3 (GO TO TEST)
-    5～(5+40-1)=44: 40問 (ランダム)
+    5～44: 40問 (ランダム)
     45: 説明Box4 (終了)
   */
   let stageIndex = 0;
   let shuffledQuestions = [];
   let currentQuestionIndex = 0; // 0～39
-
-  // 次のステージへ
   function goNextStage() {
     stageIndex++;
     renderStage(stageIndex);
   }
-
-  // テスト(40問)開始
   function startTest() {
     shuffledQuestions = shuffle(questionAudioUrls);
     currentQuestionIndex = 0;
-    stageIndex = 5; // 最初の問題ステージ
+    stageIndex = 5; // 最初の問題
     renderStage(stageIndex);
   }
-
-  // ステージを描画
   function renderStage(index) {
     switch (index) {
       case 0:
-        // 説明Box1
         showScreen(explanationBox1);
         document.getElementById("exBox1NextBtn").onclick = () => {
           clickSound.play();
           goNextStage();
         };
         break;
-
       case 1:
-        // 例1 (正解=maru)
-        renderExample({
-          audioUrl: example1AudioUrl,
-          correct: "maru"
-        });
+        renderExample({ audioUrl: example1AudioUrl, correct: "maru" });
         break;
-
       case 2:
-        // 説明Box2
         showScreen(explanationBox2);
         document.getElementById("exBox2NextBtn").onclick = () => {
           clickSound.play();
           goNextStage();
         };
         break;
-
       case 3:
-        // 例2 (正解=batsu)
-        renderExample({
-          audioUrl: example2AudioUrl,
-          correct: "batsu"
-        });
+        renderExample({ audioUrl: example2AudioUrl, correct: "batsu" });
         break;
-
       case 4:
-        // 説明Box3
         showScreen(explanationBox3);
         document.getElementById("goTestBtn").onclick = () => {
           clickSound.play();
           startTest();
         };
         break;
-
       default:
-        if (index >= 5 && index < 5 + 40) {
-          // 40問のうちの何問目かを表示
-          currentQuestionIndex = index - 5; // 0～39
+        if (index >= 5 && index < 45) {
+          currentQuestionIndex = index - 5;
           renderQuestionPage(currentQuestionIndex);
-        } else if (index === 5 + 40) {
-          // 説明Box4
+        } else if (index === 45) {
           showScreen(explanationBox4);
         }
         break;
     }
   }
-
-  // 例題画面を表示
+  // 例題画面
   function renderExample(exampleObj) {
     const html = `
       <div class="explanation-box">
@@ -396,10 +380,8 @@
       <button class="submit-button" id="submitExampleBtn">Submit</button>
     `;
     showScreen(html);
-
-    // 次の問題(例題)が表示されてから2秒後にビープ音→例題音声
+    setupChoiceButtons();
     scheduleQuestionAudio(exampleObj.audioUrl);
-
     document.getElementById("submitExampleBtn").onclick = () => {
       submitSound.play();
       const selected = document.querySelector('input[name="answer"]:checked');
@@ -407,20 +389,16 @@
         alert("〇か✖を選択してください。");
         return;
       }
-      const userAnswer = selected.value; // "maru" or "batsu"
+      const userAnswer = selected.value;
       const isCorrect = (userAnswer === exampleObj.correct);
       console.log("Example: userAnswer =", userAnswer, "correct =", exampleObj.correct, "isCorrect =", isCorrect);
-
-      // 次へ
       goNextStage();
     };
   }
-
-  // 問題画面を表示 (40問)
+  // 問題画面
   function renderQuestionPage(qIndex) {
     const total = 40;
     const progressHTML = renderProgressBar(qIndex, total);
-
     const html = `
       ${progressHTML}
       <div class="explanation-box">
@@ -437,14 +415,10 @@
       <button class="submit-button" id="submitQBtn">Submit</button>
     `;
     showScreen(html);
-
-    // 正解判定
+    setupChoiceButtons();
     const audioUrl = shuffledQuestions[qIndex];
     const correct = getCorrectAnswerFromUrl(audioUrl);
-
-    // 2秒後にビープ音→問題音声
     scheduleQuestionAudio(audioUrl);
-
     document.getElementById("submitQBtn").onclick = () => {
       submitSound.play();
       const selected = document.querySelector('input[name="answer"]:checked');
@@ -452,16 +426,13 @@
         alert("〇か✖を選択してください。");
         return;
       }
-      const userAnswer = selected.value; // "maru" or "batsu"
+      const userAnswer = selected.value;
       const isCorrect = (userAnswer === correct);
       console.log(`Q${qIndex+1}: userAnswer=${userAnswer}, correct=${correct}, isCorrect=${isCorrect}`);
-
-      // 次の問題へ
       stageIndex++;
       renderStage(stageIndex);
     };
   }
-
   // ================================
   //  初期表示
   // ================================
