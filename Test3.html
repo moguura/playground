@@ -189,6 +189,9 @@
     "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20b.wav"  // #40 → 'b'
   ];
 
+  // グローバル変数として問題音声再生用のオブジェクトを宣言
+  let questionAudio = null;
+
   // ================================
   //  ユーティリティ関数
   // ================================
@@ -246,16 +249,13 @@
   function setupChoiceButtons() {
     const radioButtons = document.querySelectorAll('input[name="answer"]');
     radioButtons.forEach(radio => {
-      // クリック時にクリック音を再生し、ラベルに selected クラスを付与
       radio.parentElement.addEventListener("click", function() {
         clickSound.pause();
         clickSound.currentTime = 0;
         clickSound.play();
-        // すべてのchoice-buttonから selected クラスを削除
         document.querySelectorAll("label.choice-button").forEach(label => {
           label.classList.remove("selected");
         });
-        // クリックされたラベルに selected クラスを付与
         radio.parentElement.classList.add("selected");
       });
     });
