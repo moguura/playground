@@ -228,21 +228,34 @@
     return `<div class="progress-container">${steps}</div>`;
   }
   // 次の問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
-  function scheduleQuestionAudio(audioUrl) {
-    if (questionAudio) {
+function scheduleQuestionAudio(audioUrl) {
+  // もし前回の問題音声があれば停止してリセットする
+  if (questionAudio) {
+    if (!questionAudio.paused) {
       questionAudio.pause();
-      questionAudio.currentTime = 0;
     }
-    setTimeout(() => {
+    questionAudio.currentTime = 0;
+  }
+  setTimeout(() => {
+    // ビープ音が再生中なら停止してリセットする
+    if (!beepSound.paused) {
       beepSound.pause();
-      beepSound.currentTime = 0;
-      beepSound.play();
+    }
+    beepSound.currentTime = 0;
+    // ビープ音再生（Promise を利用してエラーハンドリング）
+    beepSound.play().then(() => {
+      // ビープ音が終わったら、問題音声を再生するために onended を設定
       beepSound.onended = () => {
         questionAudio = new Audio(audioUrl);
-        questionAudio.play();
+        questionAudio.play().catch(err => {
+          console.error("Error playing question audio:", err);
+        });
       };
-    }, 2000);
-  }
+    }).catch(err => {
+      console.error("Error playing beep sound:", err);
+    });
+  }, 2000);
+}
   // ================================
   //  選択肢ボタンのエフェクト＋クリック音
   // ================================
