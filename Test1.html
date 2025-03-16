@@ -390,66 +390,79 @@
     let stageIndex = 0;
     let shuffledQuestions = [];
 
-    function renderStage(index) {
-      if(index === 0) {
-        showScreen(explanationBox1);
-        document.getElementById("nextBtn1").addEventListener("click", () => {
-          clickSound.play();
-          goNext();
-        });
-      } else if(index === 1) {
-        // 例1前の遷移画面（Present）
-        renderTransitionScreen(presentTransition.imgUrl, index+1);
-      } else if(index === 2) {
-        renderExample(example1);
-      } else if(index === 3) {
-        // 例2前の遷移画面（Yesterday）
-        renderTransitionScreen(yesterdayTransition.imgUrl, index+1);
-      } else if(index === 4) {
-        renderExample(example2);
-      } else if(index === 5) {
-        showScreen(explanationBox3);
-        document.getElementById("goTestBtn").addEventListener("click", () => {
-          clickSound.play();
-          startTest();
-        });
-      } else if(index >= 6 && index < 6 + 2 * 16) {
-        let qIndex = Math.floor((index - 6) / 2); // 0～15
-        if ((index - 6) % 2 === 0) {
-          // 遷移画面：シャッフル後の各問題の group に基づく画像表示
-          if(shuffledQuestions[qIndex].group === "present") {
-            renderTransitionScreen(presentTransition.imgUrl, index+1);
-          } else {
-            renderTransitionScreen(yesterdayTransition.imgUrl, index+1);
-          }
-        } else {
-          // 実際の問題画面
-          const progressHTML = renderProgressBar(qIndex, 16);
-          const html = `
-            ${progressHTML}
-            <div class="question-container">
-              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
-              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
-              <div class="mic-container">
-                <button class="mic-button" id="micBtn"></button>
-                <div class="check-icon" id="checkIcon"></div>
-              </div>
-              <div id="micWarning" class="mic-warning"></div>
-            </div>
-          `;
-          showScreen(html);
-          const micBtn = document.getElementById("micBtn");
-          if(micBtn) { micBtn.addEventListener("click", startRecognition); }
-          // 5秒後に警告メッセージを表示
-          micWarningTimeout = setTimeout(() => {
-            const warning = document.getElementById("micWarning");
-            if(warning) { warning.textContent = "Press the mic button and speak!"; }
-          }, 5000);
-        }
-      } else if(index === 6 + 2 * 16) {
-        showScreen(explanationBox4);
+   function renderStage(index) {
+  if (index === 0) {
+    // 説明Box1
+    showScreen(explanationBox1);
+    document.getElementById("nextBtn1").addEventListener("click", () => {
+      clickSound.play();
+      goNext();
+    });
+  } else if (index === 1) {
+    // 例1前の遷移画面（Present）
+    renderTransitionScreen(presentTransition.imgUrl, index + 1);
+  } else if (index === 2) {
+    // 例1
+    renderExample(example1);
+  } else if (index === 3) {
+    // 説明Box2（例1の後に追加）
+    showScreen(explanationBox2);
+    document.getElementById("nextBtn2").addEventListener("click", () => {
+      clickSound.play();
+      goNext();
+    });
+  } else if (index === 4) {
+    // 例2前の遷移画面（Yesterday）
+    renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+  } else if (index === 5) {
+    // 例2
+    renderExample(example2);
+  } else if (index === 6) {
+    // 説明Box3 (GO TO TEST)
+    showScreen(explanationBox3);
+    document.getElementById("goTestBtn").addEventListener("click", () => {
+      clickSound.play();
+      startTest();
+    });
+  } else if (index >= 7 && index < 7 + 2 * 16) {
+    // テスト問題部分（各問題は2画面で構成：偶数は遷移画面、奇数は実際の問題画面）
+    let qIndex = Math.floor((index - 7) / 2); // 0～15
+    if ((index - 7) % 2 === 0) {
+      // 遷移画面：シャッフル後の各問題の group に応じた画像表示
+      if (shuffledQuestions[qIndex].group === "present") {
+        renderTransitionScreen(presentTransition.imgUrl, index + 1);
+      } else {
+        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
       }
+    } else {
+      // 実際の問題画面
+      const progressHTML = renderProgressBar(qIndex, 16);
+      const html = `
+        ${progressHTML}
+        <div class="question-container">
+          <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
+          <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
+          <div class="mic-container">
+            <button class="mic-button" id="micBtn"></button>
+            <div class="check-icon" id="checkIcon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `;
+      showScreen(html);
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) { micBtn.addEventListener("click", startRecognition); }
+      // 5秒後に警告メッセージを表示
+      micWarningTimeout = setTimeout(() => {
+        const warning = document.getElementById("micWarning");
+        if (warning) { warning.textContent = "Press the mic button and speak!"; }
+      }, 5000);
     }
+  } else if (index === 7 + 2 * 16) {
+    // 説明Box4（終了）
+    showScreen(explanationBox4);
+  }
+}
 
     // 例題画面の表示
     function renderExample(exampleObj) {
