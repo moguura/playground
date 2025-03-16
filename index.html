@@ -13,26 +13,30 @@
     }
     /* ページ全体の設定 */
     html, body {
+      margin: 0;
+      padding: 0;
       height: 100%;
     }
+
     /* コンテナ：画面中央配置 */
     .container {
       display: flex;
       flex-direction: column;
-      justify-content: center;  /* 垂直方向中央 */
-      align-items: center;      /* 水平方向中央 */
+      justify-content: center; /* 垂直方向の中央寄せ */
+      align-items: center;     /* 水平方向の中央寄せ */
       min-height: 100vh;
       width: 90%;
       max-width: 800px;
       background-color: #fff;
       padding: 20px 30px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       margin: 0 auto;
     }
+
     /* 進捗バー（テスト中のみ表示） */
     .progress-bar {
-      display: none;
+      display: none; /* 説明画面では非表示 */
       justify-content: center;
       margin-bottom: 20px;
       flex-wrap: wrap;
@@ -55,6 +59,7 @@
       background-color: #007BFF;
       color: #fff;
     }
+
     /* 説明Box */
     .explanation-box {
       padding: 20px;
@@ -65,19 +70,23 @@
       font-size: 1.3em;
       line-height: 1.4;
       text-align: left;
+      white-space: normal;
     }
+
     /* ヘッダー（タイトル） */
     .header {
-      font-size: 2.2em;
+      font-size: 2em;
       margin-bottom: 20px;
       text-align: center;
     }
+
     /* 問題用コンテナ */
     .question-container {
       margin-bottom: 30px;
       position: relative;
       min-height: 300px;
     }
+
     /* 画像表示 */
     .image-container {
       text-align: center;
@@ -91,11 +100,7 @@
       margin: 0 auto;
       display: block;
     }
-    /* プレビュー用画像を少し小さめに表示 */
-    .preview-container img {
-      max-width: 80%;
-      height: auto;
-    }
+
     /* カスタムラジオボタン（ボタン風） */
     .radio-group {
       display: flex;
@@ -113,7 +118,7 @@
       border: 2px solid #007BFF;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
       background-color: #f0f0f0;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
@@ -129,8 +134,10 @@
       border-radius: 8px;
       padding: 5px 10px;
     }
-    /* ボタン */
+
+    /* ボタン（Submit） */
     .submit-btn {
+      display: inline-block;
       background-color: #007BFF;
       color: #fff;
       padding: 15px 30px;
@@ -143,6 +150,7 @@
     .submit-btn:hover {
       background-color: #0056b3;
     }
+
     /* フェードアウト */
     .fade-out {
       animation: fadeOut 0.5s ease-out forwards;
@@ -151,6 +159,7 @@
       from { opacity: 1; }
       to { opacity: 0; }
     }
+
     /* フェードイン */
     .fade-in {
       animation: fadeIn 0.5s ease-in forwards;
@@ -163,7 +172,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- 進捗バー（テスト中のみ） -->
+    <!-- 進捗バーを先頭に配置 -->
     <div class="progress-bar" id="progressBar">
       <div class="progress-step">1</div>
       <div class="progress-step">2</div>
@@ -182,9 +191,9 @@
       <div class="progress-step">15</div>
       <div class="progress-step">16</div>
     </div>
-    <!-- コンテンツ表示領域 -->
+    <!-- コンテンツエリア -->
     <div id="content"></div>
-  </div>
+  </div> 
   <script>
     /* ========== サウンド再生用 ========= */
     function playClickSound() {
@@ -197,43 +206,44 @@
     /* ========== 説明文データ ========= */
     const explanations = {
       box1: `In this test, first look at the image.<br>
-             Then, listen to the three Japanese audio clips.<br>
-             After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>
-             You can listen to each audio clip only once.<br><br>
-             Now, let's do an example together.<br>
-             Please press the Submit button after selecting your answer.`,
+      Then, listen to the three Japanese audio clips.<br>
+      After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>
+      You can listen to each audio clip only once.<br><br>
+      Now, let's do an example together.<br>
+      Please press the Submit button after selecting your answer.`,
       
       box2: `Let's do Example 1.<br><br>
-             <strong>Example 1:</strong><br>
-             Which audio clip correctly matches the image?<br>
-             First, look at the image. It should show <strong>"Present"</strong>.<br>
-             Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-             Choose the correct answer and click Submit.<br>
-             The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
-             When you are ready, please press Submit after selecting your answer.`,
+      <strong>Example 1:</strong><br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
+      Choose the correct answer and then click the Submit button.<br>
+      The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
+      When you are ready, please press Submit after selecting your answer.`,
       
       box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
-             Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
-             Now, let's do one more example.<br><br>
-             <strong>Example 2:</strong><br>
-             Which audio clip correctly matches the image?<br>
-             First, look at the image. It should show <strong>"Yesterday"</strong>.<br>
-             Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
-             Choose the correct answer and click Submit.<br>
-             The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
-             When you are ready, please press Submit after selecting your answer.`,
+      Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
+      Now, let's do one more example.<br><br>
+      <strong>Example 2:</strong><br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
+      Choose the correct answer and then click the Submit button.<br>
+      The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
+      When you are ready, please press Submit after selecting your answer.`,
       
       box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
-             Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
-             In the test questions, each image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> indicated by the preview screen.<br>
-             There are a total of 16 questions.<br>
-             You can only listen to each audio clip once.<br><br>
-             Now, let's begin the test.<br>
-             When you are ready, please click Submit after selecting your answer.`
+      Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
+      Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
+      so listen carefully.<br><br>
+      There are a total of 16 questions in this test.<br>
+      You can only listen to each audio clip once.<br><br>
+      Now, let's begin the test.<br>
+      When you are ready, please click Submit after selecting your answer.`
     };
     const explanationBox5 = {
-      text: `This is the end of Test 2. Please inform Instructor Takei.`,
-      gif: "https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif"
+      text: `This is the end of Test 2. Please click the X at the top to close this tab.`,
+      gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
     /* ========== 例題データ ========= */
@@ -258,12 +268,12 @@
       order: ["a", "b", "c"]
     };
 
-    /* ========== テスト問題データ（16問） ========= */
+    /* ========== テスト問題データ（14問） ========= */
     let testQuestions = [];
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= 14; i++) {
       testQuestions.push({
         id: i,
-        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/op-${i}.JPG`,
+        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
         audios: {
           a: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,
           b: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,
@@ -328,36 +338,10 @@
       });
     }
 
-    /* ========== チェックマーク表示用関数 ========= */
-    function showCheckMark(callback) {
-      content.innerHTML = `
-        <div style="text-align:center;">
-          <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/check.gif" alt="Check Mark" style="max-width:200px;">
-        </div>
-      `;
-      setTimeout(callback, 1000); // 1秒後に次へ
-    }
-
-    /* ========== プレビュー画面表示関数 ========= */
-    function showPreview(imageUrl, callback) {
-      content.innerHTML = `
-        <div class="preview-container" style="text-align:center;">
-          <img src="${imageUrl}" alt="Preview Image" style="margin-bottom:20px;">
-          <div>
-            <button id="previewNextButton" class="submit-btn">Next</button>
-          </div>
-        </div>
-      `;
-      document.getElementById("previewNextButton").addEventListener("click", () => {
-        playClickSound();
-        callback();
-      });
-    }
-
     /* ========== UI表示用関数 ========= */
     const content = document.getElementById("content");
 
-    // 説明ページ表示（ヘッダー付き）
+    // 説明ページを表示（ヘッダー付き）
     function showExplanation(text, buttonText, callback) {
       content.innerHTML = `
         <header class="header">Test 2</header>
@@ -374,137 +358,140 @@
       });
     }
 
-    // 例題表示（ラジオボタン・Submitボタンあり、送信時はチェックマークGif表示）
-    function showExample(exampleData, callbackAfterSubmit) {
-      // ヘッダーと進捗バーは非表示
-      const headerElement = document.querySelector(".header");
-      if (headerElement) headerElement.style.display = "none";
-      const progressBarElement = document.getElementById("progressBar");
-      if (progressBarElement) progressBarElement.style.display = "none";
+// 例題を表示（ラジオボタンとSubmitボタンあり）
+function showExample(exampleData, callbackAfterSubmit) {
+  // .header の存在を確認してから操作
+  var headerElement = document.querySelector(".header");
+  if (headerElement !== null) {
+    headerElement.style.display = "none";
+  }
+  // progressBar の存在を確認してから操作
+  var progressBarElement = document.getElementById("progressBar");
+  if (progressBarElement !== null) {
+    progressBarElement.style.display = "none";
+  }
 
-      content.innerHTML = `
-        <div class="question-container">
-          <div class="image-container">
-            <img src="${exampleData.image}" alt="Example Image">
-          </div>
-          <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${exampleData.correct === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${exampleData.correct === 'b' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${exampleData.correct === 'c' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
-        </div>
-      `;
+  content.innerHTML = `
+    <div class="question-container">
+      <div class="image-container">
+        <img src="${exampleData.image}" alt="Example Image">
+      </div>
+      <div id="audioPlayback" style="display:none;"></div>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option1" value="${exampleData.correct === 'a' ? 'correct' : 'incorrect'}">
+          <span>1st</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option2" value="${exampleData.correct === 'b' ? 'correct' : 'incorrect'}">
+          <span>2nd</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option3" value="${exampleData.correct === 'c' ? 'correct' : 'incorrect'}">
+          <span>3rd</span>
+        </label>
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
+      </div>
+    </div>
+  `;
 
-      document.querySelectorAll('input[name="answer"]').forEach(function(input) {
-        input.addEventListener("click", function(e) {
-          console.log("Selected:", e.target.id, e.target.value, new Date().toLocaleString());
-        });
-      });
+  // ラジオボタンがクリックされたらコンソールに出力
+  document.querySelectorAll('input[name="answer"]').forEach(function(input) {
+    input.addEventListener("click", function(e) {
+      console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
+    });
+  });
 
-      const submitButton = document.getElementById("submitButton");
-      let autoSubmitTimer;
-      function handleSubmit() {
-        if (submitButton.disabled) return;
-        submitButton.disabled = true;
-        clearTimeout(autoSubmitTimer);
-        playSubmitSound();
-        showCheckMark(callbackAfterSubmit);
-      }
+  var submitButton = document.getElementById("submitButton");
+  playSequence(exampleData.audios, exampleData.order, function() {
+    submitButton.style.display = "inline-block";
+    submitButton.classList.add("fade-in");
+  });
 
-      submitButton.addEventListener("click", function() {
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          return;
-        }
-        handleSubmit();
-      });
-
-      playSequence(exampleData.audios, exampleData.order, function() {
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
-        autoSubmitTimer = setTimeout(handleSubmit, 10000);
-      });
+  submitButton.addEventListener("click", function() {
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+    var selected = document.querySelector('input[name="answer"]:checked');
+    if (!selected) {
+      alert("Please select an option.");
+      submitButton.disabled = false;
+      return;
     }
+    playSubmitSound();
+    console.log("Submit clicked. 選択されたラジオボタンのID:", selected.id, "値:", selected.value, "クリック時刻:", new Date().toLocaleString());
+    callbackAfterSubmit();
+  });
+}
 
-    // テスト問題表示（ラジオボタン・Submitボタンあり、送信時はチェックマークGif表示）
-    function showTestQuestion(questionData, callbackAfterSubmit) {
-      const headerElement = document.querySelector(".header");
-      if (headerElement) headerElement.style.display = "none";
-      const progressBarElement = document.getElementById("progressBar");
-      if (progressBarElement) progressBarElement.style.display = "flex";
+// テスト問題を表示（ラジオボタンとSubmitボタンあり）
+function showTestQuestion(questionData, callbackAfterSubmit) {
+  // .header の存在を確認してから操作
+  var headerElement = document.querySelector(".header");
+  if (headerElement !== null) {
+    headerElement.style.display = "none";
+  }
+  // progressBar の存在を確認してから操作
+  var progressBarElement = document.getElementById("progressBar");
+  if (progressBarElement !== null) {
+    progressBarElement.style.display = "flex";
+  }
 
-      const options = shuffle(["a", "b", "c"]);
-      content.innerHTML = `
-        <div class="question-container">
-          <div class="image-container">
-            <img src="${questionData.image}" alt="Test Question ${questionData.id}">
-          </div>
-          <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${options[1] === 'a' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
-        </div>
-      `;
+  var options = shuffle(["a", "b", "c"]);
+  content.innerHTML = `
+    <div class="question-container">
+      <div class="image-container">
+        <img src="${questionData.image}" alt="Test Question ${questionData.id}">
+      </div>
+      <div id="audioPlayback" style="display:none;"></div>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option1" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
+          <span>1st</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option2" value="${options[1] === 'a' ? 'correct' : 'incorrect'}">
+          <span>2nd</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="answer" id="option3" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
+          <span>3rd</span>
+        </label>
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
+      </div>
+    </div>
+  `;
 
-      document.querySelectorAll('input[name="answer"]').forEach(function(input) {
-        input.addEventListener("click", function(e) {
-          console.log("Selected:", e.target.id, e.target.value, new Date().toLocaleString());
-        });
-      });
+  // ラジオボタンがクリックされたらコンソールに出力
+  document.querySelectorAll('input[name="answer"]').forEach(function(input) {
+    input.addEventListener("click", function(e) {
+      console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
+    });
+  });
 
-      const submitButton = document.getElementById("submitButton");
-      let autoSubmitTimer;
-      function handleSubmit() {
-        if (submitButton.disabled) return;
-        submitButton.disabled = true;
-        clearTimeout(autoSubmitTimer);
-        playSubmitSound();
-        showCheckMark(callbackAfterSubmit);
-      }
+  var submitButton = document.getElementById("submitButton");
+  playSequence(questionData.audios, options, function() {
+    submitButton.style.display = "inline-block";
+    submitButton.classList.add("fade-in");
+  });
 
-      submitButton.addEventListener("click", function() {
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          return;
-        }
-        handleSubmit();
-      });
-
-      playSequence(questionData.audios, options, function() {
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
-        autoSubmitTimer = setTimeout(handleSubmit, 10000);
-      });
+  submitButton.addEventListener("click", function() {
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+    var selected = document.querySelector('input[name="answer"]:checked');
+    if (!selected) {
+      alert("Please select an option.");
+      submitButton.disabled = false;
+      return;
     }
+    playSubmitSound();
+    console.log("Submit clicked. 選択されたラジオボタンのID:", selected.id, "値:", selected.value, "クリック時刻:", new Date().toLocaleString());
+    callbackAfterSubmit();
+  });
+}
 
     // テスト終了時
     function finishTest() {
@@ -519,7 +506,7 @@
       `;
     }
 
-    // テスト問題進行管理（ランダム順、各問題前にプレビュー画像を表示）
+    // テスト進行管理
     function startTestQuestions() {
       testQuestions = shuffle(testQuestions);
       let currentTestIndex = 0;
@@ -529,22 +516,9 @@
           return;
         }
         updateProgress(currentTestIndex + 1);
-        // ランダム順の前半8問：Present、後半8問：Yesterdayのプレビューを表示
-        let previewImage = (currentTestIndex < 8) ? 
-          "https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG" :
-          "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG";
-        showPreview(previewImage, function() {
-          showTestQuestion(testQuestions[currentTestIndex], function() {
-            if (currentTestIndex < testQuestions.length - 1) {
-              currentTestIndex++;
-              nextQuestion();
-            } else {
-              // 最後の問題終了後、説明Box4に遷移
-              showExplanation(explanations.box4, "Next", function() {
-                finishTest();
-              });
-            }
-          });
+        showTestQuestion(testQuestions[currentTestIndex], () => {
+          currentTestIndex++;
+          nextQuestion();
         });
       }
       nextQuestion();
@@ -553,18 +527,12 @@
     // 全体フロー開始
     function startFlow() {
       showExplanation(explanations.box1, "Next", function() {
-        // 例1の前にPresent画像を表示
-        showPreview("https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG", function() {
+        showExplanation(explanations.box2, "Next", function() {
           showExample(example1, function() {
-            // 例1送信後は説明Box2へ
-            showExplanation(explanations.box2, "Next", function() {
-              // 例2の前にYesterday画像を表示
-              showPreview("https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG", function() {
-                showExample(example2, function() {
-                  // 例2送信後は説明Box3へ
-                  showExplanation(explanations.box3, "Next", function() {
-                    startTestQuestions();
-                  });
+            showExplanation(explanations.box3, "Next", function() {
+              showExample(example2, function() {
+                showExplanation(explanations.box4, "Next", function() {
+                  startTestQuestions();
                 });
               });
             });
@@ -573,7 +541,7 @@
       });
     }
 
-    // ページ読み込み時に開始
+    // ページ読み込み時に最初の説明から開始
     document.addEventListener("DOMContentLoaded", function() {
       startFlow();
     });
