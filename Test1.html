@@ -139,14 +139,24 @@
         filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
       }
     }
-    /* チェックアイコン */
-    .check-icon {
+    /* マイク・チェックアイコンのコンテナ：相対位置にする */
+   .mic-container {
+      position: relative;
+      display: inline-block;
+    }
+
+  /* チェックアイコンを絶対位置で配置（マイクボタンの右側に表示） */
+   .check-icon {
+      position: absolute;
+      top: 50%;
+      left: calc(100% + 10px); /* マイクボタンの右側に10pxの余白 */
+      transform: translateY(-50%);
       width: 70px;
       height: 70px;
       background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
       display: none;
-    }
-    .check-icon.show {
+   }
+   .check-icon.show {
       display: block;
       animation: pop 0.3s forwards;
     }
@@ -159,13 +169,6 @@
         transform: scale(1);
         opacity: 1;
       }
-    }
-    /* マイク・チェックアイコンのコンテナ（横並び） */
-    .mic-container {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
     }
     /* 警告メッセージ */
     .mic-warning {
