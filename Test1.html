@@ -34,7 +34,7 @@
       border-radius: 10px;
       text-align: left;
       line-height: 1.6;
-      font-size: 1.1em;
+      font-size: 1.3em;
     }
     /* ボタンスタイル */
     .button,
@@ -292,26 +292,27 @@
         <p>This is a speaking test.<br>
         Look at the image and say a full sentence. Use the correct form of the given word.<br>
         Now, let's try Example 1.<br>
-        (Press the microphone button and say "いいです.")</p>
+        Press the microphone button and say <strong>いいです</strong>.</p>
       </div>
       <button class="button" id="nextBtn1">Next</button>
     `;
 
     const explanationBox2 = `
       <div class="explanation-box">
-        <p>Since the image for Example 1 shows "Present," the correct answer is "てんきは いいです."<br>
+        <p>Since the image for Example 1 shows "Present," the correct answer is <strong>てんきは いいです</strong>.<br>
         Next, let’s try Example 2.<br>
-        (Press the microphone button and say "てんきは よかったです.")</p>
+        (Press the microphone button and say <strong>てんきは よかったです</strong>.</p>
       </div>
       <button class="button" id="nextBtn2">Next</button>
     `;
 
     const explanationBox3 = `
       <div class="explanation-box">
-        <p>Since the image for Example 2 shows "Yesterday," the correct answer is "てんきは よかったです."<br><br>
+        <p>Since the image for Example 2 shows "Yesterday," the correct answer is <strong>てんきは よかったです</strong>.<br><br>
         Now, let's start the test. There are 16 questions.<br>
-        You can only speak once for each question, so be careful. Always say a full sentence.<br>
-        When you're ready, click "GO TO TEST."</p>
+        Press the mic button, then answer in a full sentence (e.g., "てんきは いいです。").<br> 
+        You only have one chance to speak, and after 10 seconds, you'll move on to the next question.<br>
+        When you're ready, click <strong>"GO TO TEST."<strong></p>
       </div>
       <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
     `;
