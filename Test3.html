@@ -133,7 +133,6 @@
       margin: 30px auto;
       max-width: 150px;
     }
-
   </style>
 </head>
 <body>
@@ -152,48 +151,15 @@
   const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
 
   // 問題40問の音声URL（ランダム表示用）
-  const questionAudioUrls = [
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1a.wav", // #1 => 'a' → maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun1b.wav", // #2 => 'b' → batsu
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2a.wav", // #3 => 'a' → maru
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun2b.wav", // #4 => 'b' → batsu
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3a.wav", // #5 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun3b.wav", // #6 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4a.wav", // #7 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun4b.wav", // #8 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5a.wav", // #9 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun5b.wav", // #10 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6a.wav", // #11 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun6b.wav", // #12 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7a.wav", // #13 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun7b.wav", // #14 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8a.wav", // #15 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun8b.wav", // #16 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9a.wav", // #17 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun9b.wav", // #18 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10a.wav", // #19 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun10b.wav", // #20 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11a.wav", // #21 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun11b.wav", // #22 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12a.wav", // #23 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun12b.wav", // #24 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13a.wav", // #25 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun13b.wav", // #26 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14a.wav", // #27 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun14b.wav", // #28 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15a.wav", // #29 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun15b.wav", // #30 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16a.wav", // #31 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun16b.wav", // #32 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17a.wav", // #33 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun17b.wav", // #34 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18a.wav", // #35 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun18b.wav", // #36 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19a.wav", // #37 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun19b.wav", // #38 → 'b'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20a.wav", // #39 → 'a'
-    "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun20b.wav"  // #40 → 'b'
-  ];
+  // 【修正】各要素に id と audioUrl を持つオブジェクトに変更
+  const questionAudioData = [];
+  for (let i = 1; i <= 40; i++) {
+    // 例: 奇数はa.wav、偶数はb.wav（元のコメント通り）
+    const url = (i % 2 === 1)
+      ? `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${Math.ceil(i/2)}a.wav`
+      : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
+    questionAudioData.push({ id: i, audioUrl: url });
+  }
 
   // グローバル変数として問題音声再生用のオブジェクトを宣言
   let questionAudio = null;
@@ -234,34 +200,30 @@
     return `<div class="progress-container">${steps}</div>`;
   }
   // 次の問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
-function scheduleQuestionAudio(audioUrl) {
-  // もし前回の問題音声があれば停止してリセットする
-  if (questionAudio) {
-    if (!questionAudio.paused) {
-      questionAudio.pause();
+  function scheduleQuestionAudio(audioUrl) {
+    if (questionAudio) {
+      if (!questionAudio.paused) {
+        questionAudio.pause();
+      }
+      questionAudio.currentTime = 0;
     }
-    questionAudio.currentTime = 0;
+    setTimeout(() => {
+      if (!beepSound.paused) {
+        beepSound.pause();
+      }
+      beepSound.currentTime = 0;
+      beepSound.play().then(() => {
+        beepSound.onended = () => {
+          questionAudio = new Audio(audioUrl);
+          questionAudio.play().catch(err => {
+            console.error("Error playing question audio:", err);
+          });
+        };
+      }).catch(err => {
+        console.error("Error playing beep sound:", err);
+      });
+    }, 2000);
   }
-  setTimeout(() => {
-    // ビープ音が再生中なら停止してリセットする
-    if (!beepSound.paused) {
-      beepSound.pause();
-    }
-    beepSound.currentTime = 0;
-    // ビープ音再生（Promise を利用してエラーハンドリング）
-    beepSound.play().then(() => {
-      // ビープ音が終わったら、問題音声を再生するために onended を設定
-      beepSound.onended = () => {
-        questionAudio = new Audio(audioUrl);
-        questionAudio.play().catch(err => {
-          console.error("Error playing question audio:", err);
-        });
-      };
-    }).catch(err => {
-      console.error("Error playing beep sound:", err);
-    });
-  }, 2000);
-}
   // ================================
   //  選択肢ボタンのエフェクト＋クリック音
   // ================================
@@ -339,7 +301,8 @@ function scheduleQuestionAudio(audioUrl) {
     renderStage(stageIndex);
   }
   function startTest() {
-    shuffledQuestions = shuffle(questionAudioUrls);
+    // 【修正】questionAudioDataをシャッフルして shuffledQuestions に代入
+    shuffledQuestions = shuffle(questionAudioData);
     currentQuestionIndex = 0;
     stageIndex = 5; // 最初の問題
     renderStage(stageIndex);
@@ -436,7 +399,10 @@ function scheduleQuestionAudio(audioUrl) {
     `;
     showScreen(html);
     setupChoiceButtons();
-    const audioUrl = shuffledQuestions[qIndex];
+    // 【修正】現在の問題オブジェクトを取得し、IDをコンソールに出力
+    const currentQuestion = shuffledQuestions[qIndex];
+    console.log("現在の問題ID:", currentQuestion.id);
+    const audioUrl = currentQuestion.audioUrl;
     const correct = getCorrectAnswerFromUrl(audioUrl);
     scheduleQuestionAudio(audioUrl);
     document.getElementById("submitQBtn").onclick = () => {
