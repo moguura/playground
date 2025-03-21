@@ -348,25 +348,25 @@
       japaneseCue: "いい → てんきは（　　　）です。"
     };
 
-    // 問題（全16問）※もともとは前半8問が Present、後半8問が Yesterday
-    // 各オブジェクトに group プロパティを追加し、「です」を付加
+    // 問題（全16問）※各オブジェクトに group プロパティを追加し、「です」を付加
+    // 【修正】各問題にidプロパティを追加
     const questionData = [
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）です。", group: "present" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>シャツは（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）です。", group: "yesterday" },
-      { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）です。", group: "yesterday" }
+      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）です。", group: "present" },
+      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）です。", group: "present" },
+      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）です。", group: "present" },
+      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）です。", group: "present" },
+      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）です。", group: "present" },
+      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）です。", group: "present" },
+      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）です。", group: "present" },
+      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）です。", group: "present" },
+      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）です。", group: "yesterday" },
+      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）です。", group: "yesterday" },
+      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）です。", group: "yesterday" },
+      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>シャツは（　　　）です。", group: "yesterday" },
+      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）です。", group: "yesterday" },
+      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）です。", group: "yesterday" },
+      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）です。", group: "yesterday" },
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）です。", group: "yesterday" }
     ];
 
     // 遷移画面用の画像定義（指定URLに更新）
@@ -381,88 +381,91 @@
       0: 説明Box1
       1: 例1前の遷移画面（Present）
       2: 例1
-      3: 例2前の遷移画面（Yesterday）
-      4: 例2
-      5: 説明Box3 (GO TO TEST)
-      6～37: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面、全16問→32画面）
-      38: 説明Box4（終了）
+      3: 説明Box2（例1の後に追加）
+      4: 例2前の遷移画面（Yesterday）
+      5: 例2
+      6: 説明Box3 (GO TO TEST)
+      7～38: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面、全16問→32画面）
+      39: 説明Box4（終了）
     */
     let stageIndex = 0;
     let shuffledQuestions = [];
 
-   function renderStage(index) {
-  if (index === 0) {
-    // 説明Box1
-    showScreen(explanationBox1);
-    document.getElementById("nextBtn1").addEventListener("click", () => {
-      clickSound.play();
-      goNext();
-    });
-  } else if (index === 1) {
-    // 例1前の遷移画面（Present）
-    renderTransitionScreen(presentTransition.imgUrl, index + 1);
-  } else if (index === 2) {
-    // 例1
-    renderExample(example1);
-  } else if (index === 3) {
-    // 説明Box2（例1の後に追加）
-    showScreen(explanationBox2);
-    document.getElementById("nextBtn2").addEventListener("click", () => {
-      clickSound.play();
-      goNext();
-    });
-  } else if (index === 4) {
-    // 例2前の遷移画面（Yesterday）
-    renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
-  } else if (index === 5) {
-    // 例2
-    renderExample(example2);
-  } else if (index === 6) {
-    // 説明Box3 (GO TO TEST)
-    showScreen(explanationBox3);
-    document.getElementById("goTestBtn").addEventListener("click", () => {
-      clickSound.play();
-      startTest();
-    });
-  } else if (index >= 7 && index < 7 + 2 * 16) {
-    // テスト問題部分（各問題は2画面で構成：偶数は遷移画面、奇数は実際の問題画面）
-    let qIndex = Math.floor((index - 7) / 2); // 0～15
-    if ((index - 7) % 2 === 0) {
-      // 遷移画面：シャッフル後の各問題の group に応じた画像表示
-      if (shuffledQuestions[qIndex].group === "present") {
+    function renderStage(index) {
+      if (index === 0) {
+        // 説明Box1
+        showScreen(explanationBox1);
+        document.getElementById("nextBtn1").addEventListener("click", () => {
+          clickSound.play();
+          goNext();
+        });
+      } else if (index === 1) {
+        // 例1前の遷移画面（Present）
         renderTransitionScreen(presentTransition.imgUrl, index + 1);
-      } else {
+      } else if (index === 2) {
+        // 例1
+        renderExample(example1);
+      } else if (index === 3) {
+        // 説明Box2（例1の後に追加）
+        showScreen(explanationBox2);
+        document.getElementById("nextBtn2").addEventListener("click", () => {
+          clickSound.play();
+          goNext();
+        });
+      } else if (index === 4) {
+        // 例2前の遷移画面（Yesterday）
         renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+      } else if (index === 5) {
+        // 例2
+        renderExample(example2);
+      } else if (index === 6) {
+        // 説明Box3 (GO TO TEST)
+        showScreen(explanationBox3);
+        document.getElementById("goTestBtn").addEventListener("click", () => {
+          clickSound.play();
+          startTest();
+        });
+      } else if (index >= 7 && index < 7 + 2 * 16) {
+        // テスト問題部分（各問題は2画面で構成：偶数は遷移画面、奇数は実際の問題画面）
+        let qIndex = Math.floor((index - 7) / 2); // 0～15
+        if ((index - 7) % 2 === 0) {
+          // 遷移画面：シャッフル後の各問題の group に応じた画像表示
+          if (shuffledQuestions[qIndex].group === "present") {
+            renderTransitionScreen(presentTransition.imgUrl, index + 1);
+          } else {
+            renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+          }
+        } else {
+          // 実際の問題画面
+          const progressHTML = renderProgressBar(qIndex, 16);
+          const html = `
+            ${progressHTML}
+            <div class="question-container">
+              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
+              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
+              <div class="mic-container">
+                <button class="mic-button" id="micBtn"></button>
+                <div class="check-icon" id="checkIcon"></div>
+              </div>
+              <div id="micWarning" class="mic-warning"></div>
+            </div>
+          `;
+          showScreen(html);
+          // 【修正】コンソールに問題IDを出力
+          console.log("現在の問題ID:", shuffledQuestions[qIndex].id);
+          const micBtn = document.getElementById("micBtn");
+          if (micBtn) { micBtn.addEventListener("click", startRecognition); }
+          // 5秒後に警告メッセージを表示
+          micWarningTimeout = setTimeout(() => {
+            const warning = document.getElementById("micWarning");
+            if (warning) { warning.textContent = "Press the mic button and speak!"; }
+          }, 5000);
+        }
+      } else if (index === 7 + 2 * 16) {
+        // 説明Box4（終了）
+        showScreen(explanationBox4);
       }
-    } else {
-      // 実際の問題画面
-      const progressHTML = renderProgressBar(qIndex, 16);
-      const html = `
-        ${progressHTML}
-        <div class="question-container">
-          <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
-          <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
-          <div class="mic-container">
-            <button class="mic-button" id="micBtn"></button>
-            <div class="check-icon" id="checkIcon"></div>
-          </div>
-          <div id="micWarning" class="mic-warning"></div>
-        </div>
-      `;
-      showScreen(html);
-      const micBtn = document.getElementById("micBtn");
-      if (micBtn) { micBtn.addEventListener("click", startRecognition); }
-      // 5秒後に警告メッセージを表示
-      micWarningTimeout = setTimeout(() => {
-        const warning = document.getElementById("micWarning");
-        if (warning) { warning.textContent = "Press the mic button and speak!"; }
-      }, 5000);
     }
-  } else if (index === 7 + 2 * 16) {
-    // 説明Box4（終了）
-    showScreen(explanationBox4);
-  }
-}
 
     // 例題画面の表示
     function renderExample(exampleObj) {
