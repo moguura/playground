@@ -133,10 +133,52 @@
       margin: 30px auto;
       max-width: 150px;
     }
+    /* ログ保存ボタンのスタイル */
+    #downloadLogButton {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+    #downloadLogButton:hover {
+      background-color: #388E3C;
+    }
   </style>
 </head>
 <body>
 <div id="app" class="container"></div>
+
+<!-- ログ永続化＆ダウンロード用スクリプト（テスト1・2と同仕様） -->
+<script>
+  (function() {
+    const logBuffer = [];
+    const originalLog = console.log;
+    console.log = function(...args) {
+      const message = args.join(' ');
+      logBuffer.push(message);
+      originalLog.apply(console, args);
+      localStorage.setItem('consoleLog', logBuffer.join('\n'));
+    };
+    window.saveLog = function() {
+      const logContent = localStorage.getItem('consoleLog') || '';
+      const blob = new Blob([logContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'console-log.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+  })();
+</script>
 
 <script>
   // ================================
@@ -154,7 +196,6 @@
   // 【修正】各要素に id と audioUrl を持つオブジェクトに変更
   const questionAudioData = [];
   for (let i = 1; i <= 40; i++) {
-    // 例: 奇数はa.wav、偶数はb.wav（元のコメント通り）
     const url = (i % 2 === 1)
       ? `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${Math.ceil(i/2)}a.wav`
       : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
@@ -274,10 +315,13 @@
     </div>
     <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
   `;
+  // 修正：説明Box4 の下部にログ保存ボタンを追加
   const explanationBox4 = `
     <div class="explanation-box">
       <p>This is the end of Test 3. Please inform Instructor Takei.</p>
       <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
+      <br>
+      <button id="downloadLogButton">ログを保存する</button>
     </div>
   `;
   // ================================
@@ -301,7 +345,7 @@
     renderStage(stageIndex);
   }
   function startTest() {
-    // 【修正】questionAudioDataをシャッフルして shuffledQuestions に代入
+    // questionAudioDataをシャッフルして shuffledQuestions に代入
     shuffledQuestions = shuffle(questionAudioData);
     currentQuestionIndex = 0;
     stageIndex = 5; // 最初の問題
@@ -342,6 +386,9 @@
           renderQuestionPage(currentQuestionIndex);
         } else if (index === 45) {
           showScreen(explanationBox4);
+          document.getElementById("downloadLogButton").onclick = () => {
+            window.saveLog();
+          };
         }
         break;
     }
@@ -399,7 +446,6 @@
     `;
     showScreen(html);
     setupChoiceButtons();
-    // 【修正】現在の問題オブジェクトを取得し、IDをコンソールに出力
     const currentQuestion = shuffledQuestions[qIndex];
     console.log("現在の問題ID:", currentQuestion.id);
     const audioUrl = currentQuestion.audioUrl;
