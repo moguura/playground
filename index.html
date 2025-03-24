@@ -197,26 +197,28 @@
     <div id="content"></div>
   </div> 
 
-  <!-- 自動ログ保存用スクリプト -->
+  <!-- 自動ログ保存用スクリプト（localStorage への保存付き） -->
   <script>
     (function() {
       // ログを保持する配列
       const logBuffer = [];
       
-      // 元のconsole.logを保存
+      // 元の console.log を保存
       const originalLog = console.log;
       
-      // console.logのオーバーライド
+      // console.log のオーバーライド
       console.log = function(...args) {
-        // ログを整形して配列に追加
-        logBuffer.push(args.join(' '));
-        // 元のconsole.logも呼び出す
+        const message = args.join(' ');
+        logBuffer.push(message);
         originalLog.apply(console, args);
+        // ログ内容を localStorage に保存（タブを閉じてもデータが残る）
+        localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
       
-      // ログを保存する関数をwindowに公開
+      // ログをダウンロードする関数を window に公開
       window.saveLog = function() {
-        const logContent = logBuffer.join('\n');
+        // localStorage に保存されたログを取得
+        const logContent = localStorage.getItem('consoleLog') || '';
         const blob = new Blob([logContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -228,10 +230,8 @@
         URL.revokeObjectURL(url);
       };
 
-      // ※ 自動保存は削除（もしくは残しておいても良い）
-      // window.addEventListener('beforeunload', function() {
-      //   window.saveLog();
-      // });
+      // ※ 自動でファイルダウンロードする beforeunload イベントは、ブラウザの制限があるため今回は利用せず、
+      //     localStorage に保存する仕様のみとしています。
     })();
   </script>
 
@@ -283,7 +283,7 @@
       When you are ready, please click Submit after selecting your answer.`
     };
     const explanationBox5 = {
-      text: `This is the end of Test 2. Please inform Instructor Takei.`,
+      text: `This is the end of Test 2. Please click the X at the top to close this tab.`,
       gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
@@ -347,12 +347,12 @@
                 audio.play().then(() => {
                   audio.onended = () => {
                     index++;
-                    setTimeout(playNext, 1000);
+                    setTimeout(playNext, 2000);
                   };
                 }).catch(err => {
                   console.error("Audio playback error:", err);
                   index++;
-                  setTimeout(playNext, 1000);
+                  setTimeout(playNext, 2000);
                 });
               } else {
                 onComplete();
@@ -539,7 +539,7 @@
             ${explanationBox5.text}
           </p>
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
-          <button id="downloadLogButton">DO NOT PRESS</button>
+          <button id="downloadLogButton">ログを保存する</button>
         </div>
       `;
 
