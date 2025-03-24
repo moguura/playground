@@ -158,6 +158,18 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    /* ログ保存ボタンのスタイル */
+    #downloadLogButton {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -202,17 +214,24 @@
         originalLog.apply(console, args);
       };
       
-      // ページ閉じる直前にログをテキストファイルとしてダウンロード
-      window.addEventListener('beforeunload', function() {
+      // ログを保存する関数をwindowに公開
+      window.saveLog = function() {
         const logContent = logBuffer.join('\n');
         const blob = new Blob([logContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'console-log.txt';
+        a.download = 'console-log.txt'; // 保存するファイル名
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      });
+      };
+
+      // ※ 自動保存は削除（もしくは残しておいても良い）
+      // window.addEventListener('beforeunload', function() {
+      //   window.saveLog();
+      // });
     })();
   </script>
 
@@ -264,7 +283,7 @@
       When you are ready, please click Submit after selecting your answer.`
     };
     const explanationBox5 = {
-      text: `This is the end of Test 2. Please click the X at the top to close this tab.`,
+      text: `This is the end of Test 2. Please inform Instructor Takei.`,
       gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
@@ -511,17 +530,24 @@
       });
     }
 
-    // テスト終了時
+    // テスト終了時（explanationBox5とログ保存ボタンを表示）
     function finishTest() {
       document.getElementById("progressBar").style.display = "none";
       content.innerHTML = `
-        <div class="explanation-box" style="text-align:center;">
+        <div class="explanation-box" style="text-align:center;" id="explanationBox5">
           <p style="margin-bottom: 20px; font-size: 1.4em;">
             ${explanationBox5.text}
           </p>
           <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
+          <button id="downloadLogButton">DO NOT PRESS</button>
         </div>
       `;
+
+      // 「ログを保存する」ボタンのクリックイベントを設定
+      document.getElementById("downloadLogButton").addEventListener("click", function() {
+        // ユーザー操作としてログをダウンロード
+        window.saveLog();
+      });
     }
 
     // テスト進行管理
