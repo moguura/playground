@@ -25,7 +25,7 @@
       font-size: 2.2em;
       margin-bottom: 20px;
     }
-    /* 説明文ボックス：文字サイズを大きくしたい場合はここを調整 */
+    /* 説明文ボックス */
     .explanation-box {
       background-color: #f9f9f9;
       border: 2px solid #ddd;
@@ -34,7 +34,7 @@
       border-radius: 10px;
       text-align: left;
       line-height: 1.6;
-      font-size: 1.3em; /* 例：1.1em → 1.3em に変更 */
+      font-size: 1.3em;
     }
     /* ボタンスタイル */
     .button,
@@ -90,14 +90,14 @@
       align-items: center;
       min-height: 50vh;
     }
-    /* 中央の画像（例・問題用） */
+    /* 中央の画像 */
     .question-image {
       max-width: 70%;
       height: auto;
       display: block;
       margin: 0 auto;
     }
-    /* 遷移画面用の画像（少し小さめ） */
+    /* 遷移画面用の画像 */
     .transition-image {
       max-width: 80%;
       height: auto;
@@ -139,17 +139,16 @@
         filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1));
       }
     }
-    /* マイク・チェックアイコンのコンテナ：相対位置にする */
+    /* マイク・チェックアイコンのコンテナ */
    .mic-container {
       position: relative;
       display: inline-block;
     }
-
-  /* チェックアイコンを絶対位置で配置（マイクボタンの右側に表示） */
+    /* チェックアイコンのスタイル */
    .check-icon {
       position: absolute;
       top: 50%;
-      left: calc(100% + 10px); /* マイクボタンの右側に10pxの余白 */
+      left: calc(100% + 10px);
       transform: translateY(-50%);
       width: 70px;
       height: 70px;
@@ -187,21 +186,69 @@
       display: block;
       margin: 30px auto;
     }
+    /* ログ保存ボタンのスタイル */
+    #downloadLogButton {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+    #downloadLogButton:hover {
+      background-color: #388E3C;
+    }
   </style>
 </head>
 <body>
   <div id="app" class="container"></div>
 
+  <!-- ログ永続化＆ダウンロード用のスクリプト（テスト２と同じ仕様） -->
+  <script>
+    (function() {
+      // ログを保持する配列
+      const logBuffer = [];
+      
+      // オリジナルの console.log を保存
+      const originalLog = console.log;
+      
+      // console.log のオーバーライド
+      console.log = function(...args) {
+        const message = args.join(' ');
+        logBuffer.push(message);
+        originalLog.apply(console, args);
+        // ログ内容を localStorage に保存（タブを閉じてもデータが残る）
+        localStorage.setItem('consoleLog', logBuffer.join('\n'));
+      };
+      
+      // ログをダウンロードする関数を window に公開
+      window.saveLog = function() {
+        // localStorage に保存されたログを取得
+        const logContent = localStorage.getItem('consoleLog') || '';
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'console-log.txt'; // 保存するファイル名
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+    })();
+  </script>
+
   <script>
     // ================================
-    //  クリック音・チェック音の準備
+    //  音声認識・サウンド関連の設定
     // ================================
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    // ================================
-    //  音声認識の準備
-    // ================================
     let recognition = null;
     let recordTimeout = null;
     let isRecording = false;
@@ -299,8 +346,6 @@
     // ================================
     //  各種テキスト・画像定義
     // ================================
-
-    // 説明Box
     const explanationBox1 = `
       <h2 class="header">Test1</h2>
       <div class="explanation-box">
@@ -331,10 +376,13 @@
       <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
     `;
 
+    // 修正：テスト終了画面にログ保存ボタンを追加
     const explanationBox4 = `
-      <div class="explanation-box">
+      <div class="explanation-box" style="text-align:center;">
         <p>This is the end of Test 1. Please inform Instructor Takei.</p>
         <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
+        <br>
+        <button id="downloadLogButton">ログを保存する</button>
       </div>
     `;
 
@@ -349,7 +397,6 @@
     };
 
     // 問題（全16問）※各オブジェクトに group プロパティを追加し、「です」を付加
-    // 【修正】各問題にidプロパティを追加
     const questionData = [
       { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）です。", group: "present" },
       { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）です。", group: "present" },
@@ -369,7 +416,7 @@
       { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）です。", group: "yesterday" }
     ];
 
-    // 遷移画面用の画像定義（指定URLに更新）
+    // 遷移画面用の画像定義
     const presentTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG" };
     const yesterdayTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG" };
 
@@ -381,12 +428,12 @@
       0: 説明Box1
       1: 例1前の遷移画面（Present）
       2: 例1
-      3: 説明Box2（例1の後に追加）
+      3: 説明Box2（例1の後）
       4: 例2前の遷移画面（Yesterday）
       5: 例2
       6: 説明Box3 (GO TO TEST)
       7～38: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面、全16問→32画面）
-      39: 説明Box4（終了）
+      39: 説明Box4（終了＆ログ保存ボタン付き）
     */
     let stageIndex = 0;
     let shuffledQuestions = [];
@@ -406,7 +453,7 @@
         // 例1
         renderExample(example1);
       } else if (index === 3) {
-        // 説明Box2（例1の後に追加）
+        // 説明Box2
         showScreen(explanationBox2);
         document.getElementById("nextBtn2").addEventListener("click", () => {
           clickSound.play();
@@ -429,7 +476,7 @@
         // テスト問題部分（各問題は2画面で構成：偶数は遷移画面、奇数は実際の問題画面）
         let qIndex = Math.floor((index - 7) / 2); // 0～15
         if ((index - 7) % 2 === 0) {
-          // 遷移画面：シャッフル後の各問題の group に応じた画像表示
+          // 遷移画面：問題の group に応じた画像表示
           if (shuffledQuestions[qIndex].group === "present") {
             renderTransitionScreen(presentTransition.imgUrl, index + 1);
           } else {
@@ -451,23 +498,23 @@
             </div>
           `;
           showScreen(html);
-          // 【修正】コンソールに問題IDを出力
           console.log("現在の問題ID:", shuffledQuestions[qIndex].id);
           const micBtn = document.getElementById("micBtn");
           if (micBtn) { micBtn.addEventListener("click", startRecognition); }
-          // 5秒後に警告メッセージを表示
           micWarningTimeout = setTimeout(() => {
             const warning = document.getElementById("micWarning");
             if (warning) { warning.textContent = "Press the mic button and speak!"; }
           }, 5000);
         }
       } else if (index === 7 + 2 * 16) {
-        // 説明Box4（終了）
+        // 説明Box4（終了＆ログ保存ボタン付き）
         showScreen(explanationBox4);
+        document.getElementById("downloadLogButton").addEventListener("click", () => {
+          window.saveLog();
+        });
       }
     }
 
-    // 例題画面の表示
     function renderExample(exampleObj) {
       const html = `
         <div class="question-container">
@@ -489,7 +536,6 @@
       }, 5000);
     }
 
-    // 遷移画面（画像＋Nextボタン）の表示
     function renderTransitionScreen(imgUrl, nextStage) {
       const html = `
         <div class="question-container">
@@ -510,7 +556,6 @@
       renderStage(stageIndex);
     }
 
-    // テスト開始：問題データをシャッフルし、テスト問題部分の最初（ステージ7）へ
     function startTest() {
       shuffledQuestions = shuffle(questionData);
       stageIndex = 7;
