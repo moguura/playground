@@ -328,12 +328,12 @@
                 audio.play().then(() => {
                   audio.onended = () => {
                     index++;
-                    setTimeout(playNext, 2000);
+                    setTimeout(playNext, 1000);
                   };
                 }).catch(err => {
                   console.error("Audio playback error:", err);
                   index++;
-                  setTimeout(playNext, 2000);
+                  setTimeout(playNext, 1000);
                 });
               } else {
                 onComplete();
