@@ -184,6 +184,38 @@
     <!-- コンテンツエリア -->
     <div id="content"></div>
   </div> 
+
+  <!-- 自動ログ保存用スクリプト -->
+  <script>
+    (function() {
+      // ログを保持する配列
+      const logBuffer = [];
+      
+      // 元のconsole.logを保存
+      const originalLog = console.log;
+      
+      // console.logのオーバーライド
+      console.log = function(...args) {
+        // ログを整形して配列に追加
+        logBuffer.push(args.join(' '));
+        // 元のconsole.logも呼び出す
+        originalLog.apply(console, args);
+      };
+      
+      // ページ閉じる直前にログをテキストファイルとしてダウンロード
+      window.addEventListener('beforeunload', function() {
+        const logContent = logBuffer.join('\n');
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'console-log.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    })();
+  </script>
+
   <script>
     /* ========== サウンド再生用 ========= */
     function playClickSound() {
@@ -350,12 +382,10 @@
 
     // 例題を表示（ラジオボタンとSubmitボタンあり）
     function showExample(exampleData, callbackAfterSubmit) {
-      // .header の存在を確認してから操作
       var headerElement = document.querySelector(".header");
       if (headerElement !== null) {
         headerElement.style.display = "none";
       }
-      // progressBar の存在を確認してから操作
       var progressBarElement = document.getElementById("progressBar");
       if (progressBarElement !== null) {
         progressBarElement.style.display = "none";
@@ -387,7 +417,6 @@
         </div>
       `;
 
-      // ラジオボタンがクリックされたらコンソールに出力
       document.querySelectorAll('input[name="answer"]').forEach(function(input) {
         input.addEventListener("click", function(e) {
           console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
@@ -417,18 +446,15 @@
 
     // テスト問題を表示（ラジオボタンとSubmitボタンあり）
     function showTestQuestion(questionData, callbackAfterSubmit) {
-      // .header の存在を確認してから操作
       var headerElement = document.querySelector(".header");
       if (headerElement !== null) {
         headerElement.style.display = "none";
       }
-      // progressBar の存在を確認してから操作
       var progressBarElement = document.getElementById("progressBar");
       if (progressBarElement !== null) {
         progressBarElement.style.display = "flex";
       }
 
-      // 【追加】現在のテスト問題IDをコンソールに出力
       console.log("現在のテスト問題ID:", questionData.id);
 
       var options = shuffle(["a", "b", "c"]);
@@ -458,7 +484,6 @@
         </div>
       `;
 
-      // ラジオボタンがクリックされたらコンソールに出力
       document.querySelectorAll('input[name="answer"]').forEach(function(input) {
         input.addEventListener("click", function(e) {
           console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
