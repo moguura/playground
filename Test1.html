@@ -386,34 +386,34 @@
       </div>
     `;
 
-    // 例題（「です」を追加）
+    // 例題
     const example1 = {
-      imgUrl: "https://raw.githubusercontent.com/moguura/my-images/main/例2.jpg",
-      japaneseCue: "いい → てんきは（　　　）です。"
+      imgUrl: "https://raw.githubusercontent.com/moguura/my-images/main/op-e.g.1.JPG",
+      japaneseCue: "いい → てんきは（　　　）。"
     };
     const example2 = {
       imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG",
-      japaneseCue: "いい → てんきは（　　　）です。"
+      japaneseCue: "いい → てんきは（　　　）。"
     };
 
-    // 問題（全16問）※各オブジェクトに group プロパティを追加し、「です」を付加
+    // 問題（全16問）※各オブジェクトに group プロパティを追加
     const questionData = [
-      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）です。", group: "present" },
-      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）です。", group: "present" },
-      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）です。", group: "present" },
-      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）です。", group: "present" },
-      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）です。", group: "present" },
-      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）です。", group: "present" },
-      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）です。", group: "present" },
-      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）です。", group: "present" },
-      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）です。", group: "yesterday" },
-      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）です。", group: "yesterday" },
-      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）です。", group: "yesterday" },
-      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>は（　　　）です。", group: "yesterday" },
-      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）です。", group: "yesterday" },
-      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）です。", group: "yesterday" },
-      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）です。", group: "yesterday" },
-      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）です。", group: "yesterday" }
+      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
+      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
+      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）。", group: "present" },
+      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）。", group: "present" },
+      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）。", group: "present" },
+      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）。", group: "present" },
+      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）。", group: "present" },
+      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）。", group: "present" },
+      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）。", group: "yesterday" },
+      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）。", group: "yesterday" },
+      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
+      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）。", group: "yesterday" }
     ];
 
     // 遷移画面用の画像定義
