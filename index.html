@@ -192,6 +192,10 @@
       <div class="progress-step">14</div>
       <div class="progress-step">15</div>
       <div class="progress-step">16</div>
+      <div class="progress-step">17</div>
+      <div class="progress-step">18</div>
+      <div class="progress-step">19</div>
+      <div class="progress-step">20</div>
     </div>
     <!-- コンテンツエリア -->
     <div id="content"></div>
@@ -247,7 +251,7 @@
     /* ========== 説明文データ ========= */
     const explanations = {
       box1: `In this test, first look at the image.<br>
-      Then, listen to the three Japanese audio clips.<br>
+      Then, listen to the four Japanese audio clips.<br>
       After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>
       You can listen to each audio clip only once.<br><br>
       Now, let's do an example together.<br>
@@ -257,27 +261,27 @@
       <strong>Example 1:</strong><br>
       Which audio clip correctly matches the image?<br>
       First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
       Choose the correct answer and then click the Submit button.<br>
       The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
       When you are ready, please press Submit after selecting your answer.`,
       
       box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
-      Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
+      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
       Now, let's do one more example.<br><br>
       <strong>Example 2:</strong><br>
       Which audio clip correctly matches the image?<br>
       First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear three audio clips.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
       Choose the correct answer and then click the Submit button.<br>
       The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
       When you are ready, please press Submit after selecting your answer.`,
       
       box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
-      Even if you know the answer early, you cannot submit until you finish listening to all three audio clips.<br><br>
+      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
       Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
       so listen carefully.<br><br>
-      There are a total of 16 questions in this test.<br>
+      There are a total of 20 questions in this test.<br>
       You can only listen to each audio clip once.<br><br>
       Now, let's begin the test.<br>
       When you are ready, please click Submit after selecting your answer.`
@@ -293,33 +297,38 @@
       audios: {
         a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
         b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
-        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav"
+        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
+        // 新たに付け加えた4つ目の音声（例題用）：
+        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
       },
       correct: "a",
-      order: ["a", "b", "c"]
+      order: ["a", "b", "c", "d"]
     };
     const example2 = {
       image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG",
       audios: {
         a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
         b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
-        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav"
+        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
+        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
       },
       correct: "c",
-      order: ["a", "b", "c"]
+      order: ["a", "b", "c", "d"]
     };
 
-    /* ========== テスト問題データ（16問） ========= */
+    /* ========== テスト問題データ（20問） ========= */
     let testQuestions = [];
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= 20; i++) {
       testQuestions.push({
         id: i,
         image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
         audios: {
           a: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,
           b: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,
-          c: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`
+          c: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`,
+          d: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav`
         },
+        // ここでは正答キーを"a"として設定しています。必要に応じて変更してください。
         correct: "a"
       });
     }
@@ -418,16 +427,20 @@
           <div id="audioPlayback" style="display:none;"></div>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${exampleData.correct === 'a' ? 'correct' : 'incorrect'}">
+              <input type="radio" name="answer" id="option1" value="${exampleData.order[0] === exampleData.correct ? 'correct' : 'incorrect'}">
               <span>1st</span>
             </label>
             <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${exampleData.correct === 'b' ? 'correct' : 'incorrect'}">
+              <input type="radio" name="answer" id="option2" value="${exampleData.order[1] === exampleData.correct ? 'correct' : 'incorrect'}">
               <span>2nd</span>
             </label>
             <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${exampleData.correct === 'c' ? 'correct' : 'incorrect'}">
+              <input type="radio" name="answer" id="option3" value="${exampleData.order[2] === exampleData.correct ? 'correct' : 'incorrect'}">
               <span>3rd</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="answer" id="option4" value="${exampleData.order[3] === exampleData.correct ? 'correct' : 'incorrect'}">
+              <span>4th</span>
             </label>
           </div>
           <div style="text-align: right; margin-top: 20px;">
@@ -476,7 +489,8 @@
 
       console.log("現在のテスト問題ID:", questionData.id);
 
-      var options = shuffle(["a", "b", "c"]);
+      // オプションを4択にする
+      var options = shuffle(["a", "b", "c", "d"]);
       content.innerHTML = `
         <div class="question-container">
           <div class="image-container">
@@ -495,6 +509,10 @@
             <label class="radio-label">
               <input type="radio" name="answer" id="option3" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
               <span>3rd</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="answer" id="option4" value="${options[3] === 'a' ? 'correct' : 'incorrect'}">
+              <span>4th</span>
             </label>
           </div>
           <div style="text-align: right; margin-top: 20px;">
