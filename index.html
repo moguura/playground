@@ -204,30 +204,21 @@
   <!-- 自動ログ保存用スクリプト（localStorage への保存付き） -->
   <script>
     (function() {
-      // ログを保持する配列
       const logBuffer = [];
-      
-      // 元の console.log を保存
       const originalLog = console.log;
-      
-      // console.log のオーバーライド
       console.log = function(...args) {
         const message = args.join(' ');
         logBuffer.push(message);
         originalLog.apply(console, args);
-        // ログ内容を localStorage に保存（タブを閉じてもデータが残る）
         localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
-      
-      // ログをダウンロードする関数を window に公開
       window.saveLog = function() {
-        // localStorage に保存されたログを取得
         const logContent = localStorage.getItem('consoleLog') || '';
         const blob = new Blob([logContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'console-log.txt'; // 保存するファイル名
+        a.download = 'console-log.txt';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -253,7 +244,6 @@
       You can listen to each audio clip only once.<br><br>
       Now, let's do an example together.<br>
       Please press the Submit button after selecting your answer.`,
-
       box2: `Let's do Example 1.<br><br>
       <strong>Example 1:</strong><br>
       Which audio clip correctly matches the image?<br>
@@ -262,7 +252,6 @@
       Choose the correct answer and then click the Submit button.<br>
       The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
       When you are ready, please press Submit after selecting your answer.`,
-
       box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
       Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
       Now, let's do one more example.<br><br>
@@ -273,7 +262,6 @@
       Choose the correct answer and then click the Submit button.<br>
       The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
       When you are ready, please press Submit after selecting your answer.`,
-
       box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
       Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
       Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
@@ -335,6 +323,13 @@
         [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
+    }
+
+    // テスト開始前に各問題に対して、ランダムな音声順（audioOrder）を生成して保存
+    function assignAudioOrder(questions) {
+      questions.forEach(q => {
+        q.audioOrder = shuffle(["a", "b", "c", "d"].slice()); // .slice() でコピー
+      });
     }
 
     // 音声を順番に再生（再生順は order パラメータで決定）
@@ -468,7 +463,7 @@
     }
 
     // テスト問題表示（ラジオボタンとSubmitボタンあり）
-    function showTestQuestion(questionData, callbackAfterSubmit) {
+    function showTestQuestion(questionObj, callbackAfterSubmit) {
       const headerElement = document.querySelector(".header");
       if (headerElement !== null) {
         headerElement.style.display = "none";
@@ -478,13 +473,13 @@
         progressBarElement.style.display = "flex";
       }
       // コンソールログに問題IDを出力
-      console.log("現在のテスト問題ID:", questionData.id);
-      // 各問題内の音声オプションをランダム化
-      const options = shuffle(["a", "b", "c", "d"]);
+      console.log("現在のテスト問題ID:", questionObj.id);
+      // 各問題内の音声順は、すでに割り当てた audioOrder を利用
+      const options = questionObj.audioOrder;
       content.innerHTML = `
         <div class="question-container">
           <div class="image-container">
-            <img src="${questionData.image}" alt="Test Question ${questionData.id}">
+            <img src="${questionObj.image}" alt="Test Question ${questionObj.id}">
           </div>
           <div id="audioPlayback" style="display:none;"></div>
           <div class="radio-group">
@@ -516,7 +511,7 @@
         });
       });
       const submitButton = document.getElementById("submitButton");
-      playSequence(questionData.audios, options, function() {
+      playSequence(questionObj.audios, options, function() {
         submitButton.style.display = "inline-block";
         submitButton.classList.add("fade-in");
       });
@@ -554,8 +549,10 @@
 
     // テスト進行管理
     function startTestQuestions() {
-      // testQuestions 配列自体をランダム化（イラストと聴解セットが一致したままランダム表示）
+      // testQuestions 配列自体をシャッフル（画像と聴解セットはペアのままランダム表示）
       testQuestions = shuffle(testQuestions);
+      // 各問題に対して、ランダムな音声順（audioOrder）を割り当てる
+      assignAudioOrder(testQuestions);
       let currentTestIndex = 0;
       function nextQuestion() {
         if (currentTestIndex >= testQuestions.length) {
