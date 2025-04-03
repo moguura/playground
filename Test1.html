@@ -140,12 +140,12 @@
       }
     }
     /* マイク・チェックアイコンのコンテナ */
-   .mic-container {
+    .mic-container {
       position: relative;
       display: inline-block;
     }
     /* チェックアイコンのスタイル */
-   .check-icon {
+    .check-icon {
       position: absolute;
       top: 50%;
       left: calc(100% + 10px);
@@ -154,8 +154,8 @@
       height: 70px;
       background: url("https://raw.githubusercontent.com/moguura/my-exp-images/main/check.png") no-repeat center center / contain;
       display: none;
-   }
-   .check-icon.show {
+    }
+    .check-icon.show {
       display: block;
       animation: pop 0.3s forwards;
     }
@@ -207,33 +207,24 @@
 <body>
   <div id="app" class="container"></div>
 
-  <!-- ログ永続化＆ダウンロード用のスクリプト（テスト２と同じ仕様） -->
+  <!-- ログ永続化＆ダウンロード用のスクリプト -->
   <script>
     (function() {
-      // ログを保持する配列
       const logBuffer = [];
-      
-      // オリジナルの console.log を保存
       const originalLog = console.log;
-      
-      // console.log のオーバーライド
       console.log = function(...args) {
         const message = args.join(' ');
         logBuffer.push(message);
         originalLog.apply(console, args);
-        // ログ内容を localStorage に保存（タブを閉じてもデータが残る）
         localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
-      
-      // ログをダウンロードする関数を window に公開
       window.saveLog = function() {
-        // localStorage に保存されたログを取得
         const logContent = localStorage.getItem('consoleLog') || '';
         const blob = new Blob([logContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'console-log.txt'; // 保存するファイル名
+        a.download = 'console-log.txt';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -244,7 +235,7 @@
 
   <script>
     // ================================
-    //  音声認識・サウンド関連の設定
+    // 音声認識・サウンド関連の設定
     // ================================
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
@@ -269,7 +260,7 @@
 
     function startRecognition() {
       clickSound.play();
-      clearTimeout(micWarningTimeout); // 警告タイマーをクリア
+      clearTimeout(micWarningTimeout);
       if (!recognition) {
         recognition = initSpeechRecognition();
         if (!recognition) return;
@@ -284,6 +275,7 @@
       recognition.onresult = (event) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript.trim();
+          // 例として「です」が含まれたら停止
           if (transcript.includes("です")) {
             stopRecognition();
             break;
@@ -318,7 +310,7 @@
     }
 
     // ================================
-    //  画面表示用ユーティリティ
+    // 画面表示用ユーティリティ
     // ================================
     const app = document.getElementById("app");
     function showScreen(html) { app.innerHTML = html; }
@@ -329,7 +321,7 @@
         let className = "progress-step";
         if (i < currentIndex) { className += " completed"; }
         else if (i === currentIndex) { className += " active"; }
-        steps += `<span class="${className}">${i+1}</span>`;
+        steps += `<span class="${className}">${i + 1}</span>`;
       }
       return `<div class="progress-container">${steps}</div>`;
     }
@@ -344,7 +336,7 @@
     }
 
     // ================================
-    //  各種テキスト・画像定義
+    // 各種テキスト・画像定義
     // ================================
     const explanationBox1 = `
       <h2 class="header">Test1</h2>
@@ -359,24 +351,24 @@
 
     const explanationBox2 = `
       <div class="explanation-box">
-        <p>Since the image for Example 1 shows <strong> げんざい (Present)</strong>, the correct answer is <strong>てんきは よくないです。</strong><br><br>
+        <p>Since the image for Example 1 shows <strong>げんざい (Present)</strong>, the correct answer is <strong>てんきは よくないです。</strong><br><br>
         Next, let’s try Example 2.<br>
         Press the microphone button and say <strong>てんきは よかったです。</strong></p>
       </div>
       <button class="button" id="nextBtn2">Next</button>
     `;
 
+    // 説明文内の問題数を 16問 → 20問 に変更
     const explanationBox3 = `
       <div class="explanation-box">
         <p>Since the image for Example 2 shows <strong>きのう (Yesterday)</strong>, the correct answer is <strong>てんきは よかったです。</strong><br><br>
-        Now, let's start the test. There are 16 questions.<br>
+        Now, let's start the test. There are 20 questions.<br>
         You can only speak once for each question, so be careful. Always say a full sentence.<br>
         When you're ready, click <strong>GO TO TEST</strong>.</p>
       </div>
       <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
     `;
 
-    // 修正：テスト終了画面にログ保存ボタンを追加
     const explanationBox4 = `
       <div class="explanation-box" style="text-align:center;">
         <p>This is the end of Test 1. Please inform Instructor Takei.</p>
@@ -396,7 +388,7 @@
       japaneseCue: "いい → てんきは（　　　）。"
     };
 
-    // 問題（全16問）※各オブジェクトに group プロパティを追加
+    // 問題（全20問）※ group プロパティの値を設定
     const questionData = [
       { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
       { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
@@ -413,7 +405,12 @@
       { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
       { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
       { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
-      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）。", group: "yesterday" }
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）。", group: "yesterday" },
+      // 追加分：ID 17～20
+      { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
+      { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
+      { id: 19, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-19.JPG", japaneseCue: "ひろい → <ruby>レストラン<rt>れすとらん</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 20, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-20.JPG", japaneseCue: "うるさい → としょかんは（　　　）。", group: "yesterday" }
     ];
 
     // 遷移画面用の画像定義
@@ -421,7 +418,7 @@
     const yesterdayTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG" };
 
     // ================================
-    //  画面遷移の管理
+    // 画面遷移の管理
     // ================================
     /*
       ステージ構成：
@@ -432,8 +429,8 @@
       4: 例2前の遷移画面（Yesterday）
       5: 例2
       6: 説明Box3 (GO TO TEST)
-      7～38: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面、全16問→32画面）
-      39: 説明Box4（終了＆ログ保存ボタン付き）
+      7～46: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面；全20問 → 40画面）
+      47: 説明Box4（終了＆ログ保存ボタン付き）
     */
     let stageIndex = 0;
     let shuffledQuestions = [];
@@ -472,9 +469,9 @@
           clickSound.play();
           startTest();
         });
-      } else if (index >= 7 && index < 7 + 2 * 16) {
-        // テスト問題部分（各問題は2画面で構成：偶数は遷移画面、奇数は実際の問題画面）
-        let qIndex = Math.floor((index - 7) / 2); // 0～15
+      } else if (index >= 7 && index < 7 + 2 * 20) {
+        // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
+        let qIndex = Math.floor((index - 7) / 2); // 0～19
         if ((index - 7) % 2 === 0) {
           // 遷移画面：問題の group に応じた画像表示
           if (shuffledQuestions[qIndex].group === "present") {
@@ -484,7 +481,7 @@
           }
         } else {
           // 実際の問題画面
-          const progressHTML = renderProgressBar(qIndex, 16);
+          const progressHTML = renderProgressBar(qIndex, 20);
           const html = `
             ${progressHTML}
             <div class="question-container">
@@ -506,7 +503,7 @@
             if (warning) { warning.textContent = "Press the mic button and speak!"; }
           }, 5000);
         }
-      } else if (index === 7 + 2 * 16) {
+      } else if (index === 7 + 2 * 20) {
         // 説明Box4（終了＆ログ保存ボタン付き）
         showScreen(explanationBox4);
         document.getElementById("downloadLogButton").addEventListener("click", () => {
