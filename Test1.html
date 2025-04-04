@@ -20,11 +20,6 @@
       text-align: center;
       padding: 20px;
     }
-    /* 見出し */
-    .header {
-      font-size: 2.2em;
-      margin-bottom: 20px;
-    }
     /* 説明文ボックス */
     .explanation-box {
       background-color: #f9f9f9;
@@ -180,6 +175,30 @@
     #downloadLogButton:hover {
       background-color: #388E3C;
     }
+    /* マイクボタン用のスタイル（任意で調整） */
+    .mic-button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #007BFF;
+      border: none;
+      cursor: pointer;
+    }
+    .mic-active {
+      box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+    }
+    .mic-warning {
+      color: red;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+    .check-icon {
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .check-icon.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -241,23 +260,13 @@
       Now, let's do one more example.<br><br>
       <strong>Example 2:</strong><br>
       Which audio clip correctly matches the image?<br>
-      First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
+      First, look at the image. Make sure the image says <strong>"Yesterday"</strong>.<br>
       Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
       Choose the correct answer and then click the Submit button.<br>
       The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
       When you are ready, please press Submit after selecting your answer.`,
-      box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
-      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
-      Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
-      so listen carefully.<br><br>
-      There are a total of 20 questions in this test.<br>
-      You can only listen to each audio clip once.<br><br>
-      Now, let's begin the test.<br>
-      When you are ready, please click Submit after selecting your answer.`
-    };
-    const explanationBox5 = {
-      text: `This is the end of Test 1. Please inform Instructor Takei.`,
-      gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
+      box4: `The test is now over.<br>
+      Please inform Instructor Takei about your results and then click the button below to save the log.`
     };
 
     /* ========== 例題データ ========= */
@@ -287,7 +296,6 @@
       { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
       { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
       { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
-      // 問題16の日本語文を変更
       { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "いそがしい → せんせいは（　　　）。", group: "yesterday" },
       { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
       { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
@@ -317,10 +325,21 @@
     let stageIndex = 0;
     let shuffledQuestions = [];
 
+    // 説明文をラップしてボタンを追加する関数
+    function wrapExplanation(content, buttonId, buttonText) {
+      return `
+        <div class="explanation-box">
+          ${content}
+          <br><br>
+          <button class="button" id="${buttonId}">${buttonText}</button>
+        </div>
+      `;
+    }
+
     function renderStage(index) {
       if (index === 0) {
         // 説明Box1
-        showScreen(explanationBox1);
+        showScreen(wrapExplanation(explanations.box1, "nextBtn1", "Next"));
         document.getElementById("nextBtn1").addEventListener("click", () => {
           playClickSound();
           goNext();
@@ -333,7 +352,7 @@
         renderExample(example1);
       } else if (index === 3) {
         // 説明Box2
-        showScreen(explanationBox2);
+        showScreen(wrapExplanation(explanations.box2, "nextBtn2", "Next"));
         document.getElementById("nextBtn2").addEventListener("click", () => {
           playClickSound();
           goNext();
@@ -346,7 +365,7 @@
         renderExample(example2);
       } else if (index === 6) {
         // 説明Box3 (GO TO TEST)
-        showScreen(explanationBox3);
+        showScreen(wrapExplanation(explanations.box3, "goTestBtn", "Go To Test"));
         document.getElementById("goTestBtn").addEventListener("click", () => {
           playClickSound();
           startTest();
@@ -387,7 +406,7 @@
         }
       } else if (index === 7 + 2 * 20) {
         // 説明Box4（終了＆ログ保存ボタン付き）
-        showScreen(explanationBox4);
+        showScreen(wrapExplanation(explanations.box4, "downloadLogButton", "Save Log"));
         document.getElementById("downloadLogButton").addEventListener("click", () => {
           window.saveLog();
         });
@@ -483,9 +502,6 @@
     // ================================
     // 音声認識・サウンド関連の設定
     // ================================
-    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
-    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
-
     let recognition = null;
     let recordTimeout = null;
     let isRecording = false;
@@ -551,7 +567,7 @@
     function showCheckIcon() {
       const checkIcon = document.getElementById("checkIcon");
       if (checkIcon) { checkIcon.classList.add("show"); }
-      checkSound.play();
+      playSubmitSound();
       setTimeout(() => { goNext(); }, 2000);
     }
 
