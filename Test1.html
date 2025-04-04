@@ -20,6 +20,11 @@
       text-align: center;
       padding: 20px;
     }
+    /* 見出し */
+    .header {
+      font-size: 2.2em;
+      margin-bottom: 20px;
+    }
     /* 説明文ボックス */
     .explanation-box {
       background-color: #f9f9f9;
@@ -175,30 +180,6 @@
     #downloadLogButton:hover {
       background-color: #388E3C;
     }
-    /* マイクボタン用のスタイル（任意で調整） */
-    .mic-button {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background-color: #007BFF;
-      border: none;
-      cursor: pointer;
-    }
-    .mic-active {
-      box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
-    }
-    .mic-warning {
-      color: red;
-      font-size: 1em;
-      margin-top: 10px;
-    }
-    .check-icon {
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .check-icon.show {
-      opacity: 1;
-    }
   </style>
 </head>
 <body>
@@ -231,277 +212,12 @@
   </script>
 
   <script>
-    /* ========== サウンド再生用 ========= */
-    function playClickSound() {
-      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3").play();
-    }
-    function playSubmitSound() {
-      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3").play();
-    }
-
-    /* ========== 説明文データ ========= */
-    const explanations = {
-      box1: `In this test, first look at the image.<br>
-      Then, listen to the four Japanese audio clips.<br>
-      After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>
-      You can listen to each audio clip only once.<br><br>
-      Now, let's do an example together.<br>
-      Please press the Submit button after selecting your answer.`,
-      box2: `Let's do Example 1.<br><br>
-      <strong>Example 1:</strong><br>
-      Which audio clip correctly matches the image?<br>
-      First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
-      Choose the correct answer and then click the Submit button.<br>
-      The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
-      When you are ready, please press Submit after selecting your answer.`,
-      box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
-      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
-      Now, let's do one more example.<br><br>
-      <strong>Example 2:</strong><br>
-      Which audio clip correctly matches the image?<br>
-      First, look at the image. Make sure the image says <strong>"Yesterday"</strong>.<br>
-      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
-      Choose the correct answer and then click the Submit button.<br>
-      The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
-      When you are ready, please press Submit after selecting your answer.`,
-      box4: `The test is now over.<br>
-      Please inform Instructor Takei about your results and then click the button below to save the log.`
-    };
-
-    /* ========== 例題データ ========= */
-    const example1 = {
-      imgUrl: "https://raw.githubusercontent.com/moguura/my-images/main/op-e.g.1.JPG",
-      japaneseCue: "いい → てんきは（　　　）。"
-    };
-    const example2 = {
-      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG",
-      japaneseCue: "いい → てんきは（　　　）。"
-    };
-
-    /* ========== テスト問題データ（20問） ========= */
-    const questionData = [
-      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
-      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
-      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）。", group: "present" },
-      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）。", group: "present" },
-      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）。", group: "present" },
-      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）。", group: "present" },
-      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）。", group: "present" },
-      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）。", group: "present" },
-      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）。", group: "yesterday" },
-      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）。", group: "yesterday" },
-      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）。", group: "yesterday" },
-      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>は（　　　）。", group: "yesterday" },
-      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
-      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
-      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
-      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "いそがしい → せんせいは（　　　）。", group: "yesterday" },
-      { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
-      { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
-      { id: 19, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-19.JPG", japaneseCue: "ひろい → <ruby>レストラン<rt>れすとらん</rt></ruby>は（　　　）。", group: "yesterday" },
-      { id: 20, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-20.JPG", japaneseCue: "うるさい → としょかんは（　　　）。", group: "yesterday" }
-    ];
-
-    // 遷移画面用の画像定義
-    const presentTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG" };
-    const yesterdayTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG" };
-
-    // ================================
-    // 画面遷移の管理
-    // ================================
-    /*
-      ステージ構成：
-      0: 説明Box1
-      1: 例1前の遷移画面（Present）
-      2: 例1
-      3: 説明Box2（例1の後）
-      4: 例2前の遷移画面（Yesterday）
-      5: 例2
-      6: 説明Box3 (GO TO TEST)
-      7～46: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面；全20問 → 40画面）
-      47: 説明Box4（終了＆ログ保存ボタン付き）
-    */
-    let stageIndex = 0;
-    let shuffledQuestions = [];
-
-    // 説明文をラップしてボタンを追加する関数
-    function wrapExplanation(content, buttonId, buttonText) {
-      return `
-        <div class="explanation-box">
-          ${content}
-          <br><br>
-          <button class="button" id="${buttonId}">${buttonText}</button>
-        </div>
-      `;
-    }
-
-    function renderStage(index) {
-      if (index === 0) {
-        // 説明Box1
-        showScreen(wrapExplanation(explanations.box1, "nextBtn1", "Next"));
-        document.getElementById("nextBtn1").addEventListener("click", () => {
-          playClickSound();
-          goNext();
-        });
-      } else if (index === 1) {
-        // 例1前の遷移画面（Present）
-        renderTransitionScreen(presentTransition.imgUrl, index + 1);
-      } else if (index === 2) {
-        // 例1
-        renderExample(example1);
-      } else if (index === 3) {
-        // 説明Box2
-        showScreen(wrapExplanation(explanations.box2, "nextBtn2", "Next"));
-        document.getElementById("nextBtn2").addEventListener("click", () => {
-          playClickSound();
-          goNext();
-        });
-      } else if (index === 4) {
-        // 例2前の遷移画面（Yesterday）
-        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
-      } else if (index === 5) {
-        // 例2
-        renderExample(example2);
-      } else if (index === 6) {
-        // 説明Box3 (GO TO TEST)
-        showScreen(wrapExplanation(explanations.box3, "goTestBtn", "Go To Test"));
-        document.getElementById("goTestBtn").addEventListener("click", () => {
-          playClickSound();
-          startTest();
-        });
-      } else if (index >= 7 && index < 7 + 2 * 20) {
-        // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
-        let qIndex = Math.floor((index - 7) / 2); // 0～19
-        if ((index - 7) % 2 === 0) {
-          // 遷移画面：問題の group に応じた画像表示
-          if (shuffledQuestions[qIndex].group === "present") {
-            renderTransitionScreen(presentTransition.imgUrl, index + 1);
-          } else {
-            renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
-          }
-        } else {
-          // 実際の問題画面
-          const progressHTML = renderProgressBar(qIndex, 20);
-          const html = `
-            ${progressHTML}
-            <div class="question-container">
-              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="Test Question ${shuffledQuestions[qIndex].displayId}" class="question-image" />
-              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
-              <div class="mic-container">
-                <button class="mic-button" id="micBtn"></button>
-                <div class="check-icon" id="checkIcon"></div>
-              </div>
-              <div id="micWarning" class="mic-warning"></div>
-            </div>
-          `;
-          showScreen(html);
-          console.log("現在のテスト問題ID:", shuffledQuestions[qIndex].displayId);
-          const micBtn = document.getElementById("micBtn");
-          if (micBtn) { micBtn.addEventListener("click", startRecognition); }
-          micWarningTimeout = setTimeout(() => {
-            const warning = document.getElementById("micWarning");
-            if (warning) { warning.textContent = "Press the mic button and speak!"; }
-          }, 5000);
-        }
-      } else if (index === 7 + 2 * 20) {
-        // 説明Box4（終了＆ログ保存ボタン付き）
-        showScreen(wrapExplanation(explanations.box4, "downloadLogButton", "Save Log"));
-        document.getElementById("downloadLogButton").addEventListener("click", () => {
-          window.saveLog();
-        });
-      }
-    }
-
-    function renderExample(exampleObj) {
-      const html = `
-        <div class="question-container">
-          <img src="${exampleObj.imgUrl}" alt="example image" class="question-image" />
-          <p class="japanese-cue">${exampleObj.japaneseCue}</p>
-          <div class="mic-container">
-            <button class="mic-button" id="micBtn"></button>
-            <div class="check-icon" id="checkIcon"></div>
-          </div>
-          <div id="micWarning" class="mic-warning"></div>
-        </div>
-      `;
-      showScreen(html);
-      const micBtn = document.getElementById("micBtn");
-      if (micBtn) { micBtn.addEventListener("click", startRecognition); }
-      micWarningTimeout = setTimeout(() => {
-        const warning = document.getElementById("micWarning");
-        if (warning) { warning.textContent = "Press the mic button and speak!"; }
-      }, 5000);
-    }
-
-    function renderTransitionScreen(imgUrl, nextStage) {
-      const html = `
-        <div class="question-container">
-          <img src="${imgUrl}" alt="transition image" class="transition-image" />
-          <button class="button" id="transitionNextBtn">Next</button>
-        </div>
-      `;
-      showScreen(html);
-      document.getElementById("transitionNextBtn").addEventListener("click", () => {
-        playClickSound();
-        stageIndex = nextStage;
-        renderStage(stageIndex);
-      });
-    }
-
-    function goNext() {
-      stageIndex++;
-      renderStage(stageIndex);
-    }
-
-    // テスト開始時、シャッフル後に displayId（1～20）を各問題に再割り当てする
-    function startTest() {
-      // シャッフルしたコピーを作成
-      shuffledQuestions = shuffle(questionData.map(q => Object.assign({}, q)));
-      // 各問題に連番（1～20）の displayId を割り当てる
-      shuffledQuestions.forEach((q, idx) => {
-        q.displayId = idx + 1;
-      });
-      // 各問題にランダムな音声順（audioOrder）を割り当てる
-      assignAudioOrder(shuffledQuestions);
-      stageIndex = 7;
-      renderStage(stageIndex);
-    }
-
-    // 各問題にランダムな音声順（audioOrder）を設定する
-    function assignAudioOrder(questions) {
-      questions.forEach(q => {
-        q.audioOrder = shuffle(["a", "b", "c", "d"].slice());
-      });
-    }
-
-    function showScreen(html) {
-      document.getElementById("app").innerHTML = html;
-    }
-
-    function renderProgressBar(currentIndex, total) {
-      let steps = "";
-      for (let i = 0; i < total; i++) {
-        let className = "progress-step";
-        if (i < currentIndex) { className += " completed"; }
-        else if (i === currentIndex) { className += " active"; }
-        steps += `<span class="${className}">${i + 1}</span>`;
-      }
-      return `<div class="progress-container">${steps}</div>`;
-    }
-
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
     // ================================
     // 音声認識・サウンド関連の設定
     // ================================
+    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
+    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
+
     let recognition = null;
     let recordTimeout = null;
     let isRecording = false;
@@ -521,7 +237,7 @@
     }
 
     function startRecognition() {
-      playClickSound();
+      clickSound.play();
       clearTimeout(micWarningTimeout);
       if (!recognition) {
         recognition = initSpeechRecognition();
@@ -567,8 +283,297 @@
     function showCheckIcon() {
       const checkIcon = document.getElementById("checkIcon");
       if (checkIcon) { checkIcon.classList.add("show"); }
-      playSubmitSound();
+      checkSound.play();
       setTimeout(() => { goNext(); }, 2000);
+    }
+
+    // ================================
+    // 画面表示用ユーティリティ
+    // ================================
+    const app = document.getElementById("app");
+    function showScreen(html) { app.innerHTML = html; }
+
+    function renderProgressBar(currentIndex, total) {
+      let steps = "";
+      for (let i = 0; i < total; i++) {
+        let className = "progress-step";
+        if (i < currentIndex) { className += " completed"; }
+        else if (i === currentIndex) { className += " active"; }
+        steps += `<span class="${className}">${i + 1}</span>`;
+      }
+      return `<div class="progress-container">${steps}</div>`;
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ================================
+    // 各種テキスト・画像定義
+    // ================================
+    const explanationBox1 = `
+      <h2 class="header">Test 2</h2>
+      <div class="explanation-box">
+        ${"In this test, first look at the image.<br>" +
+          "Then, listen to the four Japanese audio clips.<br>" +
+          "After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>" +
+          "You can listen to each audio clip only once.<br><br>" +
+          "Now, let's do an example together.<br>" +
+          "Please press the Submit button after selecting your answer."}
+      </div>
+      <button class="submit-btn button" id="nextBtn1">Next</button>
+    `;
+
+    const explanationBox2 = `
+      <div class="explanation-box">
+        ${"Let's do Example 1.<br><br>" +
+          "<strong>Example 1:</strong><br>" +
+          "Which audio clip correctly matches the image?<br>" +
+          "First, look at the image. Make sure the image says <strong>\"Present\"</strong>.<br>" +
+          "Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>" +
+          "Choose the correct answer and then click the Submit button.<br>" +
+          "The correct answer for Example 1 is <strong>the first one</strong>.<br><br>" +
+          "When you are ready, please press Submit after selecting your answer."}
+      </div>
+      <button class="submit-btn button" id="nextBtn2">Next</button>
+    `;
+
+    const explanationBox3 = `
+      <div class="explanation-box">
+        ${"The correct answer for Example 1 is <strong>the first one</strong>.<br>" +
+          "Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>" +
+          "Now, let's do one more example.<br><br>" +
+          "<strong>Example 2:</strong><br>" +
+          "Which audio clip correctly matches the image?<br>" +
+          "First, look at the image. Make sure the image says <strong>\"Past\"</strong>.<br>" +
+          "Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>" +
+          "Choose the correct answer and then click the Submit button.<br>" +
+          "The correct answer for Example 2 is <strong>the third one</strong>.<br><br>" +
+          "When you are ready, please press Submit after selecting your answer."}
+      </div>
+      <button class="submit-btn button" id="nextBtn3">Next</button>
+    `;
+
+    const explanationBox4 = `
+      <div class="explanation-box">
+        ${"The correct answer for Example 2 is <strong>the third one</strong>.<br>" +
+          "Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>" +
+          "Just like in Example 1 and Example 2, every image will have either <strong>\"Present\"</strong> or <strong>\"Yesterday\"</strong> written on it, so listen carefully.<br><br>" +
+          "There are a total of 20 questions in this test.<br>" +
+          "You can only listen to each audio clip once.<br><br>" +
+          "Now, let's begin the test.<br>" +
+          "When you are ready, please click Submit after selecting your answer."}
+      </div>
+      <button class="submit-btn button" id="nextBtn4">Next</button>
+    `;
+
+    const explanationBox5 = {
+      text: "This is the end of Test 1. Please inform Instructor Takei.",
+      gif: "https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif"
+    };
+
+    // 例題
+    const example1 = {
+      image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG",
+      audios: {
+        a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
+        b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
+        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
+        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
+      },
+      correct: "a",
+      order: ["a", "b", "c", "d"]
+    };
+    const example2 = {
+      image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG",
+      audios: {
+        a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
+        b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
+        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
+        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
+      },
+      correct: "c",
+      order: ["a", "b", "c", "d"]
+    };
+
+    // 問題（全20問）※ group プロパティの値を設定
+    const questionData = [
+      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
+      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
+      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）。", group: "present" },
+      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）。", group: "present" },
+      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）。", group: "present" },
+      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）。", group: "present" },
+      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）。", group: "present" },
+      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）。", group: "present" },
+      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）。", group: "yesterday" },
+      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）。", group: "yesterday" },
+      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
+      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）。", group: "yesterday" },
+      // 追加分：ID 17～20
+      { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
+      { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
+      { id: 19, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-19.JPG", japaneseCue: "ひろい → <ruby>レストラン<rt>れすとらん</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 20, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-20.JPG", japaneseCue: "うるさい → としょかんは（　　　）。", group: "yesterday" }
+    ];
+
+    // 遷移画面用の画像定義
+    const presentTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG" };
+    const yesterdayTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG" };
+
+    // ================================
+    // 画面遷移の管理
+    // ================================
+    /*
+      ステージ構成：
+      0: 説明Box1
+      1: 例1前の遷移画面（Present）
+      2: 例1
+      3: 説明Box2（例1の後）
+      4: 例2前の遷移画面（Yesterday）
+      5: 例2
+      6: 説明Box3 (GO TO TEST)
+      7～46: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面；全20問 → 40画面）
+      47: 説明Box4（終了＆ログ保存ボタン付き）
+    */
+    let stageIndex = 0;
+    let shuffledQuestions = [];
+
+    function renderStage(index) {
+      if (index === 0) {
+        // 説明Box1
+        showScreen(explanationBox1);
+        document.getElementById("nextBtn1").addEventListener("click", () => {
+          clickSound.play();
+          goNext();
+        });
+      } else if (index === 1) {
+        // 例1前の遷移画面（Present）
+        renderTransitionScreen(presentTransition.imgUrl, index + 1);
+      } else if (index === 2) {
+        // 例1
+        renderExample(example1);
+      } else if (index === 3) {
+        // 説明Box2
+        showScreen(explanationBox2);
+        document.getElementById("nextBtn2").addEventListener("click", () => {
+          clickSound.play();
+          goNext();
+        });
+      } else if (index === 4) {
+        // 例2前の遷移画面（Yesterday）
+        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+      } else if (index === 5) {
+        // 例2
+        renderExample(example2);
+      } else if (index === 6) {
+        // 説明Box3 (GO TO TEST)
+        showScreen(explanationBox3);
+        document.getElementById("goTestBtn").addEventListener("click", () => {
+          clickSound.play();
+          startTest();
+        });
+      } else if (index >= 7 && index < 7 + 2 * 20) {
+        // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
+        let qIndex = Math.floor((index - 7) / 2); // 0～19
+        if ((index - 7) % 2 === 0) {
+          // 遷移画面：問題の group に応じた画像表示
+          if (shuffledQuestions[qIndex].group === "present") {
+            renderTransitionScreen(presentTransition.imgUrl, index + 1);
+          } else {
+            renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+          }
+        } else {
+          // 実際の問題画面
+          const progressHTML = renderProgressBar(qIndex, 20);
+          const html = `
+            ${progressHTML}
+            <div class="question-container">
+              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="Test Question ${shuffledQuestions[qIndex].displayId}" class="question-image" />
+              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
+              <div class="mic-container">
+                <button class="mic-button" id="micBtn"></button>
+                <div class="check-icon" id="checkIcon"></div>
+              </div>
+              <div id="micWarning" class="mic-warning"></div>
+            </div>
+          `;
+          showScreen(html);
+          console.log("現在のテスト問題ID:", shuffledQuestions[qIndex].displayId);
+          const micBtn = document.getElementById("micBtn");
+          if (micBtn) { micBtn.addEventListener("click", startRecognition); }
+          micWarningTimeout = setTimeout(() => {
+            const warning = document.getElementById("micWarning");
+            if (warning) { warning.textContent = "Press the mic button and speak!"; }
+          }, 5000);
+        }
+      } else if (index === 7 + 2 * 20) {
+        // 説明Box4（終了＆ログ保存ボタン付き）
+        showScreen(explanationBox4);
+        document.getElementById("downloadLogButton").addEventListener("click", () => {
+          window.saveLog();
+        });
+      }
+    }
+
+    function renderExample(exampleObj) {
+      const html = `
+        <div class="question-container">
+          <img src="${exampleObj.imgUrl}" alt="example image" class="question-image" />
+          <p class="japanese-cue">${exampleObj.japaneseCue}</p>
+          <div class="mic-container">
+            <button class="mic-button" id="micBtn"></button>
+            <div class="check-icon" id="checkIcon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `;
+      showScreen(html);
+      const micBtn = document.getElementById("micBtn");
+      if(micBtn) { micBtn.addEventListener("click", startRecognition); }
+      micWarningTimeout = setTimeout(() => {
+        const warning = document.getElementById("micWarning");
+        if(warning) { warning.textContent = "Press the mic button and speak!"; }
+      }, 5000);
+    }
+
+    function renderTransitionScreen(imgUrl, nextStage) {
+      const html = `
+        <div class="question-container">
+          <img src="${imgUrl}" alt="transition image" class="transition-image" />
+          <button class="button" id="transitionNextBtn">Next</button>
+        </div>
+      `;
+      showScreen(html);
+      document.getElementById("transitionNextBtn").addEventListener("click", () => {
+        clickSound.play();
+        stageIndex = nextStage;
+        renderStage(stageIndex);
+      });
+    }
+
+    function goNext() {
+      stageIndex++;
+      renderStage(stageIndex);
+    }
+
+    // テスト開始時、シャッフル後に displayId（1～20）を各問題に再割り当てする
+    function startTest() {
+      shuffledQuestions = shuffle(questionData.map(q => Object.assign({}, q)));
+      shuffledQuestions.forEach((q, idx) => {
+        q.displayId = idx + 1;
+      });
+      stageIndex = 7;
+      renderStage(stageIndex);
     }
 
     window.addEventListener("DOMContentLoaded", () => {
