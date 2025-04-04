@@ -160,48 +160,26 @@
     }
     /* ログ保存ボタンのスタイル */
     #downloadLogButton {
-      display: block;
-      margin: 20px auto 0;
-      padding: 10px 20px;
+      display: inline-block;
       background-color: #4CAF50;
       color: #fff;
+      padding: 10px 20px;
+      font-size: 1.1em;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+    #downloadLogButton:hover {
+      background-color: #388E3C;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- 進捗バーを先頭に配置 -->
-    <div class="progress-bar" id="progressBar">
-      <div class="progress-step">1</div>
-      <div class="progress-step">2</div>
-      <div class="progress-step">3</div>
-      <div class="progress-step">4</div>
-      <div class="progress-step">5</div>
-      <div class="progress-step">6</div>
-      <div class="progress-step">7</div>
-      <div class="progress-step">8</div>
-      <div class="progress-step">9</div>
-      <div class="progress-step">10</div>
-      <div class="progress-step">11</div>
-      <div class="progress-step">12</div>
-      <div class="progress-step">13</div>
-      <div class="progress-step">14</div>
-      <div class="progress-step">15</div>
-      <div class="progress-step">16</div>
-      <div class="progress-step">17</div>
-      <div class="progress-step">18</div>
-      <div class="progress-step">19</div>
-      <div class="progress-step">20</div>
-    </div>
-    <!-- コンテンツエリア -->
-    <div id="content"></div>
-  </div> 
+  <div id="app" class="container"></div>
 
-  <!-- 自動ログ保存用スクリプト（localStorage への保存付き） -->
+  <!-- ログ永続化＆ダウンロード用のスクリプト -->
   <script>
     (function() {
       const logBuffer = [];
@@ -301,293 +279,193 @@
     };
 
     /* ========== テスト問題データ（20問） ========= */
-    let testQuestions = [];
-    for (let i = 1; i <= 20; i++) {
-      testQuestions.push({
-        id: i,
-        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
-        audios: {
-          a: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,
-          b: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,
-          c: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`,
-          d: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav`
-        },
-        correct: "a"
+    const questionData = [
+      { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
+      { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
+      { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）。", group: "present" },
+      { id: 4, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-4.JPG", japaneseCue: "からい → この<ruby>パスタ<rt>ぱすた</rt></ruby>は（　　　）。", group: "present" },
+      { id: 5, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-5.JPG", japaneseCue: "あたらしい → いえは（　　　）。", group: "present" },
+      { id: 6, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-6.JPG", japaneseCue: "おいしい → くすりは（　　　）。", group: "present" },
+      { id: 7, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-7.JPG", japaneseCue: "ちかい → がっこうは（　　　）。", group: "present" },
+      { id: 8, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-8.JPG", japaneseCue: "むずかしい → べんきょうは（　　　）。", group: "present" },
+      { id: 9, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-9.JPG", japaneseCue: "あつい → ８がつは（　　　）。", group: "yesterday" },
+      { id: 10, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-10.JPG", japaneseCue: "たかい → りょうりは（　　　）。", group: "yesterday" },
+      { id: 11, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-11.JPG", japaneseCue: "たのしい → <ruby>ゲーム<rt>げーむ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 12, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-12.JPG", japaneseCue: "やすい → このT<ruby>シャツ<rt>しゃつ</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
+      { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
+      // 問題16の日本語文を変更
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "いそがしい → せんせいは（　　　）。", group: "yesterday" },
+      { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
+      { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
+      { id: 19, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-19.JPG", japaneseCue: "ひろい → <ruby>レストラン<rt>れすとらん</rt></ruby>は（　　　）。", group: "yesterday" },
+      { id: 20, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-20.JPG", japaneseCue: "うるさい → としょかんは（　　　）。", group: "yesterday" }
+    ];
+
+    // 遷移画面用の画像定義
+    const presentTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Present.JPG" };
+    const yesterdayTransition = { imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/Yesterday.JPG" };
+
+    // ================================
+    // 画面遷移の管理
+    // ================================
+    /*
+      ステージ構成：
+      0: 説明Box1
+      1: 例1前の遷移画面（Present）
+      2: 例1
+      3: 説明Box2（例1の後）
+      4: 例2前の遷移画面（Yesterday）
+      5: 例2
+      6: 説明Box3 (GO TO TEST)
+      7～46: テスト問題（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面；全20問 → 40画面）
+      47: 説明Box4（終了＆ログ保存ボタン付き）
+    */
+    let stageIndex = 0;
+    let shuffledQuestions = [];
+
+    function renderStage(index) {
+      if (index === 0) {
+        // 説明Box1
+        showScreen(explanationBox1);
+        document.getElementById("nextBtn1").addEventListener("click", () => {
+          playClickSound();
+          goNext();
+        });
+      } else if (index === 1) {
+        // 例1前の遷移画面（Present）
+        renderTransitionScreen(presentTransition.imgUrl, index + 1);
+      } else if (index === 2) {
+        // 例1
+        renderExample(example1);
+      } else if (index === 3) {
+        // 説明Box2
+        showScreen(explanationBox2);
+        document.getElementById("nextBtn2").addEventListener("click", () => {
+          playClickSound();
+          goNext();
+        });
+      } else if (index === 4) {
+        // 例2前の遷移画面（Yesterday）
+        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+      } else if (index === 5) {
+        // 例2
+        renderExample(example2);
+      } else if (index === 6) {
+        // 説明Box3 (GO TO TEST)
+        showScreen(explanationBox3);
+        document.getElementById("goTestBtn").addEventListener("click", () => {
+          playClickSound();
+          startTest();
+        });
+      } else if (index >= 7 && index < 7 + 2 * 20) {
+        // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
+        let qIndex = Math.floor((index - 7) / 2); // 0～19
+        if ((index - 7) % 2 === 0) {
+          // 遷移画面：問題の group に応じた画像表示
+          if (shuffledQuestions[qIndex].group === "present") {
+            renderTransitionScreen(presentTransition.imgUrl, index + 1);
+          } else {
+            renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+          }
+        } else {
+          // 実際の問題画面
+          const progressHTML = renderProgressBar(qIndex, 20);
+          const html = `
+            ${progressHTML}
+            <div class="question-container">
+              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="Test Question ${shuffledQuestions[qIndex].displayId}" class="question-image" />
+              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
+              <div class="mic-container">
+                <button class="mic-button" id="micBtn"></button>
+                <div class="check-icon" id="checkIcon"></div>
+              </div>
+              <div id="micWarning" class="mic-warning"></div>
+            </div>
+          `;
+          showScreen(html);
+          console.log("現在のテスト問題ID:", shuffledQuestions[qIndex].displayId);
+          const micBtn = document.getElementById("micBtn");
+          if (micBtn) { micBtn.addEventListener("click", startRecognition); }
+          micWarningTimeout = setTimeout(() => {
+            const warning = document.getElementById("micWarning");
+            if (warning) { warning.textContent = "Press the mic button and speak!"; }
+          }, 5000);
+        }
+      } else if (index === 7 + 2 * 20) {
+        // 説明Box4（終了＆ログ保存ボタン付き）
+        showScreen(explanationBox4);
+        document.getElementById("downloadLogButton").addEventListener("click", () => {
+          window.saveLog();
+        });
+      }
+    }
+
+    function renderExample(exampleObj) {
+      const html = `
+        <div class="question-container">
+          <img src="${exampleObj.imgUrl}" alt="example image" class="question-image" />
+          <p class="japanese-cue">${exampleObj.japaneseCue}</p>
+          <div class="mic-container">
+            <button class="mic-button" id="micBtn"></button>
+            <div class="check-icon" id="checkIcon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `;
+      showScreen(html);
+      const micBtn = document.getElementById("micBtn");
+      if(micBtn) { micBtn.addEventListener("click", startRecognition); }
+      micWarningTimeout = setTimeout(() => {
+        const warning = document.getElementById("micWarning");
+        if(warning) { warning.textContent = "Press the mic button and speak!"; }
+      }, 5000);
+    }
+
+    function renderTransitionScreen(imgUrl, nextStage) {
+      const html = `
+        <div class="question-container">
+          <img src="${imgUrl}" alt="transition image" class="transition-image" />
+          <button class="button" id="transitionNextBtn">Next</button>
+        </div>
+      `;
+      showScreen(html);
+      document.getElementById("transitionNextBtn").addEventListener("click", () => {
+        playClickSound();
+        stageIndex = nextStage;
+        renderStage(stageIndex);
       });
     }
 
-    /* ========== ユーティリティ関数 ========= */
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+    function goNext() {
+      stageIndex++;
+      renderStage(stageIndex);
     }
 
-    // テスト開始前に各問題に対して、ランダムな音声順（audioOrder）を生成して保存
+    // テスト開始時、シャッフル後に displayId（1～20）を各問題に再割り当てする
+    function startTest() {
+      // シャッフルしたコピーを作成
+      shuffledQuestions = shuffle(questionData.map(q => Object.assign({}, q)));
+      // 各問題に連番（1～20）の displayId を割り当て
+      shuffledQuestions.forEach((q, idx) => {
+        q.displayId = idx + 1;
+      });
+      // 各問題に対してランダムな音声順を割り当てる
+      assignAudioOrder(shuffledQuestions);
+      stageIndex = 7;
+      renderStage(stageIndex);
+    }
+
+    // 各問題にランダムな音声順（audioOrder）を設定する
     function assignAudioOrder(questions) {
       questions.forEach(q => {
-        q.audioOrder = shuffle(["a", "b", "c", "d"].slice()); // .slice() でコピー
+        q.audioOrder = shuffle(["a", "b", "c", "d"].slice());
       });
     }
 
-    // 音声を順番に再生（再生順は order パラメータで決定）
-    function playSequence(audios, order, onComplete) {
-      setTimeout(() => {
-        const beep = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
-        beep.play().then(() => {
-          beep.onended = () => {
-            let index = 0;
-            function playNext() {
-              if (index < order.length) {
-                const key = order[index];
-                const audio = new Audio(audios[key]);
-                audio.play().then(() => {
-                  audio.onended = () => {
-                    index++;
-                    setTimeout(playNext, 1000);
-                  };
-                }).catch(err => {
-                  console.error("Audio playback error:", err);
-                  index++;
-                  setTimeout(playNext, 1000);
-                });
-              } else {
-                onComplete();
-              }
-            }
-            playNext();
-          };
-        }).catch(err => {
-          console.error("Beep playback error:", err);
-          onComplete();
-        });
-      }, 1000);
-    }
-
-    // 進捗バー更新
-    function updateProgress(stepNumber) {
-      const steps = document.querySelectorAll('.progress-step');
-      steps.forEach((step, idx) => {
-        if (idx < stepNumber) {
-          step.classList.add('completed');
-        } else {
-          step.classList.remove('completed');
-        }
-      });
-    }
-
-    /* ========== UI表示用関数 ========= */
-    const content = document.getElementById("content");
-
-    // 説明ページ表示（ヘッダー付き）
-    function showExplanation(text, buttonText, callback) {
-      content.innerHTML = `
-        <header class="header">Test 2</header>
-        <div class="explanation-box">
-          ${text.trim()}
-          <div style="text-align: center; margin-top: 20px;">
-            <button id="nextButton" class="submit-btn">${buttonText}</button>
-          </div>
-        </div>
-      `;
-      document.getElementById("nextButton").addEventListener("click", () => {
-        playClickSound();
-        callback();
-      });
-    }
-
-    // 例題表示（ラジオボタンとSubmitボタンあり）
-    function showExample(exampleData, callbackAfterSubmit) {
-      const headerElement = document.querySelector(".header");
-      if (headerElement !== null) {
-        headerElement.style.display = "none";
-      }
-      const progressBarElement = document.getElementById("progressBar");
-      if (progressBarElement !== null) {
-        progressBarElement.style.display = "none";
-      }
-      content.innerHTML = `
-        <div class="question-container">
-          <div class="image-container">
-            <img src="${exampleData.image}" alt="Example Image">
-          </div>
-          <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${exampleData.order[0] === exampleData.correct ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${exampleData.order[1] === exampleData.correct ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${exampleData.order[2] === exampleData.correct ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option4" value="${exampleData.order[3] === exampleData.correct ? 'correct' : 'incorrect'}">
-              <span>4th</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
-        </div>
-      `;
-      document.querySelectorAll('input[name="answer"]').forEach(function(input) {
-        input.addEventListener("click", function(e) {
-          console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
-        });
-      });
-      const submitButton = document.getElementById("submitButton");
-      playSequence(exampleData.audios, exampleData.order, function() {
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
-      });
-      submitButton.addEventListener("click", function() {
-        if (submitButton.disabled) return;
-        submitButton.disabled = true;
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          submitButton.disabled = false;
-          return;
-        }
-        playSubmitSound();
-        console.log("Submit clicked. 選択されたラジオボタンのID:", selected.id, "値:", selected.value, "クリック時刻:", new Date().toLocaleString());
-        callbackAfterSubmit();
-      });
-    }
-
-    // テスト問題表示（ラジオボタンとSubmitボタンあり）
-    function showTestQuestion(questionObj, callbackAfterSubmit) {
-      const headerElement = document.querySelector(".header");
-      if (headerElement !== null) {
-        headerElement.style.display = "none";
-      }
-      const progressBarElement = document.getElementById("progressBar");
-      if (progressBarElement !== null) {
-        progressBarElement.style.display = "flex";
-      }
-      // コンソールログに問題IDを出力
-      console.log("現在のテスト問題ID:", questionObj.id);
-      // 各問題内の音声順は、すでに割り当てた audioOrder を利用
-      const options = questionObj.audioOrder;
-      content.innerHTML = `
-        <div class="question-container">
-          <div class="image-container">
-            <img src="${questionObj.image}" alt="Test Question ${questionObj.id}">
-          </div>
-          <div id="audioPlayback" style="display:none;"></div>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option1" value="${options[0] === 'a' ? 'correct' : 'incorrect'}">
-              <span>1st</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option2" value="${options[1] === 'a' ? 'correct' : 'incorrect'}">
-              <span>2nd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option3" value="${options[2] === 'a' ? 'correct' : 'incorrect'}">
-              <span>3rd</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="answer" id="option4" value="${options[3] === 'a' ? 'correct' : 'incorrect'}">
-              <span>4th</span>
-            </label>
-          </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="submitButton" class="submit-btn" style="display:none;">Submit</button>
-          </div>
-        </div>
-      `;
-      document.querySelectorAll('input[name="answer"]').forEach(function(input) {
-        input.addEventListener("click", function(e) {
-          console.log("選択されたラジオボタンのID:", e.target.id, "値:", e.target.value, "クリック時刻:", new Date().toLocaleString());
-        });
-      });
-      const submitButton = document.getElementById("submitButton");
-      playSequence(questionObj.audios, options, function() {
-        submitButton.style.display = "inline-block";
-        submitButton.classList.add("fade-in");
-      });
-      submitButton.addEventListener("click", function() {
-        if (submitButton.disabled) return;
-        submitButton.disabled = true;
-        const selected = document.querySelector('input[name="answer"]:checked');
-        if (!selected) {
-          alert("Please select an option.");
-          submitButton.disabled = false;
-          return;
-        }
-        playSubmitSound();
-        console.log("Submit clicked. 選択されたラジオボタンのID:", selected.id, "値:", selected.value, "クリック時刻:", new Date().toLocaleString());
-        callbackAfterSubmit();
-      });
-    }
-
-    // テスト終了時（explanationBox5 と ログ保存ボタン表示）
-    function finishTest() {
-      document.getElementById("progressBar").style.display = "none";
-      content.innerHTML = `
-        <div class="explanation-box" style="text-align:center;" id="explanationBox5">
-          <p style="margin-bottom: 20px; font-size: 1.4em;">
-            ${explanationBox5.text}
-          </p>
-          <img src="${explanationBox5.gif}" alt="Cracker GIF" style="max-width: 300px;">
-          <button id="downloadLogButton">DO NOT TOUCH</button>
-        </div>
-      `;
-      document.getElementById("downloadLogButton").addEventListener("click", function() {
-        window.saveLog();
-      });
-    }
-
-    // テスト進行管理
-    function startTestQuestions() {
-      // testQuestions 配列自体をシャッフル（画像と聴解セットはペアのままランダム表示）
-      testQuestions = shuffle(testQuestions);
-      // 各問題に対して、ランダムな音声順（audioOrder）を割り当てる
-      assignAudioOrder(testQuestions);
-      let currentTestIndex = 0;
-      function nextQuestion() {
-        if (currentTestIndex >= testQuestions.length) {
-          finishTest();
-          return;
-        }
-        updateProgress(currentTestIndex + 1);
-        showTestQuestion(testQuestions[currentTestIndex], () => {
-          currentTestIndex++;
-          nextQuestion();
-        });
-      }
-      nextQuestion();
-    }
-
-    // 全体フロー開始
-    function startFlow() {
-      showExplanation(explanations.box1, "Next", function() {
-        showExplanation(explanations.box2, "Next", function() {
-          showExample(example1, function() {
-            showExplanation(explanations.box3, "Next", function() {
-              showExample(example2, function() {
-                showExplanation(explanations.box4, "Next", function() {
-                  startTestQuestions();
-                });
-              });
-            });
-          });
-        });
-      });
-    }
-
-    // ページ読み込み時に最初の説明から開始
-    document.addEventListener("DOMContentLoaded", function() {
-      startFlow();
+    window.addEventListener("DOMContentLoaded", () => {
+      renderStage(stageIndex);
     });
   </script>
 </body>
