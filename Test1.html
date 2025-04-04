@@ -212,196 +212,65 @@
   </script>
 
   <script>
-    // ================================
-    // 音声認識・サウンド関連の設定
-    // ================================
-    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
-    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
-
-    let recognition = null;
-    let recordTimeout = null;
-    let isRecording = false;
-    let micWarningTimeout = null; // 警告表示用タイマー
-
-    function initSpeechRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("このブラウザはSpeechRecognition APIをサポートしていません。");
-        return null;
-      }
-      const recog = new SpeechRecognition();
-      recog.lang = "ja-JP";
-      recog.interimResults = true;
-      recog.continuous = true;
-      return recog;
+    /* ========== サウンド再生用 ========= */
+    function playClickSound() {
+      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3").play();
+    }
+    function playSubmitSound() {
+      new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3").play();
     }
 
-    function startRecognition() {
-      clickSound.play();
-      clearTimeout(micWarningTimeout);
-      if (!recognition) {
-        recognition = initSpeechRecognition();
-        if (!recognition) return;
-      }
-      const micBtn = document.getElementById("micBtn");
-      if (micBtn) {
-        micBtn.disabled = true;
-        micBtn.classList.add("mic-active");
-      }
-      isRecording = true;
-      recordTimeout = setTimeout(() => { stopRecognition(); }, 10000);
-      recognition.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript.trim();
-          // 例として「です」が含まれたら停止
-          if (transcript.includes("です")) {
-            stopRecognition();
-            break;
-          }
-        }
-      };
-      recognition.onerror = (e) => {
-        console.warn("Recognition error:", e);
-        stopRecognition();
-      };
-      recognition.onend = () => { console.log("Recognition ended"); };
-      recognition.start();
-    }
-
-    function stopRecognition() {
-      if (!recognition || !isRecording) return;
-      clearTimeout(recordTimeout);
-      recognition.stop();
-      isRecording = false;
-      const micBtn = document.getElementById("micBtn");
-      if (micBtn) {
-        micBtn.classList.remove("mic-active");
-      }
-      showCheckIcon();
-    }
-
-    function showCheckIcon() {
-      const checkIcon = document.getElementById("checkIcon");
-      if (checkIcon) { checkIcon.classList.add("show"); }
-      checkSound.play();
-      setTimeout(() => { goNext(); }, 2000);
-    }
-
-    // ================================
-    // 画面表示用ユーティリティ
-    // ================================
-    const app = document.getElementById("app");
-    function showScreen(html) { app.innerHTML = html; }
-
-    function renderProgressBar(currentIndex, total) {
-      let steps = "";
-      for (let i = 0; i < total; i++) {
-        let className = "progress-step";
-        if (i < currentIndex) { className += " completed"; }
-        else if (i === currentIndex) { className += " active"; }
-        steps += `<span class="${className}">${i + 1}</span>`;
-      }
-      return `<div class="progress-container">${steps}</div>`;
-    }
-
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // ================================
-    // 各種テキスト・画像定義
-    // ================================
-    const explanationBox1 = `
-      <h2 class="header">Test 2</h2>
-      <div class="explanation-box">
-        ${"In this test, first look at the image.<br>" +
-          "Then, listen to the four Japanese audio clips.<br>" +
-          "After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>" +
-          "You can listen to each audio clip only once.<br><br>" +
-          "Now, let's do an example together.<br>" +
-          "Please press the Submit button after selecting your answer."}
-      </div>
-      <button class="submit-btn button" id="nextBtn1">Next</button>
-    `;
-
-    const explanationBox2 = `
-      <div class="explanation-box">
-        ${"Let's do Example 1.<br><br>" +
-          "<strong>Example 1:</strong><br>" +
-          "Which audio clip correctly matches the image?<br>" +
-          "First, look at the image. Make sure the image says <strong>\"Present\"</strong>.<br>" +
-          "Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>" +
-          "Choose the correct answer and then click the Submit button.<br>" +
-          "The correct answer for Example 1 is <strong>the first one</strong>.<br><br>" +
-          "When you are ready, please press Submit after selecting your answer."}
-      </div>
-      <button class="submit-btn button" id="nextBtn2">Next</button>
-    `;
-
-    const explanationBox3 = `
-      <div class="explanation-box">
-        ${"The correct answer for Example 1 is <strong>the first one</strong>.<br>" +
-          "Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>" +
-          "Now, let's do one more example.<br><br>" +
-          "<strong>Example 2:</strong><br>" +
-          "Which audio clip correctly matches the image?<br>" +
-          "First, look at the image. Make sure the image says <strong>\"Past\"</strong>.<br>" +
-          "Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>" +
-          "Choose the correct answer and then click the Submit button.<br>" +
-          "The correct answer for Example 2 is <strong>the third one</strong>.<br><br>" +
-          "When you are ready, please press Submit after selecting your answer."}
-      </div>
-      <button class="submit-btn button" id="nextBtn3">Next</button>
-    `;
-
-    const explanationBox4 = `
-      <div class="explanation-box">
-        ${"The correct answer for Example 2 is <strong>the third one</strong>.<br>" +
-          "Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>" +
-          "Just like in Example 1 and Example 2, every image will have either <strong>\"Present\"</strong> or <strong>\"Yesterday\"</strong> written on it, so listen carefully.<br><br>" +
-          "There are a total of 20 questions in this test.<br>" +
-          "You can only listen to each audio clip once.<br><br>" +
-          "Now, let's begin the test.<br>" +
-          "When you are ready, please click Submit after selecting your answer."}
-      </div>
-      <button class="submit-btn button" id="nextBtn4">Next</button>
-    `;
-
+    /* ========== 説明文データ ========= */
+    const explanations = {
+      box1: `In this test, first look at the image.<br>
+      Then, listen to the four Japanese audio clips.<br>
+      After listening, choose the audio clip that matches the image by selecting one of the options and clicking Submit.<br>
+      You can listen to each audio clip only once.<br><br>
+      Now, let's do an example together.<br>
+      Please press the Submit button after selecting your answer.`,
+      box2: `Let's do Example 1.<br><br>
+      <strong>Example 1:</strong><br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Present"</strong>.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
+      Choose the correct answer and then click the Submit button.<br>
+      The correct answer for Example 1 is <strong>the first one</strong>.<br><br>
+      When you are ready, please press Submit after selecting your answer.`,
+      box3: `The correct answer for Example 1 is <strong>the first one</strong>.<br>
+      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
+      Now, let's do one more example.<br><br>
+      <strong>Example 2:</strong><br>
+      Which audio clip correctly matches the image?<br>
+      First, look at the image. Make sure the image says <strong>"Past"</strong>.<br>
+      Next, listen to the audio clips. After the beep sound, you will hear four audio clips.<br>
+      Choose the correct answer and then click the Submit button.<br>
+      The correct answer for Example 2 is <strong>the third one</strong>.<br><br>
+      When you are ready, please press Submit after selecting your answer.`,
+      box4: `The correct answer for Example 2 is <strong>the third one</strong>.<br>
+      Even if you know the answer early, you cannot submit until you finish listening to all four audio clips.<br><br>
+      Just like in Example 1 and Example 2, every image will have either <strong>"Present"</strong> or <strong>"Yesterday"</strong> written on it, 
+      so listen carefully.<br><br>
+      There are a total of 20 questions in this test.<br>
+      You can only listen to each audio clip once.<br><br>
+      Now, let's begin the test.<br>
+      When you are ready, please click Submit after selecting your answer.`
+    };
     const explanationBox5 = {
-      text: "This is the end of Test 1. Please inform Instructor Takei.",
-      gif: "https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif"
+      text: `This is the end of Test 1. Please inform Instructor Takei.`,
+      gif: `https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif`
     };
 
-    // 例題
+    /* ========== 例題データ ========= */
     const example1 = {
-      image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG",
-      audios: {
-        a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
-        b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
-        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
-        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
-      },
-      correct: "a",
-      order: ["a", "b", "c", "d"]
+      imgUrl: "https://raw.githubusercontent.com/moguura/my-images/main/op-e.g.1.JPG",
+      japaneseCue: "いい → てんきは（　　　）。"
     };
     const example2 = {
-      image: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG",
-      audios: {
-        a: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav",
-        b: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav",
-        c: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav",
-        d: "https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav"
-      },
-      correct: "c",
-      order: ["a", "b", "c", "d"]
+      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG",
+      japaneseCue: "いい → てんきは（　　　）。"
     };
 
-    // 問題（全20問）※ group プロパティの値を設定
+    /* ========== テスト問題データ（20問） ========= */
     const questionData = [
       { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
       { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
@@ -418,8 +287,8 @@
       { id: 13, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-13.JPG", japaneseCue: "おおきい → <ruby>ケーキ<rt>けーき</rt></ruby>は（　　　）。", group: "yesterday" },
       { id: 14, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-14.JPG", japaneseCue: "さむい → 2がつは（　　　）。", group: "yesterday" },
       { id: 15, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-15.JPG", japaneseCue: "すずしい → やまは（　　　）。", group: "yesterday" },
-      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "つめたい → おんせんは（　　　）。", group: "yesterday" },
-      // 追加分：ID 17～20
+      // 問題16の日本語文を変更
+      { id: 16, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-16.JPG", japaneseCue: "いそがしい → せんせいは（　　　）。", group: "yesterday" },
       { id: 17, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-17.JPG", japaneseCue: "にがい → <ruby>コーヒー<rt>こーひー</rt></ruby>は（　　　）。", group: "present" },
       { id: 18, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-18.JPG", japaneseCue: "かるい → この<ruby>ベッド<rt>べっど</rt></ruby>は（　　　）。", group: "present" },
       { id: 19, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-19.JPG", japaneseCue: "ひろい → <ruby>レストラン<rt>れすとらん</rt></ruby>は（　　　）。", group: "yesterday" },
@@ -453,7 +322,7 @@
         // 説明Box1
         showScreen(explanationBox1);
         document.getElementById("nextBtn1").addEventListener("click", () => {
-          clickSound.play();
+          playClickSound();
           goNext();
         });
       } else if (index === 1) {
@@ -466,7 +335,7 @@
         // 説明Box2
         showScreen(explanationBox2);
         document.getElementById("nextBtn2").addEventListener("click", () => {
-          clickSound.play();
+          playClickSound();
           goNext();
         });
       } else if (index === 4) {
@@ -479,7 +348,7 @@
         // 説明Box3 (GO TO TEST)
         showScreen(explanationBox3);
         document.getElementById("goTestBtn").addEventListener("click", () => {
-          clickSound.play();
+          playClickSound();
           startTest();
         });
       } else if (index >= 7 && index < 7 + 2 * 20) {
@@ -539,10 +408,10 @@
       `;
       showScreen(html);
       const micBtn = document.getElementById("micBtn");
-      if(micBtn) { micBtn.addEventListener("click", startRecognition); }
+      if (micBtn) { micBtn.addEventListener("click", startRecognition); }
       micWarningTimeout = setTimeout(() => {
         const warning = document.getElementById("micWarning");
-        if(warning) { warning.textContent = "Press the mic button and speak!"; }
+        if (warning) { warning.textContent = "Press the mic button and speak!"; }
       }, 5000);
     }
 
@@ -555,7 +424,7 @@
       `;
       showScreen(html);
       document.getElementById("transitionNextBtn").addEventListener("click", () => {
-        clickSound.play();
+        playClickSound();
         stageIndex = nextStage;
         renderStage(stageIndex);
       });
@@ -568,12 +437,122 @@
 
     // テスト開始時、シャッフル後に displayId（1～20）を各問題に再割り当てする
     function startTest() {
+      // シャッフルしたコピーを作成
       shuffledQuestions = shuffle(questionData.map(q => Object.assign({}, q)));
+      // 各問題に連番（1～20）の displayId を割り当てる
       shuffledQuestions.forEach((q, idx) => {
         q.displayId = idx + 1;
       });
+      // 各問題にランダムな音声順（audioOrder）を割り当てる
+      assignAudioOrder(shuffledQuestions);
       stageIndex = 7;
       renderStage(stageIndex);
+    }
+
+    // 各問題にランダムな音声順（audioOrder）を設定する
+    function assignAudioOrder(questions) {
+      questions.forEach(q => {
+        q.audioOrder = shuffle(["a", "b", "c", "d"].slice());
+      });
+    }
+
+    function showScreen(html) {
+      document.getElementById("app").innerHTML = html;
+    }
+
+    function renderProgressBar(currentIndex, total) {
+      let steps = "";
+      for (let i = 0; i < total; i++) {
+        let className = "progress-step";
+        if (i < currentIndex) { className += " completed"; }
+        else if (i === currentIndex) { className += " active"; }
+        steps += `<span class="${className}">${i + 1}</span>`;
+      }
+      return `<div class="progress-container">${steps}</div>`;
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ================================
+    // 音声認識・サウンド関連の設定
+    // ================================
+    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
+    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
+
+    let recognition = null;
+    let recordTimeout = null;
+    let isRecording = false;
+    let micWarningTimeout = null; // 警告表示用タイマー
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("このブラウザはSpeechRecognition APIをサポートしていません。");
+        return null;
+      }
+      const recog = new SpeechRecognition();
+      recog.lang = "ja-JP";
+      recog.interimResults = true;
+      recog.continuous = true;
+      return recog;
+    }
+
+    function startRecognition() {
+      playClickSound();
+      clearTimeout(micWarningTimeout);
+      if (!recognition) {
+        recognition = initSpeechRecognition();
+        if (!recognition) return;
+      }
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) {
+        micBtn.disabled = true;
+        micBtn.classList.add("mic-active");
+      }
+      isRecording = true;
+      recordTimeout = setTimeout(() => { stopRecognition(); }, 10000);
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript.trim();
+          // 例として「です」が含まれたら停止
+          if (transcript.includes("です")) {
+            stopRecognition();
+            break;
+          }
+        }
+      };
+      recognition.onerror = (e) => {
+        console.warn("Recognition error:", e);
+        stopRecognition();
+      };
+      recognition.onend = () => { console.log("Recognition ended"); };
+      recognition.start();
+    }
+
+    function stopRecognition() {
+      if (!recognition || !isRecording) return;
+      clearTimeout(recordTimeout);
+      recognition.stop();
+      isRecording = false;
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) {
+        micBtn.classList.remove("mic-active");
+      }
+      showCheckIcon();
+    }
+
+    function showCheckIcon() {
+      const checkIcon = document.getElementById("checkIcon");
+      if (checkIcon) { checkIcon.classList.add("show"); }
+      checkSound.play();
+      setTimeout(() => { goNext(); }, 2000);
     }
 
     window.addEventListener("DOMContentLoaded", () => {
