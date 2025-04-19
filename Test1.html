@@ -435,39 +435,51 @@
     let shuffledQuestions = [];
 
     function renderStage(index) {
-      if (index === 0) {
-        // 説明Box1
-        showScreen(explanationBox1);
-        document.getElementById("nextBtn1").addEventListener("click", () => {
-          clickSound.play();
-          goNext();
-        });
-      } else if (index === 1) {
-        // 例1前の遷移画面（Present）
-        renderTransitionScreen(presentTransition.imgUrl, index + 1);
-      } else if (index === 2) {
-        // 例1
-        renderExample(example1);
-      } else if (index === 3) {
-        // 説明Box2
-        showScreen(explanationBox2);
-        document.getElementById("nextBtn2").addEventListener("click", () => {
-          clickSound.play();
-          goNext();
-        });
-      } else if (index === 4) {
-        // 例2前の遷移画面（Yesterday）
-        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
-      } else if (index === 5) {
-        // 例2
-        renderExample(example2);
-      } else if (index === 6) {
-        // 説明Box3 (GO TO TEST)
-        showScreen(explanationBox3);
-        document.getElementById("goTestBtn").addEventListener("click", () => {
-          clickSound.play();
-          startTest();
-        });
+  if (index === 0) {
+    container.innerHTML = `
+      <div id="explanationBox1">
+        <video id="video1" src="explanation1.mp4" autoplay controls></video>
+      </div>
+    `;
+    const video1 = document.getElementById('video1');
+    video1.addEventListener('ended', () => {
+      playClickSound();
+      goNext();
+    });
+  } else if (index === 1) {
+    // 例1前の遷移画面（Present）
+    renderTransitionScreen(presentTransition.imgUrl, index + 1);
+  } else if (index === 2) {
+    // 例1
+    renderExample(example1);
+  } else if (index === 3) {
+    container.innerHTML = `
+      <div id="explanationBox2">
+        <video id="video2" src="explanation2.mp4" autoplay controls></video>
+      </div>
+    `;
+    const video2 = document.getElementById('video2');
+    video2.addEventListener('ended', () => {
+      playClickSound();
+      goNext();
+    });
+  } else if (index === 4) {
+    // 例2前の遷移画面（Yesterday）
+    renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+  } else if (index === 5) {
+    // 例2
+    renderExample(example2);
+  } else if (index === 6) {
+    container.innerHTML = `
+      <div id="explanationBox3">
+        <video id="video3" src="explanation3.mp4" autoplay controls></video>
+      </div>
+    `;
+    const video3 = document.getElementById('video3');
+    video3.addEventListener('ended', () => {
+      playClickSound();
+      startTest();
+    });
       } else if (index >= 7 && index < 7 + 2 * 20) {
         // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
         let qIndex = Math.floor((index - 7) / 2); // 0～19
