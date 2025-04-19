@@ -434,94 +434,108 @@
     let stageIndex = 0;
     let shuffledQuestions = [];
 
-    function renderStage(index) {
+ function renderStage(index) {
   if (index === 0) {
-    container.innerHTML = `
-      <div id="explanationBox1">
-        <video id="video1" src="explanation1.mp4" autoplay controls></video>
+    app.innerHTML = `
+      <div class="explanation-box">
+        <video id="video1"
+               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4"
+               autoplay controls width="100%">
+        </video>
       </div>
     `;
-    const video1 = document.getElementById('video1');
-    video1.addEventListener('ended', () => {
-      playClickSound();
+    document.getElementById('video1').addEventListener('ended', () => {
+      clickSound.play();
       goNext();
     });
+
   } else if (index === 1) {
-    // 例1前の遷移画面（Present）
     renderTransitionScreen(presentTransition.imgUrl, index + 1);
+
   } else if (index === 2) {
-    // 例1
     renderExample(example1);
+
   } else if (index === 3) {
-    container.innerHTML = `
-      <div id="explanationBox2">
-        <video id="video2" src="explanation2.mp4" autoplay controls></video>
+    app.innerHTML = `
+      <div class="explanation-box">
+        <video id="video2"
+               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4"
+               autoplay controls width="100%">
+        </video>
       </div>
     `;
-    const video2 = document.getElementById('video2');
-    video2.addEventListener('ended', () => {
-      playClickSound();
+    document.getElementById('video2').addEventListener('ended', () => {
+      clickSound.play();
       goNext();
     });
+
   } else if (index === 4) {
-    // 例2前の遷移画面（Yesterday）
     renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+
   } else if (index === 5) {
-    // 例2
     renderExample(example2);
+
   } else if (index === 6) {
-    container.innerHTML = `
-      <div id="explanationBox3">
-        <video id="video3" src="explanation3.mp4" autoplay controls></video>
+    app.innerHTML = `
+      <div class="explanation-box">
+        <video id="video3"
+               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3new.mp4"
+               autoplay controls width="100%">
+        </video>
       </div>
     `;
-    const video3 = document.getElementById('video3');
-    video3.addEventListener('ended', () => {
-      playClickSound();
+    document.getElementById('video3').addEventListener('ended', () => {
+      clickSound.play();
       startTest();
     });
-      } else if (index >= 7 && index < 7 + 2 * 20) {
-        // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
-        let qIndex = Math.floor((index - 7) / 2); // 0～19
-        if ((index - 7) % 2 === 0) {
-          // 遷移画面：問題の group に応じた画像表示
-          if (shuffledQuestions[qIndex].group === "present") {
-            renderTransitionScreen(presentTransition.imgUrl, index + 1);
-          } else {
-            renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
-          }
-        } else {
-          // 実際の問題画面
-          const progressHTML = renderProgressBar(qIndex, 20);
-          const html = `
-            ${progressHTML}
-            <div class="question-container">
-              <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
-              <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
-              <div class="mic-container">
-                <button class="mic-button" id="micBtn"></button>
-                <div class="check-icon" id="checkIcon"></div>
-              </div>
-              <div id="micWarning" class="mic-warning"></div>
-            </div>
-          `;
-          showScreen(html);
-          console.log("現在の問題ID:", shuffledQuestions[qIndex].id);
-          const micBtn = document.getElementById("micBtn");
-          if (micBtn) { micBtn.addEventListener("click", startRecognition); }
-          micWarningTimeout = setTimeout(() => {
-            const warning = document.getElementById("micWarning");
-            if (warning) { warning.textContent = "Press the mic button and speak!"; }
-          }, 5000);
-        }
-      } else if (index === 7 + 2 * 20) {
-        // 説明Box4（終了＆ログ保存ボタン付き）
-        showScreen(explanationBox4);
-        document.getElementById("downloadLogButton").addEventListener("click", () => {
-          window.saveLog();
-        });
+
+  } else if (index >= 7 && index < 7 + 2 * 20) {
+    // テスト問題部分（各問題は2画面：偶数は遷移画面、奇数は実際の問題画面）
+    let qIndex = Math.floor((index - 7) / 2); // 0～19
+    if ((index - 7) % 2 === 0) {
+      // 遷移画面：問題の group に応じた画像表示
+      if (shuffledQuestions[qIndex].group === "present") {
+        renderTransitionScreen(presentTransition.imgUrl, index + 1);
+      } else {
+        renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
       }
+    } else {
+      // 実際の問題画面
+      const progressHTML = renderProgressBar(qIndex, 20);
+      const html = `
+        ${progressHTML}
+        <div class="question-container">
+          <img src="${shuffledQuestions[qIndex].imgUrl}" alt="question image" class="question-image" />
+          <p class="japanese-cue">${shuffledQuestions[qIndex].japaneseCue}</p>
+          <div class="mic-container">
+            <button class="mic-button" id="micBtn"></button>
+            <div class="check-icon" id="checkIcon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `;
+      showScreen(html);
+      console.log("現在の問題ID:", shuffledQuestions[qIndex].id);
+      const micBtn = document.getElementById("micBtn");
+      if (micBtn) {
+        micBtn.addEventListener("click", startRecognition);
+      }
+      micWarningTimeout = setTimeout(() => {
+        const warning = document.getElementById("micWarning");
+        if (warning) {
+          warning.textContent = "Press the mic button and speak!";
+        }
+      }, 5000);
     }
+
+  } else if (index === 7 + 2 * 20) {
+    // 説明Box4（終了＆ログ保存ボタン付き）
+    showScreen(explanationBox4);
+    document.getElementById("downloadLogButton").addEventListener("click", () => {
+      window.saveLog();
+    });
+  }
+}
 
     function renderExample(exampleObj) {
       const html = `
