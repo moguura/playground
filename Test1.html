@@ -458,56 +458,53 @@
     });
 
   } else if (index >= 7 && index < 7 + 2 * 20) {
-    // テスト問題部分
-      if (i >= 7 && i < 7 + 2 * 20) {
-        const qIdx = Math.floor((i - 7) / 2);
-        if ((i - 7) % 2 === 0) {
-          // 遷移画面
-          const grp = shuffledQuestions[qIdx].group === 'present'
-            ? 'Present.JPG' : 'Yesterday.JPG';
-          showScreen(`
-            <div class="question-container">
-              <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/${grp}" class="transition-image">
-              <button class="button" id="nextBtn">Next</button>
-            </div>
-          `);
-          document.getElementById('nextBtn').onclick = () => {
-            clickSound.play();
-            stageIndex++;
-            renderStage(stageIndex);
-          };
-        } else {
-          // 問題画面
-          clearTimeout(micWarningTimeout);
-          clearTimeout(questionSkipTimeout);
+    const qIdx = Math.floor((index - 7) / 2);
 
-          const q = shuffledQuestions[qIdx];
-          showScreen(`
-            ${renderProgressBar(qIdx,20)}
-            <div class="question-container">
-              <img src="${q.imgUrl}" class="question-image">
-              <p class="japanese-cue">${q.japaneseCue}</p>
-              <div class="mic-container">
-                <button id="micBtn" class="mic-button"></button>
-                <div id="checkIcon" class="check-icon"></div>
-              </div>
-              <div id="micWarning" class="mic-warning"></div>
-            </div>
-          `);
+    if ((index - 7) % 2 === 0) {
+      // 遷移画面
+      const grp = shuffledQuestions[qIdx].group === 'present'
+        ? presentTransition.imgUrl
+        : yesterdayTransition.imgUrl;
+      showScreen(`
+        <div class="question-container">
+          <img src="${grp}" class="transition-image">
+          <button class="button" id="nextBtn">Next</button>
+        </div>
+      `);
+      document.getElementById('nextBtn').onclick = () => {
+        clickSound.play();
+        goNext();
+      };
 
-          document.getElementById('micBtn').onclick = startRecognition;
+    } else {
+      // 問題画面
+      clearTimeout(micWarningTimeout);
+      clearTimeout(questionSkipTimeout);
 
-          // ① マイク未押下警告（5秒後）
-          micWarningTimeout = setTimeout(()=>{
-            document.getElementById('micWarning').textContent = "Press the mic button and speak!";
-          },5000);
+      const q = shuffledQuestions[qIdx];
+      showScreen(`
+        ${renderProgressBar(qIdx, 20)}
+        <div class="question-container">
+          <img src="${q.imgUrl}" class="question-image">
+          <p class="japanese-cue">${q.japaneseCue}</p>
+          <div class="mic-container">
+            <button id="micBtn" class="mic-button"></button>
+            <div id="checkIcon" class="check-icon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `);
 
-          // ② マイク未押下なら20秒後に次へ
-          questionSkipTimeout = setTimeout(()=>{
-            goNext();
-          },20000);
-        }
-      }
+      document.getElementById('micBtn').onclick = startRecognition;
+
+      // ① マイク未押下警告（5秒後）
+      micWarningTimeout = setTimeout(() => {
+        document.getElementById('micWarning').textContent = "Press the mic button and speak!";
+      }, 5000);
+
+      // ② マイク未押下なら20秒後に次へ
+      questionSkipTimeout = setTimeout(goNext, 20000);
+    }
 
   } else if (index === 7 + 2 * 20) {
     // 説明Box4（終了＆ログ保存ボタン付き）
