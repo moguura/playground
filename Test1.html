@@ -278,14 +278,14 @@
 
       // 無発話10秒後に自動停止＆ログ
       recordTimeout = setTimeout(() => {
-        console.log(`NoSpeech(timeout) ProblemID: ${currentQuestionId}`);
+        console.log(`NoSpeech(timeout) QuestionID: ${currentQuestionId}`);
         stopRecognition();
       }, 10000);
 
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
-            console.log(`Detected “です” ProblemID: ${currentQuestionId}`);
+            console.log(`Detected “です” QuestionID: ${currentQuestionId}`);
             clearTimeout(recordTimeout);
             recognition.stop();
             recognition = null;
@@ -515,7 +515,7 @@
 
           const q = shuffledQuestions[qIdx];
           currentQuestionId = q.id;
-          console.log(`Start ProblemID: ${q.id}`);
+          console.log(`Start QuestionID: ${q.id}`);
 
           showScreen(`
             ${renderProgressBar(qIdx, 20)}
@@ -538,7 +538,7 @@
           }, 5000);
           // 未押下20秒でスキップ＆ログ
           questionSkipTimeout = setTimeout(() => {
-            console.log(`Skipped(no mic) ProblemID: ${currentQuestionId}`);
+            console.log(`Skipped(no mic) QuestionID: ${currentQuestionId}`);
             goNext();
           }, 20000);
         }
