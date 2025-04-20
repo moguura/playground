@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Test 2</title>
   <style>
-    /* リセット */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
     .container {
@@ -21,7 +20,6 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin: 0 auto;
-      /* 上部固定バー分の余白 */
       padding-top: 80px;
     }
     .progress-bar {
@@ -66,7 +64,26 @@
   </div>
 
   <script>
-    (function(){ const buf=[]; const orig=console.log; console.log=function(...a){ buf.push(a.join(' ')); orig.apply(console,a); localStorage.setItem('consoleLog',buf.join('\n')); }; window.saveLog=()=>{ const c=localStorage.getItem('consoleLog')||''; const b=new Blob([c],{type:'text/plain'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='console-log.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); }; })();
+    (function(){
+      const buf=[]; const orig=console.log;
+      console.log=function(...a){
+        buf.push(a.join(' '));
+        orig.apply(console,a);
+        localStorage.setItem('consoleLog',buf.join('\n'));
+      };
+      window.saveLog=()=>{
+        const c=localStorage.getItem('consoleLog')||'';
+        const b=new Blob([c],{type:'text/plain'});
+        const u=URL.createObjectURL(b);
+        const a=document.createElement('a');
+        a.href=u;
+        a.download='console-log.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(u);
+      };
+    })();
 
     function playClick(){ new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play(); }
     function playSubmit(){ new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3').play(); }
@@ -107,15 +124,58 @@
       btn.addEventListener('click',()=>{ const sel=document.querySelector('input[name="ans"]:checked'); console.log(`Question ID: ${q.id}, Submit Button: ${sel.id}, Result: ${sel.value}`); playSubmit(); cb(); });
     }
 
-    function finish(){ bar.style.display='none'; content.innerHTML=`<div style='text-align:center;'><p style='margin-bottom:20px;font-size:1.4em;'>This is the end of Test 2. Please inform Instructor Takei.</p><img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'><button id='downloadLogButton'>DO NOT TOUCH</button></div>`; document.getElementById('downloadLogButton').addEventListener('click',()=>window.saveLog()); }
+    function finish(){
+      bar.style.display='none';
+      content.innerHTML=`<div style='text-align:center;'><p style='margin-bottom:20px;font-size:1.4em;'>This is the end of Test 2. Please inform Instructor Takei.</p><img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'><button id='downloadLogButton'>DO NOT TOUCH</button></div>`;
+      document.getElementById('downloadLogButton').addEventListener('click',()=>window.saveLog());
+    }
 
-    function start(){ showVideo(vids[0],()=>showQuestion(example1,()=>{ showVideo(vids[1],()=>showQuestion(example2,()=>startTest(),0,false),0,false ); },0,false)); }
+    function start(){
+      showVideo(vids[0], ()=> 
+        showQuestion(example1, ()=> 
+          showVideo(vids[1], ()=> 
+            showQuestion(example2, ()=> 
+              showVideo(vids[2], ()=> 
+                startTest()), 0, false), 0, false), 0, false);
+    }
 
-    function startTest(){ testQ=shuffle(testQ); testQ.forEach(q=>q.order=shuffle(['a','b','c','d'])); let i=0; const next=()=>{ if(i>=testQ.length){ showVideo(vids[2], finish); } else{ showQuestion(testQ[i], ()=>{ i++; next(); }, i, true); } }; next(); }
+    function startTest(){
+      testQ = shuffle(testQ);
+      testQ.forEach(q => q.order = shuffle(['a','b','c','d']));
+      let i = 0;
+      const next = () => {
+        if(i >= testQ.length){
+          finish();
+        } else {
+          showQuestion(testQ[i], () => { i++; next(); }, i, true);
+        }
+      };
+      next();
+    }
 
     document.addEventListener('DOMContentLoaded', start);
 
-    function playSeq(audios, order, done){ setTimeout(()=>{ const beep=new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3'); beep.play().then(()=>{ beep.onended=()=>{ let idx=0; const nextAudio=()=>{ if(idx<order.length){ const audio=new Audio(audios[order[idx]]); audio.play().then(()=>{ audio.onended=()=>{ idx++; setTimeout(nextAudio,1000); }; }).catch(()=>{ idx++; setTimeout(nextAudio,1000); }); } else done(); }; nextAudio(); }; }).catch(()=>{ done(); }); },1000); }
+    function playSeq(audios, order, done){
+      setTimeout(()=>{
+        const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+        beep.play().then(()=>{
+          beep.onended=()=>{
+            let idx=0;
+            const nextAudio=()=>{
+              if(idx<order.length){
+                const audio=new Audio(audios[order[idx]]);
+                audio.play().then(()=>{
+                  audio.onended=()=>{ idx++; setTimeout(nextAudio,1000); };
+                }).catch(()=>{
+                  idx++; setTimeout(nextAudio,1000);
+                });
+              } else done();
+            };
+            nextAudio();
+          };
+        }).catch(()=>{ done(); });
+      },1000);
+    }
   </script>
 </body>
 </html>
