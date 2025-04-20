@@ -9,17 +9,52 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
     .container {
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      min-height: 100vh; width: 90%; max-width: 800px;
-      background-color: #fff; padding: 20px 30px;
-      border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      width: 90%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin: 0 auto;
+      /* 上部固定バー分の余白 */
+      padding-top: 80px;
     }
-    .progress-bar { display: none; justify-content: center; margin-bottom: 20px; flex-wrap: nowrap; }
+    /* 進捗バーを横一列、画面上部に固定 */
+    .progress-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 10px 0;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      z-index: 1000;
+    }
     .progress-step {
-      width: 30px; height: 30px; border: 2px solid #007BFF; border-radius: 50%;
-      margin: 5px; display: flex; align-items: center; justify-content: center;
-      font-size: 0.9em; background-color: #f0f0f0; color: #333; user-select: none;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #007BFF;
+      border-radius: 50%;
+      margin: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      background-color: #f0f0f0;
+      color: #333;
+      user-select: none;
+      flex-shrink: 0;
     }
     .progress-step.completed { background-color: #007BFF; color: #fff; }
     .question-container { margin-bottom: 30px; position: relative; min-height: 300px; }
@@ -87,73 +122,122 @@
     ];
 
     // 例題データ
-    const example1 = { image:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG', audios:{a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'}, correct:'a' };
-    const example2 = { image:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG', audios:{a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'}, correct:'c' };
+    const example1 = { id: 'example1', image:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG', audios:{a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'}, correct:'a' };
+    const example2 = { id: 'example2', image:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG', audios:{a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'}, correct:'c' };
 
     // テスト問題生成
     let testQ = [];
-    for(let i=1;i<=20;i++){ testQ.push({id:i, image:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`, audios:{a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`,d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav`}, correct:'a'}); }
+    for(let i=1;i<=20;i++){
+      testQ.push({id:i, image:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`, audios:{a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`,d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav`}, correct:'a'});
+    }
 
-    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
-    function assignOrder(qs){ qs.forEach(q=>{ q.order = shuffle(['a','b','c','d'].slice()); }); }
-    function playSeq(audios, order, done){ setTimeout(()=>{
-      const beep=new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3'); beep.play().then(()=>{ beep.onended=()=>{ let idx=0; const next=()=>{ if(idx<order.length){ const audio=new Audio(audios[order[idx]]); audio.play().then(()=>{ audio.onended=()=>{ idx++; setTimeout(next,1000); }; }).catch(()=>{ idx++; setTimeout(next,1000); }); } else { done(); }}; next(); }; }).catch(()=>{ done(); }); },1000); }
+    // Fisher–Yates シャッフル
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
 
-    function updateProgress(n){ document.querySelectorAll('.progress-step').forEach((el,i)=>{ el.classList.toggle('completed', i< n); }); }
+    function updateProgress(n){
+      document.querySelectorAll('.progress-step').forEach((el,i)=>{
+        el.classList.toggle('completed', i< n);
+      });
+    }
 
     const content = document.getElementById('content');
 
-    // 動画再生
-    function showVideo(src, cb){ content.innerHTML = `<video id='expVideo' src='${src}' controls width='100%'></video>`;
-      const v = document.getElementById('expVideo'); v.addEventListener('ended',()=>{ playClick(); cb(); }); }
-
-    // 例題表示
-    function showExample(ex, cb){ document.getElementById('progressBar').style.display='none';
-      content.innerHTML = `
-        <div class='question-container'>
-          <div class='image-container'><img src='${ex.image}'></div>
-          <div class='radio-group'>${ex.order.map((k,i)=>
-            `<label class='radio-label'><input type='radio' name='ans' id='opt${i}' value='${ex.order[i]===ex.correct?'correct':'incorrect'}'><span>${i+1}st</span></label>`
-          ).join('')}</div>
-          <div style='text-align:right;'><button id='subBtn' class='submit-btn' style='display:none;'>Submit</button></div>
-        </div>`;
-      document.querySelectorAll('input[name="ans"]').forEach(inp=> inp.addEventListener('click', e=> console.log('選択:',e.target.id, e.target.value, new Date().toLocaleString())));
-      const btn = document.getElementById('subBtn'); playSeq(ex.audios, ex.order, ()=>{ btn.style.display='inline-block'; btn.classList.add('fade-in'); });
-      btn.addEventListener('click',()=>{ playSubmit(); console.log('Submit:', document.querySelector('input[name="ans"]:checked').id, new Date().toLocaleString()); cb(); });
+    function showVideo(src, cb){
+      document.getElementById('progressBar').style.display='none';
+      content.innerHTML = `<video id='expVideo' src='${src}' controls width='100%'></video>`;
+      const v=document.getElementById('expVideo');
+      v.addEventListener('ended',()=>{ playClick(); cb(); });
     }
 
-    // テスト問題表示
-    function showTest(q, cb, idx){ document.querySelector('.progress-bar').style.display='flex'; updateProgress(idx+1);
+    function showQuestion(q, cb, idx, isTest=true){
+      if(isTest){
+        document.getElementById('progressBar').style.display='flex';
+        updateProgress(idx+1);
+      } else {
+        document.getElementById('progressBar').style.display='none';
+      }
       content.innerHTML = `
         <div class='question-container'>
           <div class='image-container'><img src='${q.image}'></div>
-          <div class='radio-group'>${q.order.map((k,i)=>
-            `<label class='radio-label'><input type='radio' name='ans' id='opt${i}' value='${q.order[i]==='a'?'correct':'incorrect'}'><span>${i+1}st</span></label>`
+          <div class='radio-group'>${q.order.map((opt,i)=>
+            `<label class='radio-label'><input type='radio' name='ans' id='opt${i}' value='${opt===q.correct?'correct':'incorrect'}'><span>${i+1}st</span></label>`
           ).join('')}</div>
           <div style='text-align:right;'><button id='subBtn' class='submit-btn' style='display:none;'>Submit</button></div>
         </div>`;
-      document.querySelectorAll('input[name="ans"]').forEach(inp=> inp.addEventListener('click', e=> console.log('選択:',e.target.id, e.target.value, new Date().toLocaleString())));
-      const btn = document.getElementById('subBtn'); playSeq(q.audios, q.order, ()=>{ btn.style.display='inline-block'; btn.classList.add('fade-in'); });
-      btn.addEventListener('click',()=>{ playSubmit(); console.log('Submit:', document.querySelector('input[name="ans"]:checked').id, new Date().toLocaleString()); cb(); });
-    }
-
-    // テスト終了
-    function finish(){ document.getElementById('progressBar').style.display='none'; content.innerHTML =
-      `<div style='text-align:center;'><p style='margin-bottom:20px;font-size:1.4em;'>This is the end of Test 2. Please inform Instructor Takei.</p><img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'><button id='downloadLogButton'>DO NOT TOUCH</button></div>`;
-      document.getElementById('downloadLogButton').addEventListener('click',()=>window.saveLog()); }
-
-    // 全体フロー
-    function start() {
-      assignOrder([example1]); showVideo(vids[0], ()=> showExample(example1, ()=> {
-        assignOrder([example2]); showVideo(vids[1], ()=> showExample(example2, ()=> {
-          assignOrder(testQ); startTest();
-        }));
+      // 選択時ログ
+      document.querySelectorAll('input[name="ans"]').forEach(inp=> inp.addEventListener('click', e=>{
+        console.log(`Question ID: ${q.id}, Button: ${e.target.id}, Result: ${e.target.value}`);
       }));
+      const btn=document.getElementById('subBtn');
+      // 選択肢再生後に表示
+      playSeq(q.audios, q.order, ()=>{ btn.style.display='inline-block'; btn.classList.add('fade-in'); });
+      btn.addEventListener('click',()=>{
+        const sel=document.querySelector('input[name="ans"]:checked');
+        console.log(`Question ID: ${q.id}, Submit Button: ${sel.id}, Result: ${sel.value}`);
+        playSubmit(); cb();
+      });
     }
 
-    function startTest(){ assignOrder(testQ); let i=0; const next=()=>{ if(i>=testQ.length){ showVideo(vids[2], finish); } else { showTest(testQ[i], ()=>{ i++; next(); }, i); } }; next(); }
+    function finish(){
+      document.getElementById('progressBar').style.display='none';
+      content.innerHTML =
+        `<div style='text-align:center;'><p style='margin-bottom:20px;font-size:1.4em;'>This is the end of Test 2. Please inform Instructor Takei.</p><img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'><button id='downloadLogButton'>DO NOT TOUCH</button></div>`;
+      document.getElementById('downloadLogButton').addEventListener('click',()=>window.saveLog());
+    }
+
+    function start(){
+      // 例題順は固定、選択肢のみランダム
+      example1.order = shuffle(['a','b','c','d']);
+      showVideo(vids[0], ()=> showQuestion(example1, ()=>{
+        example2.order = shuffle(['a','b','c','d']);
+        showVideo(vids[1], ()=> showQuestion(example2, ()=> startTest()));
+      }, 0, false));
+    }
+
+    function startTest(){
+      // 問題自体をランダム化
+      testQ = shuffle(testQ);
+      // 各問題の選択肢をランダム化
+      testQ.forEach(q=> q.order = shuffle(['a','b','c','d']));
+      let i=0;
+      const next=()=>{
+        if(i>=testQ.length){
+          showVideo(vids[2], finish);
+        } else {
+          showQuestion(testQ[i], ()=>{ i++; next(); }, i, true);
+        }
+      };
+      next();
+    }
 
     document.addEventListener('DOMContentLoaded', start);
+
+    // audio 再生ヘルパー
+    function playSeq(audios, order, done){
+      setTimeout(()=>{
+        const beep=new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+        beep.play().then(()=>{
+          beep.onended=()=>{
+            let idx=0;
+            const nextAudio=()=>{
+              if(idx<order.length){
+                const audio=new Audio(audios[order[idx]]);
+                audio.play().then(()=>{ audio.onended=()=>{ idx++; setTimeout(nextAudio,1000); }; })
+                     .catch(()=>{ idx++; setTimeout(nextAudio,1000); });
+              } else done();
+            };
+            nextAudio();
+          };
+        }).catch(()=>{ done(); });
+      },1000);
+    }
   </script>
 </body>
 </html>
