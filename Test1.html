@@ -422,19 +422,20 @@
   } else if (index === 2) {
     renderExample(example1);
 
-  } else if (index === 3) {
-    app.innerHTML = `
-      <div class="explanation-box">
-        <video id="video2"
-               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4"
-               autoplay controls width="100%">
-        </video>
-      </div>
-    `;
-    document.getElementById('video2').addEventListener('ended', () => {
-      clickSound.play();
-      goNext();
-    });
+ } else if (index === 3) {
+  showScreen(`
+    <div class="explanation-box">
+      <video id="video2"
+             src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4"
+             autoplay muted controls width="100%">
+      </video>
+    </div>
+  `);
+  document.getElementById("video2").addEventListener("ended", () => {
+    clickSound.play();
+    goNext();
+  });
+}
 
   } else if (index === 4) {
     renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
