@@ -99,8 +99,11 @@
 
     let testQ=[];
     for(let i=1;i<=20;i++){
-      testQ.push({ id:i, image:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`, audios:{ a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`, b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`, c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`, d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav` }, correct:'a' });
-    }
+      testQ.push({ id:i, image:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`, audios:{ a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`, b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`, c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`, d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav` },
+    correct: 'a',
+    order: ['a', 'b', 'c', 'd'] // ← これを追加
+  });
+}
 
     function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     function updateProgress(n){ document.querySelectorAll('.progress-step').forEach((el,i)=>{ el.classList.toggle('completed', i< n); }); }
