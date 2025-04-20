@@ -288,15 +288,15 @@
 
     function stopRecognition() {
       clearTimeout(recordTimeout);
+      clearTimeout(questionSkipTimeout);  // ← これを追加！
       if (recognition) {
         recognition.stop();
       }
-      recognition = null;  // ← これを追加！
+      recognition = null;
       const btn = document.getElementById("micBtn");
       btn.classList.remove("mic-active");
       showCheckIcon();
     }
-
     function showCheckIcon() {
       document.getElementById("checkIcon").classList.add("show");
       checkSound.play();
