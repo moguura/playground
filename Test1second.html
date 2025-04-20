@@ -433,17 +433,17 @@
  function renderStage(index) {
   // ステージ0：説明ビデオ1
   if (index === 0) {
-    showScreen(`
-      <div class="explanation-box">
-        <video id="video1"
-               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1second.mp4"
-               autoplay controls width="100%"></video>
-      </div>
-    `);
-    document.getElementById("video1").addEventListener("ended", () => {
-      clickSound.play();
-      goNext();
-    });
+     showScreen(`
+       <div class="explanation-box">
+         <video id="video1"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1second.mp4"
+                controls width="100%"></video>
+       </div>
+     `);
+     document.getElementById("video1").addEventListener("ended", () => {
+       clickSound.play();
+       goNext();
+     });
 
   // ステージ1：Present 遷移画面
   } else if (index === 1) {
@@ -455,17 +455,17 @@
 
   // ステージ3：説明ビデオ2
   } else if (index === 3) {
-    showScreen(`
-      <div class="explanation-box">
-        <video id="video2"
-               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2second.mp4"
-               autoplay muted controls width="100%"></video>
-      </div>
-    `);
-    document.getElementById("video2").addEventListener("ended", () => {
-      clickSound.play();
-      goNext();
-    });
+     showScreen(`
+       <div class="explanation-box">
+         <video id="video2"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2second.mp4"
+                controls width="100%"></video>
+       </div>
+     `);
+     document.getElementById("video2").addEventListener("ended", () => {
+       clickSound.play();
+       goNext();
+     });
 
   // ステージ4：Yesterday 遷移画面
   } else if (index === 4) {
@@ -476,18 +476,18 @@
     renderExample(example2);
 
   } else if (index === 6) {
-    app.innerHTML = `
-      <div class="explanation-box">
-        <video id="video3"
-               src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3second.mp4"
-               autoplay controls width="100%">
-        </video>
-      </div>
-    `;
-    document.getElementById('video3').addEventListener('ended', () => {
-      clickSound.play();
-      startTest();
-    });
+     app.innerHTML = `
+       <div class="explanation-box">
+         <video id="video3"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3second.mp4"
+                controls width="100%">
+         </video>
+       </div>
+     `;
+     document.getElementById('video3').addEventListener('ended', () => {
+       clickSound.play();
+       startTest();
+     });
 
   } else if (index >= 7 && index < 7 + 2 * 20) {
     const qIdx = Math.floor((index - 7) / 2);
