@@ -276,7 +276,10 @@
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
-            stopRecognition();
+            clearTimeout(recordTimeout);
+            recognition.stop();
+            recognition = null;
+            showCheckIcon();
             break;
           }
         }
