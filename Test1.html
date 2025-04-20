@@ -402,35 +402,35 @@
     let shuffledQuestions = [];
 
  function renderStage(index) {
+  // ステージ0：説明ビデオ1
   if (index === 0) {
-    app.innerHTML = `
+    showScreen(`
       <div class="explanation-box">
         <video id="video1"
                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4"
-               autoplay controls width="100%">
-        </video>
+               autoplay controls width="100%"></video>
       </div>
-    `;
-    document.getElementById('video1').addEventListener('ended', () => {
+    `);
+    document.getElementById("video1").addEventListener("ended", () => {
       clickSound.play();
       goNext();
     });
 
-  function renderStage(index) {
-  // …前の処理（index 0,1）…
+  // ステージ1：Present 遷移画面
+  } else if (index === 1) {
+    renderTransitionScreen(presentTransition.imgUrl, index + 1);
 
+  // ステージ2：例題1
   } else if (index === 2) {
-    // 例題1
     renderExample(example1);
 
+  // ステージ3：説明ビデオ2
   } else if (index === 3) {
-    // 説明ビデオ2
     showScreen(`
       <div class="explanation-box">
         <video id="video2"
                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4"
-               autoplay muted controls width="100%">
-        </video>
+               autoplay muted controls width="100%"></video>
       </div>
     `);
     document.getElementById("video2").addEventListener("ended", () => {
@@ -438,12 +438,12 @@
       goNext();
     });
 
+  // ステージ4：Yesterday 遷移画面
   } else if (index === 4) {
-    // 遷移画面（Yesterdayグループ）
     renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
 
+  // ステージ5：例題2
   } else if (index === 5) {
-    // 例題2
     renderExample(example2);
 
   } else if (index === 6) {
