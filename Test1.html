@@ -249,22 +249,35 @@
       r.lang = "ja-JP"; r.interimResults = true; r.continuous = true;
       return r;
     }
+    function resetSpeechRecognition() {
+      if (recognition) {
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.abort();  // 念のため完全に止める
+        recognition = null;
+      }
+    }
 
     function startRecognition() {
       clickSound.play();
+      resetSpeechRecognition();  // ← ここを追加！
       clearTimeout(micWarningTimeout);
-      clearTimeout(questionSkipTimeout);  // ← 追加: 20秒スキップを解除
-      if (!recognition) {
-        recognition = initSpeechRecognition();
-        if (!recognition) return;
-      }
+      clearTimeout(questionSkipTimeout);
+      
       const btn = document.getElementById("micBtn");
-      btn.disabled = true; btn.classList.add("mic-active");
+      btn.disabled = true;
+      btn.classList.add("mic-active");
+      
+      recognition = initSpeechRecognition();
+      if (!recognition) return;
       recordTimeout = setTimeout(stopRecognition, 10000);
+      
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
-            stopRecognition(); break;
+            stopRecognition();
+            break;
           }
         }
       };
