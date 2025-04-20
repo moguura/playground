@@ -222,7 +222,8 @@
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'console-log.txt';
+        a.href = url;
+        a.download = 'console-log.txt';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -236,17 +237,20 @@
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    // グローバルタイマー
+    // グローバルタイマー & ログ用変数
     let recognition = null;
     let recordTimeout = null;
     let micWarningTimeout = null;
-    let questionSkipTimeout = null;  // ← 追加
+    let questionSkipTimeout = null;
+    let currentQuestionId = null;  // 今表示中の問題ID
 
     function initSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) { alert("SpeechRecognition API 未対応"); return null; }
       const r = new SR();
-      r.lang = "ja-JP"; r.interimResults = true; r.continuous = true;
+      r.lang = "ja-JP";
+      r.interimResults = true;
+      r.continuous = true;
       return r;
     }
     function resetSpeechRecognition() {
@@ -254,28 +258,34 @@
         recognition.onresult = null;
         recognition.onerror = null;
         recognition.onend = null;
-        recognition.abort();  // 念のため完全に止める
+        recognition.abort();
         recognition = null;
       }
     }
 
     function startRecognition() {
       clickSound.play();
-      resetSpeechRecognition();  // ← ここを追加！
+      resetSpeechRecognition();
       clearTimeout(micWarningTimeout);
       clearTimeout(questionSkipTimeout);
-      
+
       const btn = document.getElementById("micBtn");
       btn.disabled = true;
       btn.classList.add("mic-active");
-      
+
       recognition = initSpeechRecognition();
       if (!recognition) return;
-      recordTimeout = setTimeout(stopRecognition, 10000);
-      
+
+      // 無発話10秒後に自動停止＆ログ
+      recordTimeout = setTimeout(() => {
+        console.log(`NoSpeech(timeout) ProblemID: ${currentQuestionId}`);
+        stopRecognition();
+      }, 10000);
+
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
+            console.log(`Detected “です” ProblemID: ${currentQuestionId}`);
             clearTimeout(recordTimeout);
             recognition.stop();
             recognition = null;
@@ -291,7 +301,7 @@
 
     function stopRecognition() {
       clearTimeout(recordTimeout);
-      clearTimeout(questionSkipTimeout);  // ← これを追加！
+      clearTimeout(questionSkipTimeout);
       if (recognition) {
         recognition.stop();
       }
@@ -312,14 +322,14 @@
 
     function renderProgressBar(cur, total) {
       let html = '<div class="progress-container">';
-      for (let i=0;i<total;i++){
-        let cls = 'progress-step' + (i<cur ? ' completed' : i===cur ? ' active' : '');
+      for (let i = 0; i < total; i++) {
+        const cls = 'progress-step' + (i < cur ? ' completed' : i === cur ? ' active' : '');
         html += `<span class="${cls}">${i+1}</span>`;
       }
       return html + '</div>';
     }
 
-    function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+    function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 
     // ================================
     // 各種テキスト・動画定義
@@ -483,59 +493,61 @@
     const qIdx = Math.floor((index - 7) / 2);
 
     if ((index - 7) % 2 === 0) {
-      // 遷移画面
-      const grp = shuffledQuestions[qIdx].group === 'present'
-        ? presentTransition.imgUrl
-        : yesterdayTransition.imgUrl;
-      showScreen(`
-        <div class="question-container">
-          <img src="${grp}" class="transition-image">
-          <button class="button" id="nextBtn">Next</button>
-        </div>
-      `);
-      document.getElementById('nextBtn').onclick = () => {
-        clickSound.play();
-        goNext();
-      };
+          // 遷移画面
+          const grp = shuffledQuestions[qIdx].group === 'present'
+            ? presentTransition.imgUrl
+            : yesterdayTransition.imgUrl;
+          showScreen(`
+            <div class="question-container">
+              <img src="${grp}" class="transition-image">
+              <button class="button" id="nextBtn">Next</button>
+            </div>
+          `);
+          document.getElementById('nextBtn').onclick = () => {
+            clickSound.play();
+            goNext();
+          };
 
-    } else {
-      // 問題画面
-      clearTimeout(micWarningTimeout);
-      clearTimeout(questionSkipTimeout);
+        } else {
+          // 問題画面
+          clearTimeout(micWarningTimeout);
+          clearTimeout(questionSkipTimeout);
 
-      const q = shuffledQuestions[qIdx];
-      showScreen(`
-        ${renderProgressBar(qIdx, 20)}
-        <div class="question-container">
-          <img src="${q.imgUrl}" class="question-image">
-          <p class="japanese-cue">${q.japaneseCue}</p>
-          <div class="mic-container">
-            <button id="micBtn" class="mic-button"></button>
-            <div id="checkIcon" class="check-icon"></div>
-          </div>
-          <div id="micWarning" class="mic-warning"></div>
-        </div>
-      `);
+          const q = shuffledQuestions[qIdx];
+          currentQuestionId = q.id;
+          console.log(`Start ProblemID: ${q.id}`);
 
-      document.getElementById('micBtn').onclick = startRecognition;
+          showScreen(`
+            ${renderProgressBar(qIdx, 20)}
+            <div class="question-container">
+              <img src="${q.imgUrl}" class="question-image">
+              <p class="japanese-cue">${q.japaneseCue}</p>
+              <div class="mic-container">
+                <button id="micBtn" class="mic-button"></button>
+                <div id="checkIcon" class="check-icon"></div>
+              </div>
+              <div id="micWarning" class="mic-warning"></div>
+            </div>
+          `);
 
-      // ① マイク未押下警告（5秒後）
-      micWarningTimeout = setTimeout(() => {
-        document.getElementById('micWarning').textContent = "Press the mic button and speak!";
-      }, 5000);
+          document.getElementById('micBtn').onclick = startRecognition;
 
-      // ② マイク未押下なら20秒後に次へ
-      questionSkipTimeout = setTimeout(goNext, 20000);
+          // 未押下警告 5秒
+          micWarningTimeout = setTimeout(() => {
+            document.getElementById('micWarning').textContent = "Press the mic button and speak!";
+          }, 5000);
+          // 未押下20秒でスキップ＆ログ
+          questionSkipTimeout = setTimeout(() => {
+            console.log(`Skipped(no mic) ProblemID: ${currentQuestionId}`);
+            goNext();
+          }, 20000);
+        }
+
+      } else if (index === 7 + 2 * 20) {
+        showScreen(explanationBox4);
+        document.getElementById("downloadLogButton").addEventListener("click", window.saveLog);
+      }
     }
-
-  } else if (index === 7 + 2 * 20) {
-    // 説明Box4（終了＆ログ保存ボタン付き）
-    showScreen(explanationBox4);
-    document.getElementById("downloadLogButton").addEventListener("click", () => {
-      window.saveLog();
-    });
-  }
-}
 
     function renderExample(exampleObj) {
       const html = `
