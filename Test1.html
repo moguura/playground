@@ -275,7 +275,10 @@
 
     function stopRecognition() {
       clearTimeout(recordTimeout);
-      recognition.stop();
+      if (recognition) {
+        recognition.stop();
+      }
+      recognition = null;  // ← これを追加！
       const btn = document.getElementById("micBtn");
       btn.classList.remove("mic-active");
       showCheckIcon();
