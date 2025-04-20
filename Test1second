@@ -337,7 +337,7 @@
     const explanationBox1 = `
       <div class="explanation-box">
         <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4" type="video/mp4">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1second.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
@@ -347,7 +347,7 @@
     const explanationBox2 = `
       <div class="explanation-box">
         <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4" type="video/mp4">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2second.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
@@ -357,7 +357,7 @@
     const explanationBox3 = `
       <div class="explanation-box">
         <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3new.mp4" type="video/mp4">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3second.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
