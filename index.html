@@ -57,9 +57,21 @@
 
     /* メインコンテンツ */
     #content { margin-top: 60px; width: 100%; }
-    .question-container { margin-bottom: 30px; min-height: 350px; position: relative; }
-    .image-container { text-align: center; margin-bottom: 20px; }
-    .image-container img { max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; }
+    .question-container {
+      margin-bottom: 30px;
+      min-height: 350px;
+      position: relative;
+    }
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .image-container img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
 
     /* 選択肢横並び */
     .radio-group {
@@ -90,10 +102,12 @@
       border-radius: 4px;
     }
 
-    /* 提出ボタン */
+    /* 提出ボタン：4thボタンの下あたり */
     .submit-btn {
       display: none;
-      margin: 20px auto 0;
+      position: absolute;
+      bottom: 0;
+      right: 10px;
       padding: 10px 20px;
       font-size: 1em;
       background-color: #007BFF;
@@ -152,7 +166,7 @@
 
     // サウンド再生
     const playClick = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play();
-    const playSubmit = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3').play();
+    // playSubmit は直接 use せずにハンドラ内で制御
 
     // データ定義
     const vids = [
@@ -160,39 +174,14 @@
       'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-2.mp4',
       'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-3.mp4'
     ];
-    const example1 = {
-      id: 1,
-      image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG',
-      audios: {
-        a: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',
-        b: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',
-        c: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',
-        d: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'
-      },
-      correct: 'a'
-    };
-    const example2 = {
-      id: 2,
-      image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG',
-      audios: {
-        a: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav',
-        b: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav',
-        c: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav',
-        d: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav'
-      },
-      correct: 'c'
-    };
+    const example1 = { id: 'example1', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'a' };
+    const example2 = { id: 'example2', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'c' };
     let testQ = [];
     for (let i = 1; i <= 20; i++) {
       testQ.push({
         id: i,
         image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
-        audios: {
-          a: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`,
-          b: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`,
-          c: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`,
-          d: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav`
-        },
+        audios: { a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`, b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`, c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`, d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav` },
         correct: 'a'
       });
     }
@@ -207,9 +196,7 @@
       return a;
     }
     function updateProgress(n) {
-      document.querySelectorAll('.progress-step').forEach((el, i) => {
-        el.classList.toggle('completed', i < n);
-      });
+      document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('completed', i < n));
     }
 
     // 音声シーケンス再生（ビープ→選択肢順）
@@ -221,9 +208,8 @@
           function next() {
             if (idx >= order.length) return done();
             const audio = new Audio(audios[order[idx]]);
-            audio.play().then(() => {
-              audio.onended = () => { idx++; setTimeout(next, 500); };
-            }).catch(() => { idx++; setTimeout(next, 500); });
+            audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
+                 .catch(() => { idx++; setTimeout(next, 500); });
           }
           next();
         };
@@ -234,20 +220,14 @@
     const content = document.getElementById('content');
     const bar = document.getElementById('progressBar');
     for (let i = 1; i <= 20; i++) {
-      const step = document.createElement('div');
-      step.className = 'progress-step';
-      step.textContent = i;
-      bar.appendChild(step);
+      const step = document.createElement('div'); step.className = 'progress-step'; step.textContent = i; bar.appendChild(step);
     }
 
     // 動画表示
     function showVideo(src, cb) {
       bar.style.display = 'none';
       content.innerHTML = `<video id='expVideo' src='${src}' controls style='width:100%;'></video>`;
-      document.getElementById('expVideo').addEventListener('ended', () => {
-        playClick();
-        cb();
-      });
+      document.getElementById('expVideo').addEventListener('ended', () => { playClick(); cb(); });
     }
 
     // 質問表示
@@ -256,37 +236,33 @@
       else { bar.style.display = 'none'; }
 
       const labels = ['1st', '2nd', '3rd', '4th'];
-      const order = shuffle(['a', 'b', 'c', 'd']);
+      const order = isTest ? shuffle(['a','b','c','d']) : ['a','b','c','d'];
 
       content.innerHTML = `
         <div class='question-container'>
           <div class='image-container'><img src='${q.image}' alt='Question'></div>
           <div class='radio-group'>
-            ${order.map((opt, i) => `
+            ${order.map((opt,i) => `
               <label class='radio-label'>
                 <input type='radio' name='ans' value='${opt}'>
                 <span>${labels[i]}</span>
               </label>
             `).join('')}
           </div>
-          <div style='text-align:center;'>
-            <button id='subBtn' class='submit-btn'>Submit</button>
-          </div>
+          <button id='subBtn' class='submit-btn'>Submit</button>
         </div>`;
 
       const btn = document.getElementById('subBtn');
-      playSeq(q.audios, order, () => { btn.style.display = 'inline-block'; btn.classList.add('fade-in'); });
+      playSeq(q.audios, order, () => { btn.style.display = 'block'; btn.classList.add('fade-in'); });
 
-      document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => {
-        console.log(`Question ${q.id}, Selected: ${e.target.value}`);
-      }));
+      document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
 
       btn.addEventListener('click', () => {
         const sel = document.querySelector('input[name="ans"]:checked');
         if (!sel) return alert('選択してください');
         console.log(`Question ${q.id}, Result: ${sel.value === q.correct ? 'correct' : 'incorrect'}`);
-        playSubmit();
-        cb();
+        const audio = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
+        audio.play().then(() => { audio.onended = () => cb(); });
       });
     }
 
