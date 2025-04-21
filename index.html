@@ -102,20 +102,20 @@
       border-radius: 4px;
     }
 
-    /* 提出ボタン：4thボタンの下あたり */
+    /* 提出ボタン */
     .submit-btn {
       display: none;
       position: absolute;
-      bottom: 0;
-      right: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
+      /* position, top, left set dynamically via JS to appear under 4th */
+      padding: 15px 30px;
+      font-size: 1.2em;
       background-color: #007BFF;
       color: #fff;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s;
+      z-index: 10;
     }
     .submit-btn:hover { background-color: #0056b3; }
     .fade-in { animation: fadeIn 0.5s ease-in forwards; }
@@ -141,13 +141,15 @@
   </div>
 
   <script>
-    // ログ保存セットアップ
+    // ログ保存セットアップ（タイムスタンプ付き）
     (function(){
       const buf = [];
       const orig = console.log;
       console.log = function(...args) {
-        buf.push(args.join(' '));
-        orig.apply(console, args);
+        const time = new Date().toLocaleTimeString();
+        const text = `[${time}] ${args.join(' ')}`;
+        buf.push(text);
+        orig.apply(console, ['['+time+']', ...args]);
         localStorage.setItem('consoleLog', buf.join('\n'));
       };
       window.saveLog = () => {
@@ -166,7 +168,6 @@
 
     // サウンド再生
     const playClick = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play();
-    // playSubmit は直接 use せずにハンドラ内で制御
 
     // データ定義
     const vids = [
@@ -216,7 +217,7 @@
       }).catch(() => done());
     }
 
-    // DOM初期化
+    // 初期化
     const content = document.getElementById('content');
     const bar = document.getElementById('progressBar');
     for (let i = 1; i <= 20; i++) {
@@ -253,7 +254,17 @@
         </div>`;
 
       const btn = document.getElementById('subBtn');
-      playSeq(q.audios, order, () => { btn.style.display = 'block'; btn.classList.add('fade-in'); });
+      playSeq(q.audios, order, () => {
+        // 4thボタンの下に配置
+        const fourth = document.querySelectorAll('.radio-label')[3];
+        btn.style.position = 'absolute';
+        const x = fourth.offsetLeft;
+        const y = fourth.offsetTop + fourth.offsetHeight + 10; // 10px 下
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+        btn.style.display = 'block';
+        btn.classList.add('fade-in');
+      });
 
       document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
 
@@ -262,7 +273,7 @@
         if (!sel) return alert('選択してください');
         console.log(`Question ${q.id}, Result: ${sel.value === q.correct ? 'correct' : 'incorrect'}`);
         const audio = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
-        audio.play().then(() => { audio.onended = () => cb(); });
+        audio.play().then(() => audio.onended = () => cb());
       });
     }
 
