@@ -213,7 +213,6 @@
     function playSeq(audios, order, done) {
       let idx = 0;
       const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
-      // ビープ音再生
       beep.play().then(() => {
         beep.onended = () => {
           function next() {
@@ -269,7 +268,6 @@
       `;
       const img = document.getElementById('qImage');
       img.addEventListener('load', () => {
-        // 画像表示後にシーケンス再生
         playSeq(q.audios, order, () => {
           const fourth = document.querySelectorAll('.radio-label')[3];
           const btn = document.getElementById('subBtn');
@@ -282,7 +280,6 @@
       });
 
       document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
-
       document.getElementById('subBtn').addEventListener('click', () => {
         const sel = document.querySelector('input[name="ans"]:checked');
         if (!sel) return alert('選択してください');
@@ -307,7 +304,15 @@
 
     // 流れ制御
     function start() {
-      showVideo(vids[0], () => showQuestion(example1, () => showVideo(vids[1], () => showQuestion(example2, () => showVideo(vids[2], startTest)) )));
+      showVideo(vids[0], () => {
+        showQuestion(example1, () => {
+          showVideo(vids[1], () => {
+            showQuestion(example2, () => {
+              showVideo(vids[2], startTest);
+            }, 0, false);
+          });
+        }, 0, false);
+      });
     }
     function startTest() {
       testQ = shuffle(testQ);
