@@ -11,7 +11,7 @@
       font-family: sans-serif;
       background-color: #fff;
       color: #333;
-      font-size: 18px; /* 全体的に文字を大きく */
+      font-size: 18px;
     }
     .container, #app {
       max-width: 800px;
@@ -19,42 +19,18 @@
       padding: 20px;
       text-align: center;
     }
-    .header {
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
     .explanation-box {
       background-color: #f9f9f9;
       border: 2px solid #ddd;
       padding: 25px;
       margin-bottom: 40px;
       border-radius: 10px;
-      text-align: left;
+      text-align: center;
       line-height: 1.6;
       font-size: 1.1em;
     }
-    /* ボタン（Next, GO TO TEST） */
-    .button, .go-to-test-button {
-      display: inline-block;
-      background-color: #007BFF;
-      color: #fff;
-      padding: 14px 28px;
-      font-size: 1.1em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.3s, transform 0.2s;
-      margin-top: 15px;
-    }
-    .button:hover, .go-to-test-button:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);
-    }
-    /* 〇✖ボタン（ラジオボタンをラベルで代用） */
-    .choice-container {
-      margin: 20px 0;
-    }
+    /* 〇✖選択ボタン */
+    .choice-container { margin: 20px 0; }
     .choice-button {
       display: inline-block;
       padding: 10px 20px;
@@ -65,25 +41,12 @@
       margin: 0 20px;
       transition: background-color 0.3s;
     }
-    /* 初期は薄い色 */
-    .choice-maru-btn {
-      background-color: #ffcccc; /* 薄い赤 */
-    }
-    .choice-batsu-btn {
-      background-color: #ccccff; /* 薄い青 */
-    }
-    /* 選択されたときは濃い色 */
-    .choice-maru-btn.selected {
-      background-color: red;
-    }
-    .choice-batsu-btn.selected {
-      background-color: blue;
-    }
-    /* ラジオボタンは非表示 */
-    .choice-button input[type="radio"] {
-      display: none;
-    }
-    /* Submitボタンを緑に */
+    .choice-maru-btn { background-color: #ffcccc; }
+    .choice-batsu-btn { background-color: #ccccff; }
+    .choice-maru-btn.selected { background-color: red; }
+    .choice-batsu-btn.selected { background-color: blue; }
+    .choice-button input[type="radio"] { display: none; }
+    /* Submitボタン */
     .submit-button {
       display: inline-block;
       background-color: #28a745;
@@ -95,11 +58,8 @@
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
     }
-    .submit-button:hover {
-      background-color: #218838;
-      transform: scale(1.05);
-    }
-    /* 進捗バー：左寄せ＋インデント */
+    .submit-button:hover { transform: scale(1.05); }
+    /* 進捗バー */
     .progress-container {
       display: flex;
       justify-content: flex-start;
@@ -120,20 +80,10 @@
       font-weight: bold;
       transition: background-color 0.3s, color 0.3s;
     }
-    .progress-step.completed {
-      background-color: #007BFF;
-      color: #fff;
-    }
-    .progress-step.active {
-      background-color: #fff;
-      color: #007BFF;
-    }
-    .final-illustration {
-      display: block;
-      margin: 30px auto;
-      max-width: 150px;
-    }
-    /* ログ保存ボタンのスタイル */
+    .progress-step.completed { background-color: #007BFF; color: #fff; }
+    .progress-step.active { background-color: #fff; color: #007BFF; }
+    .final-illustration { display: block; margin: 30px auto; max-width: 150px; }
+    /* ログ保存ボタン */
     #downloadLogButton {
       display: inline-block;
       background-color: #4CAF50;
@@ -144,55 +94,43 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 20px;
-      transition: background-color 0.3s;
-    }
-    #downloadLogButton:hover {
-      background-color: #388E3C;
     }
   </style>
 </head>
 <body>
   <div id="app" class="container"></div>
 
-  <!-- ログ永続化＆ダウンロード用スクリプト -->
   <script>
+    // ログ永続化＆ダウンロード
     (function() {
       const logBuffer = [];
       const originalLog = console.log;
       console.log = function(...args) {
-        const message = args.join(' ');
-        logBuffer.push(message);
+        logBuffer.push(args.join(' '));
         originalLog.apply(console, args);
         localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
       window.saveLog = function() {
-        const logContent = localStorage.getItem('consoleLog') || '';
-        const blob = new Blob([logContent], { type: 'text/plain' });
+        const content = localStorage.getItem('consoleLog') || '';
+        const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'console-log.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const a = document.createElement('a'); a.href = url;
+        a.download = 'console-log.txt'; document.body.appendChild(a);
+        a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
       };
     })();
   </script>
 
   <script>
-    // ================================
-    //  音声ファイル準備
-    // ================================
+    // 音声準備
     const beepSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const submitSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    // 例題の音声 (例1=〇正解, 例2=✖正解)
-    const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav"; // 正解: maru
-    const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
+    const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav";
+    const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav";
 
-    // 問題40問の音声URL（ランダム表示用）
     const questionAudioData = [];
     for (let i = 1; i <= 40; i++) {
       const url = (i % 2 === 1)
@@ -200,219 +138,157 @@
         : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
       questionAudioData.push({ id: i, audioUrl: url });
     }
-
-    // グローバル変数として問題音声再生用のオブジェクトを宣言
     let questionAudio = null;
 
-    // ================================
-    //  ユーティリティ関数
-    // ================================
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-    function getCorrectAnswerFromUrl(url) {
-      return url.includes("a.wav") ? "maru" : "batsu";
-    }
-    const app = document.getElementById("app");
-    function showScreen(html) {
-      app.innerHTML = html;
-    }
-    function renderProgressBar(currentIndex, total) {
-      let steps = "";
-      for (let i = 0; i < total; i++) {
-        let className = "progress-step";
-        if (i < currentIndex) {
-          className += " completed";
-        } else if (i === currentIndex) {
-          className += " active";
-        }
-        steps += `<span class=\"${className}\">${i+1}</span>`;
-      }
-      return `<div class=\"progress-container\">${steps}</div>`;
-    }
-    function scheduleQuestionAudio(audioUrl) {
-      if (questionAudio) {
-        if (!questionAudio.paused) questionAudio.pause();
-        questionAudio.currentTime = 0;
-      }
-      setTimeout(() => {
-        if (!beepSound.paused) beepSound.pause();
-        beepSound.currentTime = 0;
-        beepSound.play().then(() => {
-          beepSound.onended = () => {
-            questionAudio = new Audio(audioUrl);
-            questionAudio.play().catch(err => console.error("Error playing question audio:", err));
-          };
-        }).catch(err => console.error("Error playing beep sound:", err));
-      }, 2000);
-    }
+    // ユーティリティ
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+    function getCorrectAnswerFromUrl(url) { return url.includes('a.wav') ? 'maru' : 'batsu'; }
+    const app = document.getElementById('app');
+    function showScreen(html) { app.innerHTML = html; }
     function setupChoiceButtons() {
-      const radioBtns = document.querySelectorAll('input[name="answer"]');
-      radioBtns.forEach(radio => {
-        radio.parentElement.addEventListener("click", function() {
-          clickSound.pause();
-          clickSound.currentTime = 0;
-          clickSound.play();
-          document.querySelectorAll('label.choice-button').forEach(lbl => lbl.classList.remove("selected"));
-          radio.parentElement.classList.add("selected");
-        });
+      document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        radio.parentElement.onclick = () => {
+          clickSound.currentTime = 0; clickSound.play();
+          document.querySelectorAll('label.choice-button').forEach(lbl => lbl.classList.remove('selected'));
+          radio.parentElement.classList.add('selected');
+        };
       });
     }
+    function renderProgressBar(idx, total) {
+      let steps = '';
+      for (let i = 0; i < total; i++) {
+        let cls = 'progress-step';
+        if (i < idx) cls += ' completed';
+        else if (i === idx) cls += ' active';
+        steps += `<span class="${cls}">${i+1}</span>`;
+      }
+      return `<div class="progress-container">${steps}</div>`;
+    }
+    function scheduleQuestionAudio(url) {
+      if (questionAudio && !questionAudio.paused) questionAudio.pause();
+      questionAudio = new Audio(url);
+      setTimeout(() => {
+        beepSound.currentTime = 0; beepSound.play().then(() => {
+          beepSound.onended = () => questionAudio.play();
+        });
+      }, 2000);
+    }
 
-    // ================================
-    //  画面テキスト (説明ビデオ)
-    // ================================
+    // 説明ビデオ画面
     const explanationBox1 = `
-      <h2 class="header">説明ビデオ1</h2>
       <div class="explanation-box">
-        <video controls width="100%">
+        <video controls width="100%" id="video1">
           <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-1.mp4" type="video/mp4">
-          お使いのブラウザは video タグに対応していません。
+          対応ブラウザ必要
         </video>
       </div>
-      <button class="button" id="exBox1NextBtn">Next</button>
     `;
-
     const explanationBox2 = `
-      <h2 class="header">説明ビデオ2</h2>
       <div class="explanation-box">
-        <video controls width="100%">
+        <video controls width="100%" id="video2">
           <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-2.mp4" type="video/mp4">
-          お使いのブラウザは video タグに対応していません。
+          対応ブラウザ必要
         </video>
       </div>
-      <button class="button" id="exBox2NextBtn">Next</button>
     `;
-
     const explanationBox3 = `
-      <h2 class="header">説明ビデオ3</h2>
       <div class="explanation-box">
-        <video controls width="100%">
+        <video controls width="100%" id="video3">
           <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-3new.mp4" type="video/mp4">
-          お使いのブラウザは video タグに対応していません。
+          対応ブラウザ必要
         </video>
       </div>
-      <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
     `;
-
     const explanationBox4 = `
       <div class="explanation-box">
         <p>This is the end of Test 3. Please inform Instructor Takei.</p>
-        <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
+        <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" class="final-illustration" alt="cracker">
         <br>
         <button id="downloadLogButton">DO NOT TOUCH</button>
       </div>
     `;
 
-    // ================================
-    //  ステージ管理
-    // ================================
+    // ステージ管理
     let stageIndex = 0;
     let shuffledQuestions = [];
-    function goNextStage() {
-      stageIndex++;
-      renderStage(stageIndex);
-    }
+    function goNextStage() { stageIndex++; renderStage(stageIndex); }
     function startTest() {
       shuffledQuestions = shuffle(questionAudioData);
-      stageIndex = 5;
-      renderStage(stageIndex);
+      stageIndex = 5; renderStage(stageIndex);
     }
-    function renderStage(index) {
-      switch(index) {
+    function renderStage(idx) {
+      switch(idx) {
         case 0:
           showScreen(explanationBox1);
-          document.getElementById("exBox1NextBtn").onclick = () => { clickSound.play(); goNextStage(); };
+          document.getElementById('video1').onended = () => goNextStage();
           break;
         case 1:
-          renderExample({ audioUrl: example1AudioUrl, correct: "maru" });
+          renderExample({ audioUrl: example1AudioUrl, correct: 'maru' });
           break;
         case 2:
           showScreen(explanationBox2);
-          document.getElementById("exBox2NextBtn").onclick = () => { clickSound.play(); goNextStage(); };
+          document.getElementById('video2').onended = () => goNextStage();
           break;
         case 3:
-          renderExample({ audioUrl: example2AudioUrl, correct: "batsu" });
+          renderExample({ audioUrl: example2AudioUrl, correct: 'batsu' });
           break;
         case 4:
           showScreen(explanationBox3);
-          document.getElementById("goTestBtn").onclick = () => { clickSound.play(); startTest(); };
+          document.getElementById('video3').onended = () => startTest();
           break;
         default:
-          if (index >=5 && index < 45) {
-            const qIndex = index - 5;
-            renderQuestionPage(qIndex);
-          } else if (index === 45) {
+          if (idx >=5 && idx <45) {
+            const qIdx = idx - 5;
+            renderQuestionPage(qIdx);
+          } else if (idx === 45) {
             showScreen(explanationBox4);
-            document.getElementById("downloadLogButton").onclick = () => window.saveLog();
+            document.getElementById('downloadLogButton').onclick = () => window.saveLog();
           }
       }
     }
     function renderExample({ audioUrl, correct }) {
-      const html = `
-        <div class="explanation-box">
-          <p>Example</p>
-        </div>
+      showScreen(`
+        <div class="explanation-box"><p>Example</p></div>
         <div class="choice-container">
-          <label class="choice-button choice-maru-btn">
-            <input type="radio" name="answer" value="maru">〇
-          </label>
-          <label class="choice-button choice-batsu-btn">
-            <input type="radio" name="answer" value="batsu">✖
-          </label>
+          <label class="choice-button choice-maru-btn"><input type="radio" name="answer" value="maru">〇</label>
+          <label class="choice-button choice-batsu-btn"><input type="radio" name="answer" value="batsu">✖</label>
         </div>
         <button class="submit-button" id="submitExampleBtn">Submit</button>
-      `;
-      showScreen(html);
-      setupChoiceButtons();
-      scheduleQuestionAudio(audioUrl);
-      document.getElementById("submitExampleBtn").onclick = () => {
+      `);
+      setupChoiceButtons(); scheduleQuestionAudio(audioUrl);
+      document.getElementById('submitExampleBtn').onclick = () => {
         submitSound.play();
         const sel = document.querySelector('input[name="answer"]:checked');
-        if (!sel) { alert("〇か✖を選択してください。"); return; }
-        const isCorrect = sel.value === correct;
-        console.log(`Example: userAnswer=${sel.value}, correct=${correct}, isCorrect=${isCorrect}`);
+        if (!sel) { alert('〇か✖を選択してください。'); return; }
+        console.log(`Example: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
         goNextStage();
       };
     }
-    function renderQuestionPage(qIndex) {
+    function renderQuestionPage(qIdx) {
       const total = 40;
-      const progressHTML = renderProgressBar(qIndex, total);
-      const html = `
-        ${progressHTML}
-        <div class="explanation-box">
-          <p>Question ${qIndex+1} / ${total}</p>
-        </div>
+      showScreen(`
+        ${renderProgressBar(qIdx,total)}
+        <div class="explanation-box"><p>Question ${qIdx+1} / ${total}</p></div>
         <div class="choice-container">
-          <label class="choice-button choice-maru-btn">
-            <input type="radio" name="answer" value="maru">〇
-          </label>
-          <label class="choice-button choice-batsu-btn">
-            <input type="radio" name="answer" value="batsu">✖
-          </label>
+          <label class="choice-button choice-maru-btn"><input type="radio" name="answer" value="maru">〇</label>
+          <label class="choice-button choice-batsu-btn"><input type="radio" name="answer" value="batsu">✖</label>
         </div>
         <button class="submit-button" id="submitQBtn">Submit</button>
-      `;
-      showScreen(html);
+      `);
       setupChoiceButtons();
-      const current = shuffledQuestions[qIndex];
-      console.log("現在の問題ID:", current.id);
+      const current = shuffledQuestions[qIdx];
+      console.log('現在の問題ID:', current.id);
       scheduleQuestionAudio(current.audioUrl);
-      document.getElementById("submitQBtn").onclick = () => {
+      document.getElementById('submitQBtn').onclick = () => {
         submitSound.play();
         const sel = document.querySelector('input[name="answer"]:checked');
-        if (!sel) { alert("Please select ○ or ✖."); return; }
-        const isCorrect = sel.value === getCorrectAnswerFromUrl(current.audioUrl);
-        console.log(`Q${qIndex+1}: userAnswer=${sel.value}, correct=${getCorrectAnswerFromUrl(current.audioUrl)}, isCorrect=${isCorrect}`);
+        if (!sel) { alert('Please select ○ or ✖.'); return; }
+        const correct = getCorrectAnswerFromUrl(current.audioUrl);
+        console.log(`Q${qIdx+1}: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
         goNextStage();
       };
     }
-    window.addEventListener("DOMContentLoaded", () => renderStage(stageIndex));
+    window.addEventListener('DOMContentLoaded', () => renderStage(stageIndex));
   </script>
 </body>
 </html>
