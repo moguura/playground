@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test 2 - Horizontal Progress</title>
+  <style>
+    /* リセット */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: sans-serif; }
+
+    /* コンテナ */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* 水平プログレスバー */
+    .progress-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      background-color: #fff;
+      padding: 10px 0;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .progress-step {
+      width: 30px;
+      height: 30px;
+      margin: 0 5px;
+      border: 2px solid #007BFF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    .progress-step.completed {
+      background-color: #007BFF;
+      color: #fff;
+    }
+
+    /* メインコンテンツ */
+    #content { margin-top: 60px; width: 100%; }
+    .question-container {
+      margin-bottom: 30px;
+      min-height: 350px;
+      position: relative;
+    }
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .image-container img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    /* 選択肢横並び */
+    .radio-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .radio-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+      padding: 10px;
+      border: 2px solid #007BFF;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      background-color: #f0f0f0;
+      user-select: none;
+    }
+    .radio-label:hover { background-color: #e0ebff; }
+    .radio-label input { display: none; }
+    .radio-label input:checked + span {
+      background-color: #007BFF;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+
+    /* 提出ボタン */
+    .submit-btn {
+      display: none;
+      position: absolute;
+      /* position, top, left set dynamically via JS to appear under 4th */
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      z-index: 10;
+    }
+    .submit-btn:hover { background-color: #0056b3; }
+    .fade-in { animation: fadeIn 0.5s ease-in forwards; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ログダウンロードボタン */
+    #downloadLogButton {
+      margin: 20px auto 0;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="progress-bar" id="progressBar"></div>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    // ログ保存セットアップ（タイムスタンプ付き）
+    (function(){
+      const buf = [];
+      const orig = console.log;
+      console.log = function(...args) {
+        const time = new Date().toLocaleTimeString();
+        const text = `[${time}] ${args.join(' ')}`;
+        buf.push(text);
+        orig.apply(console, ['['+time+']', ...args]);
+        localStorage.setItem('consoleLog', buf.join('\n'));
+      };
+      window.saveLog = () => {
+        const data = localStorage.getItem('consoleLog') || '';
+        const blob = new Blob([data], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'console-log.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+    })();
+
+    // サウンド再生
+    const playClick = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play();
+
+    // データ定義
+    const vids = [
+      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-1second.mp4',
+      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-2second.mp4',
+      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-3.mp4'
+    ];
+    const example1 = { id: 'example1', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'a' };
+    const example2 = { id: 'example2', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'c' };
+    let testQ = [];
+    for (let i = 1; i <= 20; i++) {
+      testQ.push({
+        id: i,
+        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
+        audios: { a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`, b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`, c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`, d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav` },
+        correct: 'a'
+      });
+    }
+
+    // ユーティリティ
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function updateProgress(n) {
+      document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('completed', i < n));
+    }
+
+    // 音声シーケンス再生（ビープ→選択肢順）
+    function playSeq(audios, order, done) {
+      let idx = 0;
+      const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+      beep.play().then(() => {
+        beep.onended = () => {
+          function next() {
+            if (idx >= order.length) return done();
+            const audio = new Audio(audios[order[idx]]);
+            audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
+                 .catch(() => { idx++; setTimeout(next, 500); });
+          }
+          next();
+        };
+      }).catch(() => done());
+    }
+
+    // 初期化
+    const content = document.getElementById('content');
+    const bar = document.getElementById('progressBar');
+    for (let i = 1; i <= 20; i++) {
+      const step = document.createElement('div'); step.className = 'progress-step'; step.textContent = i; bar.appendChild(step);
+    }
+
+    // 動画表示
+    function showVideo(src, cb) {
+      bar.style.display = 'none';
+      content.innerHTML = `<video id='expVideo' src='${src}' controls style='width:100%;'></video>`;
+      document.getElementById('expVideo').addEventListener('ended', () => { playClick(); cb(); });
+    }
+
+    // 質問表示
+    function showQuestion(q, cb, idx = 0, isTest = true) {
+      if (isTest) { bar.style.display = 'flex'; updateProgress(idx + 1); }
+      else { bar.style.display = 'none'; }
+
+      const labels = ['1st', '2nd', '3rd', '4th'];
+      const order = isTest ? shuffle(['a','b','c','d']) : ['a','b','c','d'];
+
+      content.innerHTML = `
+        <div class='question-container'>
+          <div class='image-container'><img src='${q.image}' alt='Question'></div>
+          <div class='radio-group'>
+            ${order.map((opt,i) => `
+              <label class='radio-label'>
+                <input type='radio' name='ans' value='${opt}'>
+                <span>${labels[i]}</span>
+              </label>
+            `).join('')}
+          </div>
+          <button id='subBtn' class='submit-btn'>Submit</button>
+        </div>`;
+
+      const btn = document.getElementById('subBtn');
+      playSeq(q.audios, order, () => {
+        // 4thボタンの下に配置
+        const fourth = document.querySelectorAll('.radio-label')[3];
+        btn.style.position = 'absolute';
+        const x = fourth.offsetLeft;
+        const y = fourth.offsetTop + fourth.offsetHeight + 10; // 10px 下
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+        btn.style.display = 'block';
+        btn.classList.add('fade-in');
+      });
+
+      document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
+
+      btn.addEventListener('click', () => {
+        const sel = document.querySelector('input[name="ans"]:checked');
+        if (!sel) return alert('選択してください');
+        console.log(`Question ${q.id}, Result: ${sel.value === q.correct ? 'correct' : 'incorrect'}`);
+        const audio = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
+        audio.play().then(() => audio.onended = () => cb());
+      });
+    }
+
+    // テスト終了
+    function finish() {
+      bar.style.display = 'none';
+      content.innerHTML = `
+        <div style='text-align:center;'>
+          <p style='margin-bottom:20px;font-size:1.4em;'>This is the end. Please inform Instructor.</p>
+          <img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'>
+          <button id='downloadLogButton'>DO NOT TOUCH</button>
+        </div>`;
+      document.getElementById('downloadLogButton').addEventListener('click', () => window.saveLog());
+    }
+
+    // テスト開始
+    function start() {
+      showVideo(vids[0], () => showQuestion(example1, () => showVideo(vids[1], () => showQuestion(example2, () => showVideo(vids[2], startTest), 0, false), 0, false), 0, false));
+    }
+    function startTest() {
+      testQ = shuffle(testQ);
+      let i = 0;
+      (function next() {
+        if (i >= testQ.length) return finish();
+        showQuestion(testQ[i], () => { i++; next(); }, i, true);
+      })();
+    }
+    document.addEventListener('DOMContentLoaded', start);
+  </script>
+</body>
+</html>
