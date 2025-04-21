@@ -207,13 +207,14 @@
 <body>
   <div id="app" class="container"></div>
 
-  <!-- ログ保存スクリプト -->
+ <!-- ログ保存スクリプト -->
   <script>
     (function() {
       const logBuffer = [];
       const origLog = console.log;
       console.log = function(...args) {
-        logBuffer.push(args.join(' '));
+        const line = args.join(' ');
+        logBuffer.push(line);
         origLog.apply(console, args);
         localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
@@ -221,99 +222,66 @@
         const content = localStorage.getItem('consoleLog') || '';
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'console-log.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const a = document.createElement('a'); a.href = url; a.download = 'console-log.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
       };
     })();
   </script>
 
   <script>
-    // サウンド設定
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
-
-    // グローバルタイマー & ログ用変数
     let recognition = null;
     let recordTimeout = null;
     let micWarningTimeout = null;
     let questionSkipTimeout = null;
-    let currentQuestionId = null;  // 今表示中の問題ID
+    let currentQuestionId = null;
 
     function initSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) { alert("SpeechRecognition API 未対応"); return null; }
-      const r = new SR();
-      r.lang = "ja-JP";
-      r.interimResults = true;
-      r.continuous = true;
-      return r;
+      const r = new SR(); r.lang = "ja-JP"; r.interimResults = true; r.continuous = true; return r;
     }
     function resetSpeechRecognition() {
-      if (recognition) {
-        recognition.onresult = null;
-        recognition.onerror = null;
-        recognition.onend = null;
-        recognition.abort();
-        recognition = null;
-      }
+      if (recognition) { recognition.onresult = null; recognition.onerror = null; recognition.onend = null; recognition.abort(); recognition = null; }
     }
 
     function startRecognition() {
       clickSound.play();
-      resetSpeechRecognition();
-      clearTimeout(micWarningTimeout);
-      clearTimeout(questionSkipTimeout);
+      // Log mic button press timestamp
+      console.log(`MicPressed: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
+      resetSpeechRecognition(); clearTimeout(micWarningTimeout); clearTimeout(questionSkipTimeout);
 
-      const btn = document.getElementById("micBtn");
-      btn.disabled = true;
-      btn.classList.add("mic-active");
+      const btn = document.getElementById("micBtn"); btn.disabled = true; btn.classList.add("mic-active");
+      recognition = initSpeechRecognition(); if (!recognition) return;
 
-      recognition = initSpeechRecognition();
-      if (!recognition) return;
-
-      // 無発話10秒後に自動停止＆ログ
-      recordTimeout = setTimeout(() => {
-        console.log(`NoSpeech(timeout) QuestionID: ${currentQuestionId}`);
-        stopRecognition();
-      }, 10000);
+      recordTimeout = setTimeout(() => { console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`); stopRecognition(); }, 10000);
 
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
-            console.log(`Detected “です” QuestionID: ${currentQuestionId}`);
-            clearTimeout(recordTimeout);
-            recognition.stop();
-            recognition = null;
-            showCheckIcon();
-            break;
+            // Log recognition success timestamp
+            console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
+            clearTimeout(recordTimeout); recognition.stop(); recognition = null; showCheckIcon(); break;
           }
         }
       };
       recognition.onerror = () => stopRecognition();
-      recognition.onend = () => console.log("Recognition ended");
+      recognition.onend = () => console.log(`Recognition ended: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
       recognition.start();
     }
 
     function stopRecognition() {
-      clearTimeout(recordTimeout);
-      clearTimeout(questionSkipTimeout);
-      if (recognition) {
-        recognition.stop();
-      }
-      recognition = null;
-      const btn = document.getElementById("micBtn");
-      btn.classList.remove("mic-active");
+      clearTimeout(recordTimeout); clearTimeout(questionSkipTimeout);
+      if (recognition) recognition.stop(); recognition = null;
+      const btn = document.getElementById("micBtn"); btn.classList.remove("mic-active");
       showCheckIcon();
     }
+
     function showCheckIcon() {
+      const ts = new Date().toISOString();
+      console.log(`CheckIconShown: ${ts} QuestionID: ${currentQuestionId}`);
       document.getElementById("checkIcon").classList.add("show");
-      checkSound.play();
-      setTimeout(goNext, 2000);
+      checkSound.play(); setTimeout(goNext, 2000);
     }
 
     // 画面描画ユーティリティ
