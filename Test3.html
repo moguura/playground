@@ -152,325 +152,267 @@
   </style>
 </head>
 <body>
-<div id="app" class="container"></div>
+  <div id="app" class="container"></div>
 
-<!-- ログ永続化＆ダウンロード用スクリプト（テスト1・2と同仕様） -->
-<script>
-  (function() {
-    const logBuffer = [];
-    const originalLog = console.log;
-    console.log = function(...args) {
-      const message = args.join(' ');
-      logBuffer.push(message);
-      originalLog.apply(console, args);
-      localStorage.setItem('consoleLog', logBuffer.join('\n'));
-    };
-    window.saveLog = function() {
-      const logContent = localStorage.getItem('consoleLog') || '';
-      const blob = new Blob([logContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'console-log.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-  })();
-</script>
+  <!-- ログ永続化＆ダウンロード用スクリプト -->
+  <script>
+    (function() {
+      const logBuffer = [];
+      const originalLog = console.log;
+      console.log = function(...args) {
+        const message = args.join(' ');
+        logBuffer.push(message);
+        originalLog.apply(console, args);
+        localStorage.setItem('consoleLog', logBuffer.join('\n'));
+      };
+      window.saveLog = function() {
+        const logContent = localStorage.getItem('consoleLog') || '';
+        const blob = new Blob([logContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'console-log.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+    })();
+  </script>
 
-<script>
-  // ================================
-  //  音声ファイル準備
-  // ================================
-  const beepSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
-  const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
-  const submitSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
+  <script>
+    // ================================
+    //  音声ファイル準備
+    // ================================
+    const beepSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
+    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
+    const submitSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-  // 例題の音声 (例1=〇正解, 例2=✖正解)
-  const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav"; // 正解: maru
-  const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
+    // 例題の音声 (例1=〇正解, 例2=✖正解)
+    const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav"; // 正解: maru
+    const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav"; // 正解: batsu
 
-  // 問題40問の音声URL（ランダム表示用）
-  // 【修正】各要素に id と audioUrl を持つオブジェクトに変更
-  const questionAudioData = [];
-  for (let i = 1; i <= 40; i++) {
-    const url = (i % 2 === 1)
-      ? `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${Math.ceil(i/2)}a.wav`
-      : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
-    questionAudioData.push({ id: i, audioUrl: url });
-  }
-
-  // グローバル変数として問題音声再生用のオブジェクトを宣言
-  let questionAudio = null;
-
-  // ================================
-  //  ユーティリティ関数
-  // ================================
-  // 配列シャッフル
-  function shuffle(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    // 問題40問の音声URL（ランダム表示用）
+    const questionAudioData = [];
+    for (let i = 1; i <= 40; i++) {
+      const url = (i % 2 === 1)
+        ? `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${Math.ceil(i/2)}a.wav`
+        : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
+      questionAudioData.push({ id: i, audioUrl: url });
     }
-    return arr;
-  }
-  // 音声URLから正解を判定 ('a'ならmaru, 'b'ならbatsu)
-  function getCorrectAnswerFromUrl(url) {
-    return url.includes("a.wav") ? "maru" : "batsu";
-  }
-  // 画面書き換え
-  const app = document.getElementById("app");
-  function showScreen(html) {
-    app.innerHTML = html;
-  }
-  // 進捗バー（左寄せ、インデント付き）を描画
-  function renderProgressBar(currentIndex, total) {
-    let steps = "";
-    for (let i = 0; i < total; i++) {
-      let className = "progress-step";
-      if (i < currentIndex) {
-        className += " completed";
-      } else if (i === currentIndex) {
-        className += " active";
+
+    // グローバル変数として問題音声再生用のオブジェクトを宣言
+    let questionAudio = null;
+
+    // ================================
+    //  ユーティリティ関数
+    // ================================
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-      steps += `<span class="${className}">${i+1}</span>`;
+      return arr;
     }
-    return `<div class="progress-container">${steps}</div>`;
-  }
-  // 次の問題画面に遷移してから2秒後に、ビープ音→問題音声 を再生
-  function scheduleQuestionAudio(audioUrl) {
-    if (questionAudio) {
-      if (!questionAudio.paused) {
-        questionAudio.pause();
-      }
-      questionAudio.currentTime = 0;
+    function getCorrectAnswerFromUrl(url) {
+      return url.includes("a.wav") ? "maru" : "batsu";
     }
-    setTimeout(() => {
-      if (!beepSound.paused) {
-        beepSound.pause();
-      }
-      beepSound.currentTime = 0;
-      beepSound.play().then(() => {
-        beepSound.onended = () => {
-          questionAudio = new Audio(audioUrl);
-          questionAudio.play().catch(err => {
-            console.error("Error playing question audio:", err);
-          });
-        };
-      }).catch(err => {
-        console.error("Error playing beep sound:", err);
-      });
-    }, 2000);
-  }
-  // ================================
-  //  選択肢ボタンのエフェクト＋クリック音
-  // ================================
-  function setupChoiceButtons() {
-    const radioButtons = document.querySelectorAll('input[name="answer"]');
-    radioButtons.forEach(radio => {
-      radio.parentElement.addEventListener("click", function() {
-        clickSound.pause();
-        clickSound.currentTime = 0;
-        clickSound.play();
-        document.querySelectorAll("label.choice-button").forEach(label => {
-          label.classList.remove("selected");
-        });
-        radio.parentElement.classList.add("selected");
-      });
-    });
-  }
-  // ================================
-  //  画面テキスト (説明Box)
-  // ================================
-  const explanationBox1 = `
-    <h2 class="header">Test3</h2>
-    <div class="explanation-box">
-      <p>Listen to Japanese sentences and decide if they are grammatically correct.<br>
-      If you think the sentence is correct, press the 〇 button.<br>
-      If you think it's incorrect, press the ✖ button.<br>
-      Then, press the submit button.<br><br>
-      Let's try Example 1:<br>
-      Listen and choose 〇, then submit.</p>
-    </div>
-    <button class="button" id="exBox1NextBtn">Next</button>
-  `;
-  const explanationBox2 = `
-    <div class="explanation-box">
-      <p>The audio said "きのう、てんきは よかったです。"<br>
-      This is correct, so we chose 〇.<br>
-      Now, Example 2:<br>
-      This time, choose ✖ and submit.</p>
-    </div>
-    <button class="button" id="exBox2NextBtn">Next</button>
-  `;
-  const explanationBox3 = `
-    <div class="explanation-box">
-      <p>The audio said "きのう、てんきは いいです。"<br>
-      This is incorrect, so we chose ✖.<br><br>
-      Now, let's start the test. There are 40 questions in total.<br>
-      When you're ready, click the 'GO TO TEST' button.</p>
-    </div>
-    <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
-  `;
-  // 修正：説明Box4 の下部にログ保存ボタンを追加
-  const explanationBox4 = `
-    <div class="explanation-box">
-      <p>This is the end of Test 3. Please inform Instructor Takei.</p>
-      <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
-      <br>
-      <button id="downloadLogButton">DO NOT TOUCH</button>
-    </div>
-  `;
-  // ================================
-  //  ステージ管理
-  // ================================
-  /*
-    ステージ割り当て:
-    0: 説明Box1
-    1: 例1 (audioUrl=example1AudioUrl, correct=maru)
-    2: 説明Box2
-    3: 例2 (audioUrl=example2AudioUrl, correct=batsu)
-    4: 説明Box3 (GO TO TEST)
-    5～44: 40問 (ランダム)
-    45: 説明Box4 (終了)
-  */
-  let stageIndex = 0;
-  let shuffledQuestions = [];
-  let currentQuestionIndex = 0; // 0～39
-  function goNextStage() {
-    stageIndex++;
-    renderStage(stageIndex);
-  }
-  function startTest() {
-    // questionAudioDataをシャッフルして shuffledQuestions に代入
-    shuffledQuestions = shuffle(questionAudioData);
-    currentQuestionIndex = 0;
-    stageIndex = 5; // 最初の問題
-    renderStage(stageIndex);
-  }
-  function renderStage(index) {
-    switch (index) {
-      case 0:
-        showScreen(explanationBox1);
-        document.getElementById("exBox1NextBtn").onclick = () => {
-          clickSound.play();
-          goNextStage();
-        };
-        break;
-      case 1:
-        renderExample({ audioUrl: example1AudioUrl, correct: "maru" });
-        break;
-      case 2:
-        showScreen(explanationBox2);
-        document.getElementById("exBox2NextBtn").onclick = () => {
-          clickSound.play();
-          goNextStage();
-        };
-        break;
-      case 3:
-        renderExample({ audioUrl: example2AudioUrl, correct: "batsu" });
-        break;
-      case 4:
-        showScreen(explanationBox3);
-        document.getElementById("goTestBtn").onclick = () => {
-          clickSound.play();
-          startTest();
-        };
-        break;
-      default:
-        if (index >= 5 && index < 45) {
-          currentQuestionIndex = index - 5;
-          renderQuestionPage(currentQuestionIndex);
-        } else if (index === 45) {
-          showScreen(explanationBox4);
-          document.getElementById("downloadLogButton").onclick = () => {
-            window.saveLog();
-          };
+    const app = document.getElementById("app");
+    function showScreen(html) {
+      app.innerHTML = html;
+    }
+    function renderProgressBar(currentIndex, total) {
+      let steps = "";
+      for (let i = 0; i < total; i++) {
+        let className = "progress-step";
+        if (i < currentIndex) {
+          className += " completed";
+        } else if (i === currentIndex) {
+          className += " active";
         }
-        break;
+        steps += `<span class=\"${className}\">${i+1}</span>`;
+      }
+      return `<div class=\"progress-container\">${steps}</div>`;
     }
-  }
-  // 例題画面
-  function renderExample(exampleObj) {
-    const html = `
-      <div class="explanation-box">
-        <p>Example</p>
-      </div>
-      <div class="choice-container">
-        <label class="choice-button choice-maru-btn">
-          <input type="radio" name="answer" value="maru">〇
-        </label>
-        <label class="choice-button choice-batsu-btn">
-          <input type="radio" name="answer" value="batsu">✖
-        </label>
-      </div>
-      <button class="submit-button" id="submitExampleBtn">Submit</button>
-    `;
-    showScreen(html);
-    setupChoiceButtons();
-    scheduleQuestionAudio(exampleObj.audioUrl);
-    document.getElementById("submitExampleBtn").onclick = () => {
-      submitSound.play();
-      const selected = document.querySelector('input[name="answer"]:checked');
-      if (!selected) {
-        alert("〇か✖を選択してください。");
-        return;
+    function scheduleQuestionAudio(audioUrl) {
+      if (questionAudio) {
+        if (!questionAudio.paused) questionAudio.pause();
+        questionAudio.currentTime = 0;
       }
-      const userAnswer = selected.value;
-      const isCorrect = (userAnswer === exampleObj.correct);
-      console.log("Example: userAnswer =", userAnswer, "correct =", exampleObj.correct, "isCorrect =", isCorrect);
-      goNextStage();
-    };
-  }
-  // 問題画面
-  function renderQuestionPage(qIndex) {
-    const total = 40;
-    const progressHTML = renderProgressBar(qIndex, total);
-    const html = `
-      ${progressHTML}
+      setTimeout(() => {
+        if (!beepSound.paused) beepSound.pause();
+        beepSound.currentTime = 0;
+        beepSound.play().then(() => {
+          beepSound.onended = () => {
+            questionAudio = new Audio(audioUrl);
+            questionAudio.play().catch(err => console.error("Error playing question audio:", err));
+          };
+        }).catch(err => console.error("Error playing beep sound:", err));
+      }, 2000);
+    }
+    function setupChoiceButtons() {
+      const radioBtns = document.querySelectorAll('input[name="answer"]');
+      radioBtns.forEach(radio => {
+        radio.parentElement.addEventListener("click", function() {
+          clickSound.pause();
+          clickSound.currentTime = 0;
+          clickSound.play();
+          document.querySelectorAll('label.choice-button').forEach(lbl => lbl.classList.remove("selected"));
+          radio.parentElement.classList.add("selected");
+        });
+      });
+    }
+
+    // ================================
+    //  画面テキスト (説明ビデオ)
+    // ================================
+    const explanationBox1 = `
+      <h2 class="header">説明ビデオ1</h2>
       <div class="explanation-box">
-        <p>Question ${qIndex + 1} / ${total}</p>
+        <video controls width="100%">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-1.mp4" type="video/mp4">
+          お使いのブラウザは video タグに対応していません。
+        </video>
       </div>
-      <div class="choice-container">
-        <label class="choice-button choice-maru-btn">
-          <input type="radio" name="answer" value="maru">〇
-        </label>
-        <label class="choice-button choice-batsu-btn">
-          <input type="radio" name="answer" value="batsu">✖
-        </label>
-      </div>
-      <button class="submit-button" id="submitQBtn">Submit</button>
+      <button class="button" id="exBox1NextBtn">Next</button>
     `;
-    showScreen(html);
-    setupChoiceButtons();
-    const currentQuestion = shuffledQuestions[qIndex];
-    console.log("現在の問題ID:", currentQuestion.id);
-    const audioUrl = currentQuestion.audioUrl;
-    const correct = getCorrectAnswerFromUrl(audioUrl);
-    scheduleQuestionAudio(audioUrl);
-    document.getElementById("submitQBtn").onclick = () => {
-      submitSound.play();
-      const selected = document.querySelector('input[name="answer"]:checked');
-      if (!selected) {
-        alert("Please select ○ or ✖.");
-        return;
-      }
-      const userAnswer = selected.value;
-      const isCorrect = (userAnswer === correct);
-      console.log(`Q${qIndex+1}: userAnswer=${userAnswer}, correct=${correct}, isCorrect=${isCorrect}`);
+
+    const explanationBox2 = `
+      <h2 class="header">説明ビデオ2</h2>
+      <div class="explanation-box">
+        <video controls width="100%">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-2.mp4" type="video/mp4">
+          お使いのブラウザは video タグに対応していません。
+        </video>
+      </div>
+      <button class="button" id="exBox2NextBtn">Next</button>
+    `;
+
+    const explanationBox3 = `
+      <h2 class="header">説明ビデオ3</h2>
+      <div class="explanation-box">
+        <video controls width="100%">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-3new.mp4" type="video/mp4">
+          お使いのブラウザは video タグに対応していません。
+        </video>
+      </div>
+      <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
+    `;
+
+    const explanationBox4 = `
+      <div class="explanation-box">
+        <p>This is the end of Test 3. Please inform Instructor Takei.</p>
+        <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
+        <br>
+        <button id="downloadLogButton">DO NOT TOUCH</button>
+      </div>
+    `;
+
+    // ================================
+    //  ステージ管理
+    // ================================
+    let stageIndex = 0;
+    let shuffledQuestions = [];
+    function goNextStage() {
       stageIndex++;
       renderStage(stageIndex);
-    };
-  }
-  // ================================
-  //  初期表示
-  // ================================
-  window.addEventListener("DOMContentLoaded", () => {
-    renderStage(stageIndex);
-  });
-</script>
+    }
+    function startTest() {
+      shuffledQuestions = shuffle(questionAudioData);
+      stageIndex = 5;
+      renderStage(stageIndex);
+    }
+    function renderStage(index) {
+      switch(index) {
+        case 0:
+          showScreen(explanationBox1);
+          document.getElementById("exBox1NextBtn").onclick = () => { clickSound.play(); goNextStage(); };
+          break;
+        case 1:
+          renderExample({ audioUrl: example1AudioUrl, correct: "maru" });
+          break;
+        case 2:
+          showScreen(explanationBox2);
+          document.getElementById("exBox2NextBtn").onclick = () => { clickSound.play(); goNextStage(); };
+          break;
+        case 3:
+          renderExample({ audioUrl: example2AudioUrl, correct: "batsu" });
+          break;
+        case 4:
+          showScreen(explanationBox3);
+          document.getElementById("goTestBtn").onclick = () => { clickSound.play(); startTest(); };
+          break;
+        default:
+          if (index >=5 && index < 45) {
+            const qIndex = index - 5;
+            renderQuestionPage(qIndex);
+          } else if (index === 45) {
+            showScreen(explanationBox4);
+            document.getElementById("downloadLogButton").onclick = () => window.saveLog();
+          }
+      }
+    }
+    function renderExample({ audioUrl, correct }) {
+      const html = `
+        <div class="explanation-box">
+          <p>Example</p>
+        </div>
+        <div class="choice-container">
+          <label class="choice-button choice-maru-btn">
+            <input type="radio" name="answer" value="maru">〇
+          </label>
+          <label class="choice-button choice-batsu-btn">
+            <input type="radio" name="answer" value="batsu">✖
+          </label>
+        </div>
+        <button class="submit-button" id="submitExampleBtn">Submit</button>
+      `;
+      showScreen(html);
+      setupChoiceButtons();
+      scheduleQuestionAudio(audioUrl);
+      document.getElementById("submitExampleBtn").onclick = () => {
+        submitSound.play();
+        const sel = document.querySelector('input[name="answer"]:checked');
+        if (!sel) { alert("〇か✖を選択してください。"); return; }
+        const isCorrect = sel.value === correct;
+        console.log(`Example: userAnswer=${sel.value}, correct=${correct}, isCorrect=${isCorrect}`);
+        goNextStage();
+      };
+    }
+    function renderQuestionPage(qIndex) {
+      const total = 40;
+      const progressHTML = renderProgressBar(qIndex, total);
+      const html = `
+        ${progressHTML}
+        <div class="explanation-box">
+          <p>Question ${qIndex+1} / ${total}</p>
+        </div>
+        <div class="choice-container">
+          <label class="choice-button choice-maru-btn">
+            <input type="radio" name="answer" value="maru">〇
+          </label>
+          <label class="choice-button choice-batsu-btn">
+            <input type="radio" name="answer" value="batsu">✖
+          </label>
+        </div>
+        <button class="submit-button" id="submitQBtn">Submit</button>
+      `;
+      showScreen(html);
+      setupChoiceButtons();
+      const current = shuffledQuestions[qIndex];
+      console.log("現在の問題ID:", current.id);
+      scheduleQuestionAudio(current.audioUrl);
+      document.getElementById("submitQBtn").onclick = () => {
+        submitSound.play();
+        const sel = document.querySelector('input[name="answer"]:checked');
+        if (!sel) { alert("Please select ○ or ✖."); return; }
+        const isCorrect = sel.value === getCorrectAnswerFromUrl(current.audioUrl);
+        console.log(`Q${qIndex+1}: userAnswer=${sel.value}, correct=${getCorrectAnswerFromUrl(current.audioUrl)}, isCorrect=${isCorrect}`);
+        goNextStage();
+      };
+    }
+    window.addEventListener("DOMContentLoaded", () => renderStage(stageIndex));
+  </script>
 </body>
 </html>
