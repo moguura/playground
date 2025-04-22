@@ -491,6 +491,7 @@
 
           const q = shuffledQuestions[qIdx];
           currentQuestionId = q.id;
+          questionStartTime = new Date();    // ← ここに追加
           console.log(`Start QuestionID: ${q.id}`);
 
           showScreen(`
