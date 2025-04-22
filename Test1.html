@@ -207,7 +207,7 @@
 <body>
   <div id="app" class="container"></div>
 
- <!-- ログ保存スクリプト -->
+ <!-- ログ保存設定 -->
   <script>
     (function() {
       const logBuffer = [];
@@ -228,18 +228,20 @@
   </script>
 
   <script>
-    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
-    const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
+    const clickSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3');
+    const checkSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
     let recognition = null;
     let recordTimeout = null;
     let micWarningTimeout = null;
     let questionSkipTimeout = null;
     let currentQuestionId = null;
+    let questionStartTime = null;
+    let micPressedTime = null;
 
     function initSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { alert("SpeechRecognition API 未対応"); return null; }
-      const r = new SR(); r.lang = "ja-JP"; r.interimResults = true; r.continuous = true; return r;
+      if (!SR) { alert('SpeechRecognition API 未対応'); return null; }
+      const r = new SR(); r.lang = 'ja-JP'; r.interimResults = true; r.continuous = true; return r;
     }
     function resetSpeechRecognition() {
       if (recognition) { recognition.onresult = null; recognition.onerror = null; recognition.onend = null; recognition.abort(); recognition = null; }
@@ -247,21 +249,28 @@
 
     function startRecognition() {
       clickSound.play();
-      // Log mic button press timestamp
-      console.log(`MicPressed: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
-      resetSpeechRecognition(); clearTimeout(micWarningTimeout); clearTimeout(questionSkipTimeout);
+      // マイク押下時刻と反応時間ログ
+      micPressedTime = new Date();
+      const reactionTime = questionStartTime ? ((micPressedTime - questionStartTime)/1000).toFixed(2) : 'N/A';
+      console.log(`MicPressed: ${micPressedTime.toISOString()} QuestionID: ${currentQuestionId} ReactionTime: ${reactionTime}s`);
 
-      const btn = document.getElementById("micBtn"); btn.disabled = true; btn.classList.add("mic-active");
+      resetSpeechRecognition(); clearTimeout(micWarningTimeout); clearTimeout(questionSkipTimeout);
+      const btn = document.getElementById('micBtn'); btn.disabled = true; btn.classList.add('mic-active');
       recognition = initSpeechRecognition(); if (!recognition) return;
 
-      recordTimeout = setTimeout(() => { console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`); stopRecognition(); }, 10000);
+      recordTimeout = setTimeout(() => {
+        console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
+        stopRecognition();
+      }, 10000);
 
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
-          if (e.results[i][0].transcript.includes("です")) {
-            // Log recognition success timestamp
+          if (e.results[i][0].transcript.includes('です')) {
             console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
-            clearTimeout(recordTimeout); recognition.stop(); recognition = null; showCheckIcon(); break;
+            clearTimeout(recordTimeout);
+            recognition.stop(); recognition = null;
+            showCheckIcon();
+            break;
           }
         }
       };
@@ -273,31 +282,30 @@
     function stopRecognition() {
       clearTimeout(recordTimeout); clearTimeout(questionSkipTimeout);
       if (recognition) recognition.stop(); recognition = null;
-      const btn = document.getElementById("micBtn"); btn.classList.remove("mic-active");
+      const btn = document.getElementById('micBtn'); btn.classList.remove('mic-active');
       showCheckIcon();
     }
 
     function showCheckIcon() {
-      const ts = new Date().toISOString();
-      console.log(`CheckIconShown: ${ts} QuestionID: ${currentQuestionId}`);
-      document.getElementById("checkIcon").classList.add("show");
-      checkSound.play(); setTimeout(goNext, 2000);
+      const now = new Date();
+      const delta = micPressedTime ? ((now - micPressedTime)/1000).toFixed(2) : 'N/A';
+      console.log(`CheckIconShown: ${now.toISOString()} QuestionID: ${currentQuestionId} TimeSinceMicPressed: ${delta}s`);
+      document.getElementById('checkIcon').classList.add('show');
+      checkSound.play();
+      setTimeout(goNext, 2000);
     }
 
-    // 画面描画ユーティリティ
-    const app = document.getElementById("app");
-    function showScreen(html){ app.innerHTML = html; }
-
+    const app = document.getElementById('app');
+    function showScreen(html) { app.innerHTML = html; }
     function renderProgressBar(cur, total) {
       let html = '<div class="progress-container">';
       for (let i = 0; i < total; i++) {
-        const cls = 'progress-step' + (i < cur ? ' completed' : i === cur ? ' active' : '');
+        const cls = 'progress-step' + (i<cur?' completed':i===cur?' active':'');
         html += `<span class="${cls}">${i+1}</span>`;
       }
       return html + '</div>';
     }
-
-    function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
+    function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
 
     // ================================
     // 各種テキスト・動画定義
