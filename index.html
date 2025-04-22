@@ -199,33 +199,18 @@
       for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];
-   }
+      }
       return a;
- }
-
-    // 音声シーケンス再生
-    function playSeq(audios, order, done) {
-      let idx = 0;
-      const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
-      beep.play().then(() => { beep.onended = () => {
-        function next() {
-          if (idx >= order.length) return done();
-          const audio = new Audio(audios[order[idx]]);
-          audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
-               .catch(() => { idx++; setTimeout(next, 500); });
-        }
-        next();
-      }}).catch(() => done());
     }
 
-    const content = document.getElementById('content');
-    const bar = document.getElementById('progressBar');
-    for (let i = 1; i <= 20; i++) {
-      const step = document.createElement('div'); step.className = 'progress-step'; step.textContent = i; bar.appendChild(step);
+    function updateProgress(n) {
+      document.querySelectorAll('.progress-step').forEach((el,i) => el.classList.toggle('completed', i < n));
     }
 
-    // 動画表示（ボックスで囲む）
+    // 動画表示（ビープ音に統一）
     function showVideo(src, cb) {
+      const bar = document.getElementById('progressBar');
+      const content = document.getElementById('content');
       bar.style.display = 'none';
       content.innerHTML = `
         <div class="explanation-box">
@@ -233,58 +218,75 @@
         </div>
       `;
       const vid = document.getElementById('expVideo');
-      vid.addEventListener('ended', () => { playClick(); cb(); });
+      vid.addEventListener('ended', () => {
+        const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+        beep.play().then(() => {
+          beep.onended = () => cb();
+        }).catch(() => cb());
+      });
     }
 
-    // 質問表示（画像の読み込み完了後にビープ音）
+    // 音声シーケンス再生
+    function playSeq(audios, order, done) {
+      let idx = 0;
+      const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+      beep.play().then(() => {
+        beep.onended = () => {
+          function next() {
+            if (idx >= order.length) return done();
+            const audio = new Audio(audios[order[idx]]);
+            audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
+                 .catch(() => { idx++; setTimeout(next, 500); });
+          }
+          next();
+        };
+      }).catch(() => done());
+    }
+
+    // 質問表示
     function showQuestion(q, cb, idx = 0, isTest = true) {
+      const bar = document.getElementById('progressBar');
+      const content = document.getElementById('content');
       if (isTest) { bar.style.display = 'flex'; updateProgress(idx + 1); }
       else { bar.style.display = 'none'; }
 
-      // 開始時刻を保持する変数
       let questionStartTime = 0;
-
-      const labels = ['1st', '2nd', '3rd', '4th'];
+      const labels = ['1st','2nd','3rd','4th'];
       const order = isTest ? shuffle(['a','b','c','d']) : ['a','b','c','d'];
 
       content.innerHTML = `
-        <div class='question-container'>
-          <div class='image-container'><img id='qImage' src='${q.image}' alt='Question'></div>
-          <div class='radio-group'>
+        <div class="question-container">
+          <div class="image-container"><img id="qImage" src="${q.image}" alt="Question"></div>
+          <div class="radio-group">
             ${order.map((opt,i) => `
-              <label class='radio-label'>
-                <input type='radio' name='ans' value='${opt}'>
-                <span>${labels[i]}</span>
+              <label class="radio-label">
+                <input type="radio" name="ans" value="${opt}"><span>${labels[i]}</span>
               </label>
             `).join('')}
           </div>
-          <button id='subBtn' class='submit-btn'>Submit</button>
+          <button id="subBtn" class="submit-btn">Submit</button>
         </div>
       `;
-
       const img = document.getElementById('qImage');
       img.addEventListener('load', () => {
-        // 問題音声再生開始時刻を記録
         questionStartTime = Date.now();
         playSeq(q.audios, order, () => {
           const fourth = document.querySelectorAll('.radio-label')[3];
           const btn = document.getElementById('subBtn');
           btn.style.position = 'absolute';
           btn.style.left = fourth.offsetLeft + 'px';
-          btn.style.top = (fourth.offsetTop + fourth.offsetHeight + 10) + 'px';
+          btn.style.top = fourth.offsetTop + fourth.offsetHeight + 10 + 'px';
           btn.style.display = 'block';
           btn.classList.add('fade-in');
         });
       });
-
       document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
       document.getElementById('subBtn').addEventListener('click', () => {
         const sel = document.querySelector('input[name="ans"]:checked');
         if (!sel) return alert('選択してください');
-        // 応答時間を計算してログに出力
         const responseTime = Date.now() - questionStartTime;
         console.log(`Question ${q.id}, ResponseTime: ${responseTime}ms`);
-        console.log(`Question ${q.id}, Result: ${sel.value === q.correct ? 'correct' : 'incorrect'}`);
+        console.log(`Question ${q.id}, Result: ${sel.value===q.correct?'correct':'incorrect'}`);
         const audio = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
         audio.play().then(() => audio.onended = () => cb());
       });
@@ -292,12 +294,14 @@
 
     // テスト終了
     function finish() {
+      const bar = document.getElementById('progressBar');
+      const content = document.getElementById('content');
       bar.style.display = 'none';
       content.innerHTML = `
-        <div style='text-align:center;'>
-          <p style='margin-bottom:20px;font-size:1.4em;'>This is the end. Please inform Instructor Takei.</p>
-          <img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'>
-          <button id='downloadLogButton'>DO NOT TOUCH</button>
+        <div style="text-align:center;">
+          <p style="margin-bottom:20px;font-size:1.4em;">This is the end}. Please inform Instructor Takei.</p>
+          <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" style="max-width:300px;">
+          <button id="downloadLogButton">DO NOT TOUCH</button>
         </div>
       `;
       document.getElementById('downloadLogButton').addEventListener('click', () => window.saveLog());
@@ -305,15 +309,9 @@
 
     // 流れ制御
     function start() {
-      showVideo(vids[0], () => {
-        showQuestion(example1, () => {
-          showVideo(vids[1], () => {
-            showQuestion(example2, () => {
-              showVideo(vids[2], startTest);
-            }, 0, false);
-          }, 0, false);
-        }, 0, false);
-      });
+      showVideo(vids[0], () => showQuestion(example1, () => {
+        showVideo(vids[1], () => showQuestion(example2, () => showVideo(vids[2], startTest), 0, false), 0, false);
+      }, 0, false));
     }
     function startTest() {
       testQ = shuffle(testQ);
