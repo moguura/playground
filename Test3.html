@@ -123,6 +123,9 @@
   </script>
 
   <script>
+    // リアクションタイム計測用変数
+    let questionStartTime = 0;
+
     // 音声準備
     const beepSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
@@ -168,8 +171,13 @@
       if (questionAudio && !questionAudio.paused) questionAudio.pause();
       questionAudio = new Audio(url);
       setTimeout(() => {
-        beepSound.currentTime = 0; beepSound.play().then(() => {
-          beepSound.onended = () => questionAudio.play();
+        beepSound.currentTime = 0;
+        beepSound.play().then(() => {
+          beepSound.onended = () => {
+            // 音声再生開始時刻を記録
+            questionStartTime = Date.now();
+            questionAudio.play();
+          };
         });
       }, 2000);
     }
@@ -255,11 +263,15 @@
         </div>
         <button class="submit-button" id="submitExampleBtn">Submit</button>
       `);
-      setupChoiceButtons(); scheduleQuestionAudio(audioUrl);
+      setupChoiceButtons();
+      scheduleQuestionAudio(audioUrl);
       document.getElementById('submitExampleBtn').onclick = () => {
         submitSound.play();
         const sel = document.querySelector('input[name="answer"]:checked');
         if (!sel) { alert('〇か✖を選択してください。'); return; }
+        // 反応時間をログ出力
+        const responseTime = Date.now() - questionStartTime;
+        console.log(`Example responseTime: ${responseTime}ms`);
         console.log(`Example: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
         goNextStage();
       };
@@ -283,6 +295,9 @@
         submitSound.play();
         const sel = document.querySelector('input[name="answer"]:checked');
         if (!sel) { alert('Please select ○ or ✖.'); return; }
+        // 反応時間をログ出力
+        const responseTime = Date.now() - questionStartTime;
+        console.log(`Q${qIdx+1} responseTime: ${responseTime}ms`);
         const correct = getCorrectAnswerFromUrl(current.audioUrl);
         console.log(`Q${qIdx+1}: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
         goNextStage();
