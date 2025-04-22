@@ -227,7 +227,7 @@
     })();
   </script>
 
-  <script>
+ <script>
     const clickSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3');
     const checkSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
     let recognition = null;
@@ -237,6 +237,7 @@
     let currentQuestionId = null;
     let questionStartTime = null;
     let micPressedTime = null;
+    let recognitionHandled = false;
 
     function initSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -244,7 +245,14 @@
       const r = new SR(); r.lang = 'ja-JP'; r.interimResults = true; r.continuous = true; return r;
     }
     function resetSpeechRecognition() {
-      if (recognition) { recognition.onresult = null; recognition.onerror = null; recognition.onend = null; recognition.abort(); recognition = null; }
+      if (recognition) {
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.abort();
+        recognition = null;
+      }
+      recognitionHandled = false;
     }
 
     function startRecognition() {
@@ -264,8 +272,11 @@
       }, 10000);
 
       recognition.onresult = e => {
+        if (recognitionHandled) return;
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes('です')) {
+            recognitionHandled = true;
+            recognition.onresult = null;
             console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
             clearTimeout(recordTimeout);
             recognition.stop(); recognition = null;
