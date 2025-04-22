@@ -227,7 +227,7 @@
     })();
   </script>
 
- <script>
+  <script>
     const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
     const checkSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
     let recognition = null;
@@ -235,8 +235,6 @@
     let micWarningTimeout = null;
     let questionSkipTimeout = null;
     let currentQuestionId = null;
-    let questionStartTime = null;
-    let micPressedTime = null;
 
     function initSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -249,16 +247,19 @@
 
     function startRecognition() {
       clickSound.play();
-      micPressedTime = new Date();
-      const reactionTime = questionStartTime ? ((micPressedTime - questionStartTime)/1000).toFixed(2) : 'N/A';
-      console.log(`MicPressed: ${micPressedTime.toISOString()} QuestionID: ${currentQuestionId} ReactionTime: ${reactionTime}s`);
+      // Log mic button press timestamp
+      console.log(`MicPressed: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
       resetSpeechRecognition(); clearTimeout(micWarningTimeout); clearTimeout(questionSkipTimeout);
+
       const btn = document.getElementById("micBtn"); btn.disabled = true; btn.classList.add("mic-active");
       recognition = initSpeechRecognition(); if (!recognition) return;
+
       recordTimeout = setTimeout(() => { console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`); stopRecognition(); }, 10000);
+
       recognition.onresult = e => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i][0].transcript.includes("です")) {
+            // Log recognition success timestamp
             console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
             clearTimeout(recordTimeout); recognition.stop(); recognition = null; showCheckIcon(); break;
           }
@@ -277,24 +278,26 @@
     }
 
     function showCheckIcon() {
-      const now = new Date();
-      const delta = micPressedTime ? ((now - micPressedTime)/1000).toFixed(2) : 'N/A';
-      console.log(`CheckIconShown: ${now.toISOString()} QuestionID: ${currentQuestionId} TimeSinceMicPressed: ${delta}s`);
+      const ts = new Date().toISOString();
+      console.log(`CheckIconShown: ${ts} QuestionID: ${currentQuestionId}`);
       document.getElementById("checkIcon").classList.add("show");
       checkSound.play(); setTimeout(goNext, 2000);
     }
 
+    // 画面描画ユーティリティ
     const app = document.getElementById("app");
     function showScreen(html){ app.innerHTML = html; }
+
     function renderProgressBar(cur, total) {
       let html = '<div class="progress-container">';
-      for(let i=0; i<total; i++){
-        const cls = 'progress-step' + (i<cur?' completed':i===cur?' active':'');
+      for (let i = 0; i < total; i++) {
+        const cls = 'progress-step' + (i < cur ? ' completed' : i === cur ? ' active' : '');
         html += `<span class="${cls}">${i+1}</span>`;
       }
       return html + '</div>';
     }
-    function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+
+    function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
 
     // ================================
     // 各種テキスト・動画定義
@@ -395,48 +398,175 @@
     let stageIndex = 0;
     let shuffledQuestions = [];
 
-function renderStage(index) {
-      if(index===0) {
-        showScreen(`<div class="explanation-box"><video id="video1" src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4" controls width="100%"></video></div>`);
-        document.getElementById("video1").addEventListener("ended",()=>{clickSound.play();goNext();});
-      } else if(index===1) {
-        renderExample(example1);
-      } else if(index===2) {
-        showScreen(`<div class="explanation-box"><video id="video2" src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4" controls width="100%"></video></div>`);
-        document.getElementById("video2").addEventListener("ended",()=>{clickSound.play();goNext();});
-      } else if(index===3) {
-        renderExample(example2);
-      } else if(index===4) {
-        showScreen(`<div class="explanation-box"><video id="video3" src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3.mp4" controls width="100%"></video></div>`);
-        document.getElementById('video3').addEventListener('ended',()=>{clickSound.play();startTest();});
-      } else if(index>=5 && index<5+2*20) {
-        const qIdx = Math.floor((index-5)/2);
-        if((index-5)%2===0) {
+ function renderStage(index) {
+  // ステージ0：説明ビデオ1
+  if (index === 0) {
+     showScreen(`
+       <div class="explanation-box">
+         <video id="video1"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4"
+                controls width="100%"></video>
+       </div>
+     `);
+     document.getElementById("video1").addEventListener("ended", () => {
+       clickSound.play();
+       goNext();
+     });
+
+  // ステージ1：Present 遷移画面
+  } else if (index === 1) {
+    renderTransitionScreen(presentTransition.imgUrl, index + 1);
+
+  // ステージ2：例題1
+  } else if (index === 2) {
+    renderExample(example1);
+
+  // ステージ3：説明ビデオ2
+  } else if (index === 3) {
+     showScreen(`
+       <div class="explanation-box">
+         <video id="video2"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4"
+                controls width="100%"></video>
+       </div>
+     `);
+     document.getElementById("video2").addEventListener("ended", () => {
+       clickSound.play();
+       goNext();
+     });
+
+  // ステージ4：Yesterday 遷移画面
+  } else if (index === 4) {
+    renderTransitionScreen(yesterdayTransition.imgUrl, index + 1);
+
+  // ステージ5：例題2
+  } else if (index === 5) {
+    renderExample(example2);
+
+  } else if (index === 6) {
+     app.innerHTML = `
+       <div class="explanation-box">
+         <video id="video3"
+                src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3.mp4"
+                controls width="100%">
+         </video>
+       </div>
+     `;
+     document.getElementById('video3').addEventListener('ended', () => {
+       clickSound.play();
+       startTest();
+     });
+
+  } else if (index >= 7 && index < 7 + 2 * 20) {
+    const qIdx = Math.floor((index - 7) / 2);
+
+    if ((index - 7) % 2 === 0) {
+          // 遷移画面
+          const grp = shuffledQuestions[qIdx].group === 'present'
+            ? presentTransition.imgUrl
+            : yesterdayTransition.imgUrl;
+          showScreen(`
+            <div class="question-container">
+              <img src="${grp}" class="transition-image">
+              <button class="button" id="nextBtn">Next</button>
+            </div>
+          `);
+          document.getElementById('nextBtn').onclick = () => {
+            clickSound.play();
+            goNext();
+          };
+
+        } else {
+          // 問題画面
+          clearTimeout(micWarningTimeout);
+          clearTimeout(questionSkipTimeout);
+
           const q = shuffledQuestions[qIdx];
           currentQuestionId = q.id;
-          questionStartTime = new Date();
           console.log(`Start QuestionID: ${q.id}`);
-          showScreen(`${renderProgressBar(qIdx,20)}<div class="question-container"><img src="${q.imgUrl}" class="question-image"><p class="japanese-cue">${q.japaneseCue}</p><div class="mic-container"><button id="micBtn" class="mic-button"></button><div id="checkIcon" class="check-icon"></div></div><div id="micWarning" class="mic-warning"></div></div>`);
-          document.getElementById('micBtn').onclick=startRecognition;
-          micWarningTimeout = setTimeout(()=>{document.getElementById('micWarning').textContent="Press the mic button and speak!";},5000);
-          questionSkipTimeout = setTimeout(()=>{console.log(`Skipped(no mic): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);goNext();},20000);
+
+          showScreen(`
+            ${renderProgressBar(qIdx, 20)}
+            <div class="question-container">
+              <img src="${q.imgUrl}" class="question-image">
+              <p class="japanese-cue">${q.japaneseCue}</p>
+              <div class="mic-container">
+                <button id="micBtn" class="mic-button"></button>
+                <div id="checkIcon" class="check-icon"></div>
+              </div>
+              <div id="micWarning" class="mic-warning"></div>
+            </div>
+          `);
+
+          document.getElementById('micBtn').onclick = startRecognition;
+
+          // 未押下警告 5秒
+          micWarningTimeout = setTimeout(() => {
+            document.getElementById('micWarning').textContent = "Press the mic button and speak!";
+          }, 5000);
+          // 未押下20秒でスキップ＆ログ
+          questionSkipTimeout = setTimeout(() => {
+            console.log(`Skipped(no mic) QuestionID: ${currentQuestionId}`);
+            goNext();
+          }, 20000);
         }
-      } else if(index===5+2*20) {
-        showScreen(`<div class="explanation-box" style="text-align:center;"><p>This is the end of Test 1. Please inform Instructor Takei.</p><img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" class="final-illustration"><br><button id="downloadLogButton">DO NOT TOUCH</button></div>`);
-        document.getElementById('downloadLogButton').addEventListener('click',()=>window.saveLog());
+
+      } else if (index === 7 + 2 * 20) {
+        showScreen(explanationBox4);
+        document.getElementById("downloadLogButton").addEventListener("click", window.saveLog);
       }
     }
 
     function renderExample(exampleObj) {
-      showScreen(`<div class="question-container"><img src="${exampleObj.imgUrl}" class="question-image"><p class="japanese-cue">${exampleObj.japaneseCue}</p><div class="mic-container"><button id="micBtn" class="mic-button"></button><div id="checkIcon" class="check-icon"></div></div><div id="micWarning" class="mic-warning"></div></div>`);
-      document.getElementById('micBtn').addEventListener('click',startRecognition);
-      micWarningTimeout=setTimeout(()=>{document.getElementById('micWarning').textContent="Press the mic button and speak!";},5000);
+      const html = `
+        <div class="question-container">
+          <img src="${exampleObj.imgUrl}" alt="example image" class="question-image" />
+          <p class="japanese-cue">${exampleObj.japaneseCue}</p>
+          <div class="mic-container">
+            <button class="mic-button" id="micBtn"></button>
+            <div class="check-icon" id="checkIcon"></div>
+          </div>
+          <div id="micWarning" class="mic-warning"></div>
+        </div>
+      `;
+      showScreen(html);
+      const micBtn = document.getElementById("micBtn");
+      if(micBtn) { micBtn.addEventListener("click", startRecognition); }
+      micWarningTimeout = setTimeout(() => {
+        const warning = document.getElementById("micWarning");
+        if(warning) { warning.textContent = "Press the mic button and speak!"; }
+      }, 5000);
     }
 
-    function goNext(){clearTimeout(micWarningTimeout);clearTimeout(questionSkipTimeout);stageIndex++;renderStage(stageIndex);}
-    function startTest(){shuffledQuestions=shuffle(questionData);stageIndex=5;renderStage(stageIndex);}
+    function renderTransitionScreen(imgUrl, nextStage) {
+      const html = `
+        <div class="question-container">
+          <img src="${imgUrl}" alt="transition image" class="transition-image" />
+          <button class="button" id="transitionNextBtn">Next</button>
+        </div>
+      `;
+      showScreen(html);
+      document.getElementById("transitionNextBtn").addEventListener("click", () => {
+        clickSound.play();
+        stageIndex = nextStage;
+        renderStage(stageIndex);
+      });
+    }
 
-    window.addEventListener('DOMContentLoaded',()=>{renderStage(stageIndex);});
+   function goNext() {
+      clearTimeout(micWarningTimeout);
+      clearTimeout(questionSkipTimeout);  // ← 追加: 二重起動防止
+      stageIndex++;
+      renderStage(stageIndex);
+    }
+
+    function startTest() {
+      shuffledQuestions = shuffle(questionData);
+      stageIndex = 7;
+      renderStage(stageIndex);
+    }
+
+    window.addEventListener('DOMContentLoaded',()=>{ renderStage(stageIndex); });
   </script>
 </body>
 </html>
