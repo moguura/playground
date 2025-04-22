@@ -175,9 +175,6 @@
       };
     })();
 
-    // クリック音
-    const playClick = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play();
-
     // データ定義
     const vids = [
       'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-1.mp4',
@@ -201,13 +198,6 @@
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-    function updateProgress(n) {
-      document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('completed', i < n));
-    }
 
     // 音声シーケンス再生
     function playSeq(audios, order, done) {
