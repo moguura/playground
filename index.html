@@ -193,7 +193,7 @@
       });
     }
 
-    // ユーティリティ
+ // ユーティリティ
     function shuffle(arr) {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -203,11 +203,15 @@
       return a;
     }
     function updateProgress(n) {
-      document.querySelectorAll('.progress-step').forEach((el,i) => el.classList.toggle('completed', i < n));
+      document.querySelectorAll('.progress-step')
+              .forEach((el,i) => el.classList.toggle('completed', i < n));
     }
 
-    // --- 修正: ビープ一度だけ再生 ---
+    // --- グローバルフラグ: ビープ再生済みチェック ---
     let beepPlayed = false;
+    const beepUrl = 'https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3';
+
+    // 動画終了→ビープ→次へ
     function showVideo(src, cb) {
       const bar = document.getElementById('progressBar');
       const content = document.getElementById('content');
@@ -220,7 +224,7 @@
       const vid = document.getElementById('expVideo');
       vid.addEventListener('ended', () => {
         if (!beepPlayed) {
-          const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
+          const beep = new Audio(beepUrl);
           beep.play()
             .then(() => { beep.onended = () => { beepPlayed = true; cb(); }; })
             .catch(() => { beepPlayed = true; cb(); });
@@ -230,20 +234,26 @@
       });
     }
 
+    // 音声シーケンス再生（最初のビープも一度だけ）
     function playSeq(audios, order, done) {
       let idx = 0;
-      const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
-      beep.play().then(() => {
-        beep.onended = () => {
-          function next() {
-            if (idx >= order.length) return done();
-            const audio = new Audio(audios[order[idx]]);
-            audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
-                 .catch(() => { idx++; setTimeout(next, 500); });
-          }
-          next();
-        };
-      }).catch(() => done());
+      function nextAudio() {
+        if (idx >= order.length) return done();
+        const audio = new Audio(audios[order[idx]]);
+        audio.play().then(() => {
+          audio.onended = () => { idx++; setTimeout(nextAudio, 500); };
+        }).catch(() => {
+          idx++; setTimeout(nextAudio, 500);
+        });
+      }
+      if (!beepPlayed) {
+        const beep = new Audio(beepUrl);
+        beep.play()
+          .then(() => { beep.onended = () => { beepPlayed = true; nextAudio(); }; })
+          .catch(() => { beepPlayed = true; nextAudio(); });
+      } else {
+        nextAudio();
+      }
     }
 
     function showQuestion(q, cb, idx = 0, isTest = true) {
@@ -314,6 +324,7 @@
       document.getElementById('downloadLogButton').addEventListener('click', () => window.saveLog());
     }
 
+   // 流れ制御（例1・例2までは isTest = false）
     function start() {
       showVideo(vids[0], () =>
         showQuestion(example1, () =>
@@ -325,15 +336,17 @@
       0, false));
     }
 
+    // ★ テスト開始 ★
     function startTest() {
       testQ = shuffle(testQ);
 
-      // ★ここでテスト用プログレスバーを作る★
+      // プログレスバーを生成＆表示
       const bar = document.getElementById('progressBar');
       bar.innerHTML = testQ.map((_, i) =>
-        `<div class="progress-step">${i + 1}</div>`
-      ).join('');
+        `<div class="progress-step">${i + 1}</div>`).join('');
+      bar.style.display = 'flex';
 
+      // 1問ずつ
       let i = 0;
       (function next() {
         if (i >= testQ.length) return finish();
