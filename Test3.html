@@ -1,337 +1,294 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Test 2</title>
+  <meta charset="UTF-8">
+  <title>Test3</title>
   <style>
-    /* リセット */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; font-family: sans-serif; }
-
-    /* コンテナ */
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 90%;
+    /* 全体レイアウト */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #fff;
+      color: #333;
+      font-size: 18px;
+    }
+    .container, #app {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
+      text-align: center;
     }
-
-    /* 説明ビデオ用のボックス */
     .explanation-box {
       background-color: #f9f9f9;
       border: 2px solid #ddd;
-      padding: 20px;
-      margin-bottom: 30px;
-      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 40px;
+      border-radius: 10px;
       text-align: center;
+      line-height: 1.6;
+      font-size: 1.1em;
     }
-
-    /* 水平プログレスバー */
-    .progress-bar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
+    /* 〇✖選択ボタン */
+    .choice-container { margin: 20px 0; }
+    .choice-button {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1.2em;
+      color: #fff;
+      cursor: pointer;
+      margin: 0 20px;
+      transition: background-color 0.3s;
+    }
+    .choice-maru-btn { background-color: #ffcccc; }
+    .choice-batsu-btn { background-color: #ccccff; }
+    .choice-maru-btn.selected { background-color: red; }
+    .choice-batsu-btn.selected { background-color: blue; }
+    .choice-button input[type="radio"] { display: none; }
+    /* Submitボタン */
+    .submit-button {
+      display: inline-block;
+      background-color: #28a745;
+      color: #fff;
+      padding: 12px 24px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .submit-button:hover { transform: scale(1.05); }
+    /* 進捗バー */
+    .progress-container {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      max-width: 800px;
-      background-color: #fff;
-      padding: 10px 0;
-      z-index: 1000;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      margin-left: 40px;
     }
     .progress-step {
-      width: 30px;
-      height: 30px;
-      margin: 0 5px;
-      border: 2px solid #007BFF;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9em;
-      background-color: #f0f0f0;
-      color: #333;
-    }
-    .progress-step.completed {
-      background-color: #007BFF;
-      color: #fff;
-    }
-
-    /* メインコンテンツ */
-    #content { margin-top: 60px; width: 100%; }
-    .question-container {
-      margin-bottom: 30px;
-      min-height: 350px;
-      position: relative;
-    }
-    .image-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .image-container img {
-      max-width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-
-    /* 選択肢横並び */
-    .radio-group {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .radio-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 120px;
-      padding: 10px;
       border: 2px solid #007BFF;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      background-color: #f0f0f0;
-      user-select: none;
+      color: #007BFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s, color 0.3s;
     }
-    .radio-label:hover { background-color: #e0ebff; }
-    .radio-label input { display: none; }
-    .radio-label input:checked + span {
-      background-color: #007BFF;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
-
-    /* 提出ボタン */
-    .submit-btn {
-      display: none;
-      position: absolute;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      z-index: 10;
-    }
-    .submit-btn:hover { background-color: #0056b3; }
-    .fade-in { animation: fadeIn 0.5s ease-in forwards; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ログダウンロードボタン */
+    .progress-step.completed { background-color: #007BFF; color: #fff; }
+    .progress-step.active { background-color: #fff; color: #007BFF; }
+    .final-illustration { display: block; margin: 30px auto; max-width: 150px; }
+    /* ログ保存ボタン */
     #downloadLogButton {
-      margin: 20px auto 0;
-      padding: 10px 20px;
+      display: inline-block;
       background-color: #4CAF50;
       color: #fff;
+      padding: 10px 20px;
+      font-size: 1.1em;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      display: block;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="progress-bar" id="progressBar"></div>
-    <div id="content"></div>
-  </div>
+  <div id="app" class="container"></div>
 
   <script>
-    // リアクションタイム計測用変数
-    let questionStartTime = 0;
-    // ログ保存セットアップ（タイムスタンプ付き）
-    (function(){
-      const buf = [];
-      const orig = console.log;
+    // ログ永続化＆ダウンロード
+    (function() {
+      const logBuffer = [];
+      const originalLog = console.log;
       console.log = function(...args) {
-        const time = new Date().toLocaleTimeString();
-        const text = `[${time}] ${args.join(' ')}`;
-        buf.push(text);
-        orig.apply(console, ['['+time+']', ...args]);
-        localStorage.setItem('consoleLog', buf.join('\n'));
+        logBuffer.push(args.join(' '));
+        originalLog.apply(console, args);
+        localStorage.setItem('consoleLog', logBuffer.join('\n'));
       };
-      window.saveLog = () => {
-        const data = localStorage.getItem('consoleLog') || '';
-        const blob = new Blob([data], { type: 'text/plain' });
+      window.saveLog = function() {
+        const content = localStorage.getItem('consoleLog') || '';
+        const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'console-log.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const a = document.createElement('a'); a.href = url;
+        a.download = 'console-log.txt'; document.body.appendChild(a);
+        a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
       };
     })();
+  </script>
 
-    // クリック音
-    const playClick = () => new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3').play();
+  <script>
+    // 音声準備
+    const beepSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3");
+    const clickSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3");
+    const submitSound = new Audio("https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3");
 
-    // データ定義
-    const vids = [
-      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-1.mp4',
-      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-2.mp4',
-      'https://raw.githubusercontent.com/moguura/my-exp-images/main/test2-3.mp4'
-    ];
-    const example1 = { id: 'example1', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-1.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'a' };
-    const example2 = { id: 'example2', image: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-2.JPG', audios: { a:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-a.wav', b:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-b.wav', c:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-c.wav', d:'https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-rei-d.wav' }, correct: 'c' };
-    let testQ = [];
-    for (let i = 1; i <= 20; i++) {
-      testQ.push({
-        id: i,
-        image: `https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}.JPG`,
-        audios: { a:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-a.wav`, b:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-b.wav`, c:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-c.wav`, d:`https://raw.githubusercontent.com/moguura/my-exp-images/main/rikai-${i}-d.wav` },
-        correct: 'a'
-      });
+    const example1AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.1.wav";
+    const example2AudioUrl = "https://raw.githubusercontent.com/moguura/my-exp-images/main/bun-e.g.2.wav";
+
+    const questionAudioData = [];
+    for (let i = 1; i <= 40; i++) {
+      const url = (i % 2 === 1)
+        ? `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${Math.ceil(i/2)}a.wav`
+        : `https://raw.githubusercontent.com/moguura/my-exp-images/main/bun${i/2}b.wav`;
+      questionAudioData.push({ id: i, audioUrl: url });
     }
+    let questionAudio = null;
 
     // ユーティリティ
-    function shuffle(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+    function getCorrectAnswerFromUrl(url) { return url.includes('a.wav') ? 'maru' : 'batsu'; }
+    const app = document.getElementById('app');
+    function showScreen(html) { app.innerHTML = html; }
+    function setupChoiceButtons() {
+      document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        radio.parentElement.onclick = () => {
+          clickSound.currentTime = 0; clickSound.play();
+          document.querySelectorAll('label.choice-button').forEach(lbl => lbl.classList.remove('selected'));
+          radio.parentElement.classList.add('selected');
+        };
+      });
+    }
+    function renderProgressBar(idx, total) {
+      let steps = '';
+      for (let i = 0; i < total; i++) {
+        let cls = 'progress-step';
+        if (i < idx) cls += ' completed';
+        else if (i === idx) cls += ' active';
+        steps += `<span class="${cls}">${i+1}</span>`;
       }
-      return a;
+      return `<div class="progress-container">${steps}</div>`;
     }
-    function updateProgress(n) {
-      document.querySelectorAll('.progress-step').forEach((el, i) => el.classList.toggle('completed', i < n));
-    }
-
-    // 音声シーケンス再生
-    function playSeq(audios, order, done) {
-      let idx = 0;
-      const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
-      beep.play().then(() => { beep.onended = () => {
-        function next() {
-          if (idx >= order.length) return done();
-          const audio = new Audio(audios[order[idx]]);
-          audio.play().then(() => audio.onended = () => { idx++; setTimeout(next, 500); })
-               .catch(() => { idx++; setTimeout(next, 500); });
-        }
-        next();
-      }}).catch(() => done());
-    }
-
-    const content = document.getElementById('content');
-    const bar = document.getElementById('progressBar');
-    for (let i = 1; i <= 20; i++) {
-      const step = document.createElement('div'); step.className = 'progress-step'; step.textContent = i; bar.appendChild(step);
-    }
-
-    // 動画表示（ボックスで囲む）
-    function showVideo(src, cb) {
-      bar.style.display = 'none';
-      content.innerHTML = `
-        <div class="explanation-box">
-          <video id="expVideo" src="${src}" controls style="width:100%;"></video>
-        </div>
-      `;
-      const vid = document.getElementById('expVideo');
-      vid.addEventListener('ended', () => { playClick(); cb(); });
-    }
-
-    // 質問表示（画像の読み込み完了後にビープ音）
-    function showQuestion(q, cb, idx = 0, isTest = true) {
-      if (isTest) { bar.style.display = 'flex'; updateProgress(idx + 1); }
-      else { bar.style.display = 'none'; }
-
-      // 開始時刻を保持する変数
-      let questionStartTime = 0;
-
-      const labels = ['1st', '2nd', '3rd', '4th'];
-      const order = isTest ? shuffle(['a','b','c','d']) : ['a','b','c','d'];
-
-      content.innerHTML = `
-        <div class='question-container'>
-          <div class='image-container'><img id='qImage' src='${q.image}' alt='Question'></div>
-          <div class='radio-group'>
-            ${order.map((opt,i) => `
-              <label class='radio-label'>
-                <input type='radio' name='ans' value='${opt}'>
-                <span>${labels[i]}</span>
-              </label>
-            `).join('')}
-          </div>
-          <button id='subBtn' class='submit-btn'>Submit</button>
-        </div>
-      `;
-
-      const img = document.getElementById('qImage');
-      img.addEventListener('load', () => {
-        // 問題音声再生開始時刻を記録
-        questionStartTime = Date.now();
-        playSeq(q.audios, order, () => {
-          const fourth = document.querySelectorAll('.radio-label')[3];
-          const btn = document.getElementById('subBtn');
-          btn.style.position = 'absolute';
-          btn.style.left = fourth.offsetLeft + 'px';
-          btn.style.top = (fourth.offsetTop + fourth.offsetHeight + 10) + 'px';
-          btn.style.display = 'block';
-          btn.classList.add('fade-in');
+    function scheduleQuestionAudio(url) {
+      if (questionAudio && !questionAudio.paused) questionAudio.pause();
+      questionAudio = new Audio(url);
+      setTimeout(() => {
+        beepSound.currentTime = 0; beepSound.play().then(() => {
+          beepSound.onended = () => questionAudio.play();
         });
-      });
-
-      document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
-      document.getElementById('subBtn').addEventListener('click', () => {
-        const sel = document.querySelector('input[name="ans"]:checked');
-        if (!sel) return alert('選択してください');
-        // 応答時間を計算してログに出力
-        const responseTime = Date.now() - questionStartTime;
-        console.log(`Question ${q.id}, ResponseTime: ${responseTime}ms`);
-        console.log(`Question ${q.id}, Result: ${sel.value === q.correct ? 'correct' : 'incorrect'}`);
-        const audio = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
-        audio.play().then(() => audio.onended = () => cb());
-      });
+      }, 2000);
     }
 
-    // テスト終了
-    function finish() {
-      bar.style.display = 'none';
-      content.innerHTML = `
-        <div style='text-align:center;'>
-          <p style='margin-bottom:20px;font-size:1.4em;'>This is the end. Please inform Instructor.</p>
-          <img src='https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif' style='max-width:300px;'>
-          <button id='downloadLogButton'>DO NOT TOUCH</button>
-        </div>
-      `;
-      document.getElementById('downloadLogButton').addEventListener('click', () => window.saveLog());
-    }
+    // 説明ビデオ画面
+    const explanationBox1 = `
+      <div class="explanation-box">
+        <video controls width="100%" id="video1">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-1.mp4" type="video/mp4">
+          対応ブラウザ必要
+        </video>
+      </div>
+    `;
+    const explanationBox2 = `
+      <div class="explanation-box">
+        <video controls width="100%" id="video2">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-2.mp4" type="video/mp4">
+          対応ブラウザ必要
+        </video>
+      </div>
+    `;
+    const explanationBox3 = `
+      <div class="explanation-box">
+        <video controls width="100%" id="video3">
+          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test3-3.mp4" type="video/mp4">
+          対応ブラウザ必要
+        </video>
+      </div>
+    `;
+    const explanationBox4 = `
+      <div class="explanation-box">
+        <p>This is the end of Test 3. Please inform Instructor Takei.</p>
+        <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" class="final-illustration" alt="cracker">
+        <br>
+        <button id="downloadLogButton">DO NOT TOUCH</button>
+      </div>
+    `;
 
-    // 流れ制御
-    function start() {
-      showVideo(vids[0], () => {
-        showQuestion(example1, () => {
-          showVideo(vids[1], () => {
-            showQuestion(example2, () => {
-              showVideo(vids[2], startTest);
-            }, 0, false);
-          }, 0, false);
-        }, 0, false);
-      });
-    }
+    // ステージ管理
+    let stageIndex = 0;
+    let shuffledQuestions = [];
+    function goNextStage() { stageIndex++; renderStage(stageIndex); }
     function startTest() {
-      testQ = shuffle(testQ);
-      let i = 0;
-      (function next() {
-        if (i >= testQ.length) return finish();
-        showQuestion(testQ[i], () => { i++; next(); }, i, true);
-      })();
+      shuffledQuestions = shuffle(questionAudioData);
+      stageIndex = 5; renderStage(stageIndex);
     }
-    document.addEventListener('DOMContentLoaded', start);
+    function renderStage(idx) {
+      switch(idx) {
+        case 0:
+          showScreen(explanationBox1);
+          document.getElementById('video1').onended = () => goNextStage();
+          break;
+        case 1:
+          renderExample({ audioUrl: example1AudioUrl, correct: 'maru' });
+          break;
+        case 2:
+          showScreen(explanationBox2);
+          document.getElementById('video2').onended = () => goNextStage();
+          break;
+        case 3:
+          renderExample({ audioUrl: example2AudioUrl, correct: 'batsu' });
+          break;
+        case 4:
+          showScreen(explanationBox3);
+          document.getElementById('video3').onended = () => startTest();
+          break;
+        default:
+          if (idx >=5 && idx <45) {
+            const qIdx = idx - 5;
+            renderQuestionPage(qIdx);
+          } else if (idx === 45) {
+            showScreen(explanationBox4);
+            document.getElementById('downloadLogButton').onclick = () => window.saveLog();
+          }
+      }
+    }
+    function renderExample({ audioUrl, correct }) {
+      showScreen(`
+        <div class="explanation-box"><p>Example</p></div>
+        <div class="choice-container">
+          <label class="choice-button choice-maru-btn"><input type="radio" name="answer" value="maru">〇</label>
+          <label class="choice-button choice-batsu-btn"><input type="radio" name="answer" value="batsu">✖</label>
+        </div>
+        <button class="submit-button" id="submitExampleBtn">Submit</button>
+      `);
+      setupChoiceButtons(); scheduleQuestionAudio(audioUrl);
+      document.getElementById('submitExampleBtn').onclick = () => {
+        submitSound.play();
+        const sel = document.querySelector('input[name="answer"]:checked');
+        if (!sel) { alert('〇か✖を選択してください。'); return; }
+        console.log(`Example: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
+        goNextStage();
+      };
+    }
+    function renderQuestionPage(qIdx) {
+      const total = 40;
+      showScreen(`
+        ${renderProgressBar(qIdx,total)}
+        <div class="explanation-box"><p>Question ${qIdx+1} / ${total}</p></div>
+        <div class="choice-container">
+          <label class="choice-button choice-maru-btn"><input type="radio" name="answer" value="maru">〇</label>
+          <label class="choice-button choice-batsu-btn"><input type="radio" name="answer" value="batsu">✖</label>
+        </div>
+        <button class="submit-button" id="submitQBtn">Submit</button>
+      `);
+      setupChoiceButtons();
+      const current = shuffledQuestions[qIdx];
+      console.log('現在の問題ID:', current.id);
+      scheduleQuestionAudio(current.audioUrl);
+      document.getElementById('submitQBtn').onclick = () => {
+        submitSound.play();
+        const sel = document.querySelector('input[name="answer"]:checked');
+        if (!sel) { alert('Please select ○ or ✖.'); return; }
+        const correct = getCorrectAnswerFromUrl(current.audioUrl);
+        console.log(`Q${qIdx+1}: userAnswer=${sel.value}, correct=${correct}, isCorrect=${sel.value===correct}`);
+        goNextStage();
+      };
+    }
+    window.addEventListener('DOMContentLoaded', () => renderStage(stageIndex));
   </script>
 </body>
 </html>
