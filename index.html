@@ -202,15 +202,12 @@
       }
       return a;
     }
-
     function updateProgress(n) {
       document.querySelectorAll('.progress-step').forEach((el,i) => el.classList.toggle('completed', i < n));
     }
 
-    // --- 修正箇所: ビープ一度だけ再生 ---
+    // --- 修正: ビープ一度だけ再生 ---
     let beepPlayed = false;
-
-    // 動画表示（ビープ音に統一）
     function showVideo(src, cb) {
       const bar = document.getElementById('progressBar');
       const content = document.getElementById('content');
@@ -225,23 +222,14 @@
         if (!beepPlayed) {
           const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
           beep.play()
-            .then(() => {
-              beep.onended = () => {
-                beepPlayed = true;
-                cb();
-              };
-            })
-            .catch(() => {
-              beepPlayed = true;
-              cb();
-            });
+            .then(() => { beep.onended = () => { beepPlayed = true; cb(); }; })
+            .catch(() => { beepPlayed = true; cb(); });
         } else {
           cb();
         }
       });
     }
 
-    // 音声シーケンス再生
     function playSeq(audios, order, done) {
       let idx = 0;
       const beep = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/beep.mp3');
@@ -258,12 +246,15 @@
       }).catch(() => done());
     }
 
-    // 質問表示
     function showQuestion(q, cb, idx = 0, isTest = true) {
       const bar = document.getElementById('progressBar');
       const content = document.getElementById('content');
-      if (isTest) { bar.style.display = 'flex'; updateProgress(idx + 1); }
-      else { bar.style.display = 'none'; }
+      if (isTest) {
+        bar.style.display = 'flex';
+        updateProgress(idx + 1);
+      } else {
+        bar.style.display = 'none';
+      }
 
       let questionStartTime = 0;
       const labels = ['1st','2nd','3rd','4th'];
@@ -295,7 +286,9 @@
           btn.classList.add('fade-in');
         });
       });
-      document.querySelectorAll('input[name="ans"]').forEach(inp => inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`)));
+      document.querySelectorAll('input[name="ans"]').forEach(inp =>
+        inp.addEventListener('click', e => console.log(`Question ${q.id}, Selected: ${e.target.value}`))
+      );
       document.getElementById('subBtn').addEventListener('click', () => {
         const sel = document.querySelector('input[name="ans"]:checked');
         if (!sel) return alert('選択してください');
@@ -307,7 +300,6 @@
       });
     }
 
-    // テスト終了
     function finish() {
       const bar = document.getElementById('progressBar');
       const content = document.getElementById('content');
@@ -322,20 +314,33 @@
       document.getElementById('downloadLogButton').addEventListener('click', () => window.saveLog());
     }
 
-    // 流れ制御
     function start() {
-      showVideo(vids[0], () => showQuestion(example1, () => {
-        showVideo(vids[1], () => showQuestion(example2, () => showVideo(vids[2], startTest), 0, false), 0, false);
-      }, 0, false));
+      showVideo(vids[0], () =>
+        showQuestion(example1, () =>
+          showVideo(vids[1], () =>
+            showQuestion(example2, () =>
+              showVideo(vids[2], startTest),
+            0, false),
+          0, false),
+      0, false));
     }
+
     function startTest() {
       testQ = shuffle(testQ);
+
+      // ★ここでテスト用プログレスバーを作る★
+      const bar = document.getElementById('progressBar');
+      bar.innerHTML = testQ.map((_, i) =>
+        `<div class="progress-step">${i + 1}</div>`
+      ).join('');
+
       let i = 0;
       (function next() {
         if (i >= testQ.length) return finish();
         showQuestion(testQ[i], () => { i++; next(); }, i, true);
       })();
     }
+
     document.addEventListener('DOMContentLoaded', start);
   </script>
 </body>
