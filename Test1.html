@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Test 1 with Audio Cue</title>
+  <title>Test 1</title>
   <style>
     /* 全体のレイアウト */
     html, body {
@@ -207,188 +207,60 @@
 <body>
   <div id="app" class="container"></div>
 
-  <!-- ログ保存設定 -->
   <script>
     (function() {
-      const logBuffer = [];
-      const origLog = console.log;
-      console.log = function(...args) {
-        const line = args.join(' ');
-        logBuffer.push(line);
-        origLog.apply(console, args);
-        localStorage.setItem('consoleLog', logBuffer.join('\n'));
-      };
-      window.saveLog = () => {
-        const content = localStorage.getItem('consoleLog') || '';
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'console-log.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-      };
+      const logBuffer=[]; const origLog=console.log;
+      console.log=function(...args){ logBuffer.push(args.join(' ')); origLog.apply(console,args); localStorage.setItem('consoleLog',logBuffer.join('\n')); };
+      window.saveLog=()=>{ const content=localStorage.getItem('consoleLog')||''; const blob=new Blob([content],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='console-log.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); };
     })();
   </script>
 
   <script>
-    const clickSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3');
-    const checkSound = new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
-    // 音声キューURLマップ
-    const exampleCueUrl = 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-rei.wav';
-    const questionCueUrls = {
-      1: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-1.wav',
-      2: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-2.wav',
-      3: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-3.wav',
-      4: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-4.wav',
-      5: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-5.wav',
-      6: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-6.wav',
-      7: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-7.wav',
-      8: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-8.wav',
-      9: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-9.wav',
-      10: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-10.wav',
-      11: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-11.wav',
-      12: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-12.wav',
-      13: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-13.wav',
-      14: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-14.wav',
-      15: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-15.wav',
-      16: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-16.wav',
-      17: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-17.wav',
-      18: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-18.wav',
-      19: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-19.wav',
-      20: 'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-20.wav'
+    const clickSound=new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Click.mp3');
+    const checkSound=new Audio('https://raw.githubusercontent.com/moguura/my-exp-images/main/Submission.mp3');
+    const exampleCueUrl='https://raw.githubusercontent.com/moguura/my-exp-images/main/1-rei.wav';
+    const questionCueUrls={
+      1:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-1.wav',2:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-2.wav',
+      3:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-3.wav',4:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-4.wav',
+      5:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-5.wav',6:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-6.wav',
+      7:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-7.wav',8:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-8.wav',
+      9:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-9.wav',10:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-10.wav',
+      11:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-11.wav',12:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-12.wav',
+      13:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-13.wav',14:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-14.wav',
+      15:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-15.wav',16:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-16.wav',
+      17:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-17.wav',18:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-18.wav',
+      19:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-19.wav',20:'https://raw.githubusercontent.com/moguura/my-exp-images/main/1-20.wav'
     };
-    let cueAudio = null;
-    let recognition = null;
-    let recordTimeout = null;
-    let micWarningTimeout = null;
-    let questionSkipTimeout = null;
-    let currentQuestionId = null;
-    let questionStartTime = null;
-    let micPressedTime = null;
-    let recognitionHandled = false;
+    let cueAudio=null, recognition=null, recordTimeout=null, micWarningTimeout=null, questionSkipTimeout=null;
+    let currentQuestionId=null, questionStartTime=null, micPressedTime=null, recognitionHandled=false;
 
-    function initSpeechRecognition() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { alert('SpeechRecognition API 未対応'); return null; }
-      const r = new SR(); r.lang = 'ja-JP'; r.interimResults = true; r.continuous = true; return r;
-    }
-    function resetSpeechRecognition() {
-      if (recognition) {
-        recognition.onresult = null;
-        recognition.onerror = null;
-        recognition.onend = null;
-        recognition.abort();
-        recognition = null;
-      }
-      recognitionHandled = false;
-    }
+    function initSpeechRecognition(){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){ alert('SpeechRecognition API 未対応'); return null;} const r=new SR(); r.lang='ja-JP'; r.interimResults=true; r.continuous=true; return r; }
+    function resetSpeechRecognition(){ if(recognition){ recognition.onresult=null; recognition.onerror=null; recognition.onend=null; recognition.abort(); recognition=null; } recognitionHandled=false; }
 
-    function startRecognition() {
-      clickSound.play();
-      micPressedTime = new Date();
-      const reactionTime = questionStartTime ? ((micPressedTime - questionStartTime)/1000).toFixed(2) : 'N/A';
-      console.log(`MicPressed: ${micPressedTime.toISOString()} QuestionID: ${currentQuestionId} ReactionTime: ${reactionTime}s`);
-
+    function startRecognition(){ clickSound.play(); micPressedTime=new Date(); const reactionTime=questionStartTime?((micPressedTime-questionStartTime)/1000).toFixed(2):'N/A'; console.log(`MicPressed: ${micPressedTime.toISOString()} QuestionID: ${currentQuestionId} ReactionTime: ${reactionTime}s`);
       resetSpeechRecognition(); clearTimeout(micWarningTimeout); clearTimeout(questionSkipTimeout);
-      const btn = document.getElementById('micBtn'); btn.disabled = true; btn.classList.add('mic-active');
-      recognition = initSpeechRecognition(); if (!recognition) return;
+      const btn=document.getElementById('micBtn'); btn.disabled=true; btn.classList.add('mic-active');
+      recognition=initSpeechRecognition(); if(!recognition) return;
+      recordTimeout=setTimeout(()=>{ console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`); stopRecognition(); },10000);
+      recognition.onresult=e=>{ if(recognitionHandled) return; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i][0].transcript.includes('です')){ recognitionHandled=true; recognition.onresult=null; console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`); clearTimeout(recordTimeout); recognition.stop(); recognition=null; showCheckIcon(); break; }} };
+      recognition.onerror=()=> stopRecognition(); recognition.onend=()=> console.log(`Recognition ended: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
+      recognition.start(); }
+    function stopRecognition(){ clearTimeout(recordTimeout); clearTimeout(questionSkipTimeout); if(recognition) recognition.stop(); recognition=null; const btn=document.getElementById('micBtn'); btn.classList.remove('mic-active'); showCheckIcon(); }
+    function showCheckIcon(){ const now=new Date(); const delta=micPressedTime?((now-micPressedTime)/1000).toFixed(2):'N/A'; console.log(`CheckIconShown: ${now.toISOString()} QuestionID: ${currentQuestionId} TimeSinceMicPressed: ${delta}s`); document.getElementById('checkIcon').classList.add('show'); checkSound.play(); setTimeout(goNext,2000); }
 
-      recordTimeout = setTimeout(() => {
-        console.log(`NoSpeech(timeout): ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
-        stopRecognition();
-      }, 10000);
+    const app=document.getElementById('app'); function showScreen(html){ app.innerHTML=html; }
+    function renderProgressBar(cur,total){ let html='<div class="progress-container">'; for(let i=0;i<total;i++){ const cls='progress-step'+(i<cur?' completed':i===cur?' active':''); html+=`<span class="${cls}">${i+1}</span>`; } return html+'</div>'; }
+    function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
 
-      recognition.onresult = e => {
-        if (recognitionHandled) return;
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          if (e.results[i][0].transcript.includes('です')) {
-            recognitionHandled = true;
-            recognition.onresult = null;
-            console.log(`RecognitionSucceeded: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
-            clearTimeout(recordTimeout);
-            recognition.stop(); recognition = null;
-            showCheckIcon();
-            break;
-          }
-        }
-      };
-      recognition.onerror = () => stopRecognition();
-      recognition.onend = () => console.log(`Recognition ended: ${new Date().toISOString()} QuestionID: ${currentQuestionId}`);
-      recognition.start();
-    }
+    const explanationBox1=`<div class="explanation-box"><video controls width="100%"><source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4" type="video/mp4">Your browser does not support the video tag.</video></div><button class="button" id="nextBtn1">Next</button>`;
+    const explanationBox2=`<div class="explanation-box"><video controls width="100%"><source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4" type="video/mp4">Your browser does not support the video tag.</video></div><button class="button" id="nextBtn2">Next</button>`;
+    const explanationBox3=`<div class="explanation-box"><video controls width="100%"><source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3.mp4" type="video/mp4"></video></div><button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>`;
+    const explanationBox4=`<div class="explanation-box" style="text-align:center;"><p class="final-message">This is the end of Test 1. Please inform Instructor Takei.</p><img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration"><br><button id="downloadLogButton">DO NOT TOUCH</button></div>`;
 
-    function stopRecognition() {
-      clearTimeout(recordTimeout); clearTimeout(questionSkipTimeout);
-      if (recognition) recognition.stop(); recognition = null;
-      const btn = document.getElementById('micBtn'); btn.classList.remove('mic-active');
-      showCheckIcon();
-    }
+    const example1={ imgUrl:"https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.1.JPG", japaneseCue:"いい → てんきは（　　　）。" };
+    const example2={ imgUrl:"https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG", japaneseCue:"いい → てんきは（　　　）。" };
 
-    function showCheckIcon() {
-      const now = new Date();
-      const delta = micPressedTime ? ((now - micPressedTime)/1000).toFixed(2) : 'N/A';
-      console.log(`CheckIconShown: ${now.toISOString()} QuestionID: ${currentQuestionId} TimeSinceMicPressed: ${delta}s`);
-      document.getElementById('checkIcon').classList.add('show');
-      checkSound.play();
-      setTimeout(goNext, 2000);
-    }
-
-    const app = document.getElementById('app');
-    function showScreen(html) { app.innerHTML = html; }
-    function renderProgressBar(cur, total) {
-      let html = '<div class="progress-container">';
-      for (let i = 0; i < total; i++) {
-        const cls = 'progress-step' + (i<cur?' completed':i===cur?' active':'');
-        html += `<span class="${cls}">${i+1}</span>`;
-      }
-      return html + '</div>';
-    }
-    function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
-
-    // 説明ビデオと例題データ
-    const explanationBox1 = `
-      <div class="explanation-box">
-        <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-1.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <button class="button" id="nextBtn1">Next</button>
-    `;
-    const explanationBox2 = `
-      <div class="explanation-box">
-        <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-2.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <button class="button" id="nextBtn2">Next</button>
-    `;
-    const explanationBox3 = `
-      <div class="explanation-box">
-        <video controls width="100%">
-          <source src="https://raw.githubusercontent.com/moguura/my-exp-images/main/test1-3.mp4" type="video/mp4">
-        </video>
-      </div>
-      <button class="go-to-test-button" id="goTestBtn">GO TO TEST</button>
-    `;
-    const explanationBox4 = `
-      <div class="explanation-box" style="text-align:center;">
-        <p class="final-message">This is the end of Test 1. Please inform Instructor Takei.</p>
-        <img src="https://raw.githubusercontent.com/moguura/my-exp-images/main/cracker.gif" alt="Cracker GIF" class="final-illustration">
-        <br>
-        <button id="downloadLogButton">DO NOT TOUCH</button>
-      </div>
-    `;
-
-    const example1 = {
-      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.1.JPG",
-      japaneseCue: "いい → てんきは（　　　）。"
-    };
-    const example2 = {
-      imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-e.g.2.JPG",
-      japaneseCue: "いい → てんきは（　　　）。"
-    };
-
-    // 問題（全20問）※ group プロパティの値を設定
-    const questionData = [
+    const questionData=[
       { id: 1, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-1.JPG", japaneseCue: "おおい → にもつは（　　　）。", group: "present" },
       { id: 2, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-2.JPG", japaneseCue: "おもい → このほんは（　　　）。", group: "present" },
       { id: 3, imgUrl: "https://raw.githubusercontent.com/moguura/my-exp-images/main/op-3.JPG", japaneseCue: "おもしろい → じゅぎょうは（　　　）。", group: "present" },
