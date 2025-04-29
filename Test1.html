@@ -116,8 +116,18 @@
         cueAllowedPlay(exampleCueAudio);
         renderExample(example1);
       } else if(index===3) {
-        showScreen(explanationBox2);
-        document.getElementById('vid2').addEventListener('ended',()=>{ clickSound.play(); goNext(); });
+        // 説明ビデオ2
+        showScreen(explanationBox2 + "<button class='button' id='next2'>Next</button>");
+        // 動画終了で自動進行
+        document.getElementById('vid2').addEventListener('ended', () => {
+          clickSound.play();
+          goNext();
+        });
+        // ボタンで手動進行
+        document.getElementById('next2').addEventListener('click', () => {
+          clickSound.play();
+          goNext();
+        });
       } else if(index===4) {
         renderTransitionScreen(yesterdayTransition.imgUrl, index+1);
       } else if(index===5) {
