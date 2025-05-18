@@ -207,48 +207,43 @@
 <body>
   <div id="app" class="container"></div>
 
-<!-- ログ保存設定（改良版：上書きせずに配列に追加） -->
+<!-- テスト1用：最新ログのみを残す設定 -->
 <script>
   (function() {
     // 元の console.log を保持
     const origLog = console.log;
 
-    // console.log をフックして配列に追加保存
+    // console.log をフックして、最後の1件だけを保存
     console.log = function(...args) {
-      // 新しいログオブジェクトを作成
-      const newLog = {
+      // 1. ログオブジェクトを作成
+      const latestLog = {
         timestamp: new Date().toISOString(),
-        message: args.join(' ')
-        testNumber: 1  // 必要ならテスト番号も追加できます
+        message: args.join(' '),
+        testNumber: 1
       };
 
-      // 既存のログ配列を取得（なければ空配列）
-      const existing = JSON.parse(localStorage.getItem('consoleLogArray') || '[]');
+      // 2. ローカルストレージに上書き保存（常に1件だけ）
+      localStorage.setItem(
+        'consoleLogTest1',
+        JSON.stringify(latestLog)
+      );
 
-      // 新ログを配列に追加
-      existing.push(newLog);
-
-      // 再度 localStorage に保存
-      localStorage.setItem('consoleLogArray', JSON.stringify(existing));
-
-      // 元の console.log を呼び出し
+      // 3. 元の console.log も出力
       origLog.apply(console, args);
     };
 
-    // ログをまとめてダウンロードする関数
-    window.saveLog = () => {
-      // 配列を取り出してテキスト用に整形
-      const logs = JSON.parse(localStorage.getItem('consoleLogArray') || '[]');
-      const content = logs.map(log =>
-        `[${log.timestamp}] ${log.message}`
-      ).join('\n');
+    // ダウンロード用関数
+    window.saveLog = function() {
+      // 保存されたオブジェクトを取得
+      const entry = JSON.parse(localStorage.getItem('consoleLogTest1') || '{}');
+      const content = `[${entry.timestamp}] [Test${entry.testNumber}] ${entry.message}`;
 
       // テキストファイルとしてダウンロード
       const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
       a.href = url;
-      a.download = 'console-log.txt';
+      a.download = 'console-log-test1.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
