@@ -83,26 +83,54 @@
     <div id="content"></div>
   </div>
 
-  <script>
-    // --- ログ保存セットアップ（略） ---
-    (function(){
-      const buf = [], orig = console.log;
-      console.log = function(...args){
-        const t = new Date().toLocaleTimeString();
-        buf.push(`[${t}] ${args.join(' ')}`);
-        orig.apply(console, ['['+t+']', ...args]);
-        localStorage.setItem('consoleLog', buf.join('\n'));
+ <!-- テスト2用：ログ保存設定（配列に追加） -->
+<script>
+  (function() {
+    // 元の console.log を保持
+    const origLog = console.log;
+
+    // console.log をフックして配列に追加保存
+    console.log = function(...args) {
+      // 新しいログオブジェクトを作成
+      const newLog = {
+        timestamp: new Date().toISOString(),
+        message: args.join(' '),
+        testNumber: 2   // ★テスト2なので2に設定
       };
-      window.saveLog = ()=>{
-        const data = localStorage.getItem('consoleLog')||'',
-              blob = new Blob([data], {type:'text/plain'}),
-              url  = URL.createObjectURL(blob),
-              a    = document.createElement('a');
-        a.href = url; a.download = 'console-log.txt';
-        document.body.appendChild(a); a.click();
-        document.body.removeChild(a); URL.revokeObjectURL(url);
-      };
-    })();
+
+      // 既存のログ配列を取得（なければ空配列）
+      const existing = JSON.parse(localStorage.getItem('consoleLogArray') || '[]');
+
+      // 新ログを配列に追加
+      existing.push(newLog);
+
+      // 再度 localStorage に保存
+      localStorage.setItem('consoleLogArray', JSON.stringify(existing));
+
+      // 元の console.log を呼び出し
+      origLog.apply(console, args);
+    };
+
+    // ログをまとめてダウンロードする関数
+    window.saveLog = () => {
+      // 配列を取り出してテキスト用に整形
+      const logs = JSON.parse(localStorage.getItem('consoleLogArray') || '[]');
+      const content = logs.map(log =>
+        `[${log.timestamp}] [Test${log.testNumber}] ${log.message}`
+      ).join('\n');
+
+      // テキストファイルとしてダウンロード
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'console-log.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+  })();
 
     // --- データ定義 ---
     const vids = [
