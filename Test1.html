@@ -208,53 +208,51 @@
   <div id="app" class="container"></div>
 
 <script>
-  (function() {
-    // 元の console.log を保持
-    const origLog = console.log;
+(function() {
+  const origLog = console.log;
 
-    // console.log をフックして、ログを積み上げ保存
-    console.log = function(...args) {
-      // 1. 既存ログ配列を取得（なければ空配列）
-      const logs = JSON.parse(localStorage.getItem('consoleLogTest3') || '[]');
+  // 日本時間でフォーマットする関数
+  function getJpTimestamp() {
+    return new Date().toLocaleString('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      hour12: false
+    });
+  }
 
-      // 2. 今回のログオブジェクトを作成
-      const entry = {
-        timestamp: new Date().toISOString(),
-        message: args.join(' '),
-        testNumber: 1
-      };
-      logs.push(entry);
+  console.log = function(...args) {
+    // 既存ログを配列取得
+    const logs = JSON.parse(localStorage.getItem('consoleLogTest1') || '[]');
 
-      // 3. ローカルストレージに再保存
-      localStorage.setItem('consoleLogTest3', JSON.stringify(logs));
-
-      // 4. 元の console.log も出力
-      origLog.apply(console, args);
+    // 日本時間のタイムスタンプを使う
+    const entry = {
+      timestamp: getJpTimestamp(),  // ← ここを変更
+      message: args.join(' '),
+      testNumber: 1
     };
+    logs.push(entry);
+    localStorage.setItem('consoleLogTest1', JSON.stringify(logs));
 
-    // ダウンロード用関数（全件まとめてテキスト化）
-    window.saveLog = function() {
-      const logs = JSON.parse(localStorage.getItem('consoleLogTest3') || '[]');
-      if (logs.length === 0) {
-        alert('保存されたログがありません');
-        return;
-      }
-      // ファイルに書き出す形式を整形
-      const content = logs
-        .map(e => `[${e.timestamp}] [Test${e.testNumber}] ${e.message}`)
-        .join('\n');
+    origLog.apply(console, args);
+  };
 
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url;
-      a.download = 'console-log-test3.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-  })();
+  window.saveLog = function() {
+    const logs = JSON.parse(localStorage.getItem('consoleLogTest1') || '[]');
+    if (!logs.length) {
+      alert('ログがありません');
+      return;
+    }
+    const content = logs
+      .map(e => `[${e.timestamp}] [Test${e.testNumber}] ${e.message}`)
+      .join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = 'console-log-test1.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+})();
 </script>
 
  <script>
