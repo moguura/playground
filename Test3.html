@@ -100,43 +100,48 @@
 <body>
   <div id="app" class="container"></div>
 
-<!-- テスト1用：最新ログのみを残す設定 -->
 <script>
   (function() {
     // 元の console.log を保持
     const origLog = console.log;
 
-    // console.log をフックして、最後の1件だけを保存
+    // console.log をフックして、ログを積み上げ保存
     console.log = function(...args) {
-      // 1. ログオブジェクトを作成
-      const latestLog = {
+      // 1. 既存ログ配列を取得（なければ空配列）
+      const logs = JSON.parse(localStorage.getItem('consoleLogTest3') || '[]');
+
+      // 2. 今回のログオブジェクトを作成
+      const entry = {
         timestamp: new Date().toISOString(),
         message: args.join(' '),
         testNumber: 3
       };
+      logs.push(entry);
 
-      // 2. ローカルストレージに上書き保存（常に1件だけ）
-      localStorage.setItem(
-        'consoleLogTest1',
-        JSON.stringify(latestLog)
-      );
+      // 3. ローカルストレージに再保存
+      localStorage.setItem('consoleLogTest3', JSON.stringify(logs));
 
-      // 3. 元の console.log も出力
+      // 4. 元の console.log も出力
       origLog.apply(console, args);
     };
 
-    // ダウンロード用関数
+    // ダウンロード用関数（全件まとめてテキスト化）
     window.saveLog = function() {
-      // 保存されたオブジェクトを取得
-      const entry = JSON.parse(localStorage.getItem('consoleLogTest1') || '{}');
-      const content = `[${entry.timestamp}] [Test${entry.testNumber}] ${entry.message}`;
+      const logs = JSON.parse(localStorage.getItem('consoleLogTest3') || '[]');
+      if (logs.length === 0) {
+        alert('保存されたログがありません');
+        return;
+      }
+      // ファイルに書き出す形式を整形
+      const content = logs
+        .map(e => `[${e.timestamp}] [Test${e.testNumber}] ${e.message}`)
+        .join('\n');
 
-      // テキストファイルとしてダウンロード
       const blob = new Blob([content], { type: 'text/plain' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href = url;
-      a.download = 'console-log-test1.txt';
+      a.download = 'console-log-test3.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
